@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Создать заявку</h1>
+<form method="post" id="applicationForm">
+
+    <!-- Основная информация -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Основная информация</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label required">Название заявки</label>
+                        <input type="text" class="form-control" name="title" required>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label required">Продукт</label>
+                        <select class="form-select" name="product_id" required>
+                            <option value="">Выберите продукт</option>
+                            {% for product in products %}
+                            <option value="{{ product[0] }}">{{ product[1] }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Авторы заявки -->
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">Авторы заявки</h5>
+            <button type="button" class="btn btn-sm btn-primary" onclick="addAuthorRow()">Добавить автора</button>
+        </div>
+        <div class="card-body">
+            <div id="authors-container">
+                <div class="author-row row mb-3">
+                    <div class="col-md-3">
+                        <label class="form-label required">Автор</label>
+                        <select class="form-select" name="author_ids[]" required>
+                            <option value="">Выберите автора</option>
+                            {% for author in authors %}
+                            <option value="{{ author[0] }}">{{ author[1] }} {{ author[2] }} {{ author[3] or '' }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label required">Роль</label>
+                        <input type="text" class="form-control" name="roles[]" required>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label required">% участия</label>
+                        <input type="number" class="form-control" name="percents[]" min="0" max="100" step="0.1"
+                               required>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label required">Время участия</label>
+                        <input type="text" class="form-control" name="times[]" placeholder="например, 2 месяца"
+                               required>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">&nbsp;</label>
+                        <button type="button" class="btn btn-sm btn-danger w-100" onclick="removeAuthorRow(this)"
+                                disabled>Удалить
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Экспертная комиссия -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Экспертная комиссия</h5>
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <label class="form-label">Выберите экспертов</label>
+                <div class="row">
+                    {% for expert in experts %}
+                    <div class="col-md-6">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="expert_ids[]" value="{{ expert[0] }}"
+                                   id="expert_{{ expert[0] }}">
+                            <label class="form-check-label" for="expert_{{ expert[0] }}">
+                                {{ expert[1] }} {{ expert[2] }} {{ expert[3] or '' }} - {{ expert[4] }}
+                            </label>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-success">Создать заявку</button>
+    <a href="{{ url_for('applications_list') }}" class="btn btn-secondary">Отмена</a>
+</form>
+
+<script>
+    let authorRowCount = 1;
+
+    function addAuthorRow() {
+        authorRowCount++;
+        const container = document.getElementById('authors-container');
+        const newRow = document.createElement('div');
+        newRow.className = 'author-row row mb-3';
+        newRow.innerHTML = `
+            <div class="col-md-3">
+                <label class="form-label required">Автор</label>
+                <select class="form-select" name="author_ids[]" required>
+                    <option value="">Выберите автора</option>
+                    {% for author in authors %}
+                    <option value="{{ author[0] }}">{{ author[1] }} {{ author[2] }} {{ author[3] or '' }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label required">Роль</label>
+                <input type="text" class="form-control" name="roles[]" required>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label required">% участия</label>
+                <input type="number" class="form-control" name="percents[]" min="0" max="100" step="0.1" required>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label required">Время участия</label>
+                <input type="text" class="form-control" name="times[]" placeholder="например, 2 месяца" required>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">&nbsp;</label>
+                <button type="button" class="btn btn-sm btn-danger w-100" onclick="removeAuthorRow(this)">Удалить</button>
+            </div>
+        `;
+        container.appendChild(newRow);
+
+        // Активируем кнопку удаления у первой строки
+        if (authorRowCount === 2) {
+            const firstDeleteBtn = container.querySelector('.author-row:first-child .btn-danger');
+            firstDeleteBtn.disabled = false;
+        }
+    }
+
+    function removeAuthorRow(button) {
+        const row = button.closest('.author-row');
+        row.remove();
+        authorRowCount--;
+
+        // Если осталась одна строка, деактивируем кнопку удаления
+        if (authorRowCount === 1) {
+            const firstDeleteBtn = document.querySelector('.author-row .btn-danger');
+            if (firstDeleteBtn) {
+                firstDeleteBtn.disabled = true;
+            }
+        }
+    }
+</script>
+{% endblock %}

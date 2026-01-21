@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Добавить автора</h1>
+<form method="post">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="mb-3">
+                <label class="form-label required">Фамилия</label>
+                <input type="text" class="form-control" name="surname" required>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="mb-3">
+                <label class="form-label required">Имя</label>
+                <input type="text" class="form-control" name="name" required>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="mb-3">
+                <label class="form-label">Отчество</label>
+                <input type="text" class="form-control" name="patronymic">
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label required">Дата рождения</label>
+        <input type="date" class="form-control" name="birth_date" required>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label required">Адрес</label>
+        <textarea class="form-control" name="address" rows="3" required></textarea>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label required">Подразделение</label>
+        <input type="text" class="form-control" name="department" required>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="mb-3">
+                <label class="form-label required">Паспорт</label>
+                <input type="text" class="form-control" name="passport" required>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="mb-3">
+                <label class="form-label required">СНИЛС</label>
+                <input type="text" class="form-control" name="snils" required>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="mb-3">
+                <label class="form-label required">ИНН</label>
+                <input type="text" class="form-control" name="inn" required>
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="is_student" id="is_student" checked>
+            <label class="form-check-label" for="is_student">Студент</label>
+        </div>
+    </div>
+
+    <div class="mb-3" id="position-field">
+        <label class="form-label">Должность</label>
+        <input type="text" class="form-control" name="position">
+    </div>
+
+    <button type="submit" class="btn btn-success">Создать</button>
+    <a href="{{ url_for('authors_list') }}" class="btn btn-secondary">Отмена</a>
+</form>
+
+<script>
+    document.getElementById('is_student').addEventListener('change', function() {
+        const positionField = document.getElementById('position-field');
+        if (this.checked) {
+            positionField.style.display = 'none';
+        } else {
+            positionField.style.display = 'block';
+        }
+    });
+
+    // Инициализация
+    document.getElementById('is_student').dispatchEvent(new Event('change'));
+</script>
+{% endblock %}
