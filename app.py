@@ -143,19 +143,20 @@ def settings():
         # Преобразуем tuple в словарь для удобства использования в шаблоне
         current_settings = {}
         if current_settings_tuple:
+            # Предполагаем порядок полей из SQL запроса
             current_settings = {
                 'id': current_settings_tuple[0],
                 'assignee_id': current_settings_tuple[1],
                 'power_of_attorney_id': current_settings_tuple[2],
                 'sum_id': current_settings_tuple[3],
                 'provost_id': current_settings_tuple[4],
-                'assignee_name': current_settings_tuple[5],
-                'assignee_post': current_settings_tuple[6],
-                'poa_number': current_settings_tuple[7],
-                'poa_date': current_settings_tuple[8],
-                'sum_value': current_settings_tuple[9],
-                'provost_name': current_settings_tuple[10],
-                'provost_post': current_settings_tuple[11]
+                'assignee_name': current_settings_tuple[5],  # a.full_name
+                'assignee_post': current_settings_tuple[6],  # a.post (добавлено)
+                'poa_number': current_settings_tuple[7],  # poa.number
+                'poa_date': current_settings_tuple[8],  # poa.date_of_receipt
+                'sum_value': current_settings_tuple[9],  # sm.value
+                'provost_name': current_settings_tuple[10],  # p.full_name
+                'provost_post': current_settings_tuple[11]  # p.post (добавлено)
             }
 
         # Загружаем опции для выпадающих списков
@@ -164,24 +165,12 @@ def settings():
         sum_options = setting_dao.get_reference_options('sum')
         provost_options = setting_dao.get_reference_options('provost')
 
-        # Загружаем справочники для вкладки управления
-        programming_languages = product_dao.get_all_programming_languages()
-        os_types = product_dao.get_all_os_types()
-        computer_types = product_dao.get_all_computer_types()
-
-        # Загружаем роли авторов
-        author_roles = application_dao.get_all_author_roles()
-
         return render_template('settings/index.html',
                                current_settings=current_settings,
                                assignee_options=assignee_options,
                                power_of_attorney_options=power_of_attorney_options,
                                sum_options=sum_options,
-                               provost_options=provost_options,
-                               programming_languages=programming_languages,
-                               os_types=os_types,
-                               computer_types=computer_types,
-                               author_roles=author_roles)
+                               provost_options=provost_options)
     except Exception as e:
         flash(f'Ошибка загрузки настроек: {str(e)}', 'error')
         return redirect(url_for('index'))
@@ -403,180 +392,6 @@ def create_provost():
             'name': full_name,
             'display_name': display_name,
             'post': post
-        })
-
-    except Exception as e:
-        return jsonify({'success': False, 'error': str(e)})
-
-
-# ========== НАСТРОЙКИ СПРАВОЧНИКОВ ==========
-
-@app.route('/admin/settings/create_reference', methods=['POST'])
-@login_required
-@admin_required
-def create_reference():
-    """Создание новой записи в справочнике"""
-    try:
-        data = request.get_json()
-        reference_type = data.get('reference_type')
-        name = data.get('name', '').strip()
-
-        if not reference_type:
-            return jsonify({'success': False, 'error': 'Не указан тип справочника'})
-
-        if not name:
-            return jsonify({'success': False, 'error': 'Название не может быть пустым'})
-
-        # Проверяем, не существует ли уже такое название
-        table_mapping = {
-            'programming_language': 'programming_languages',
-            'os_type': 'os_types',
-            'computer_type': 'computer_types'
-        }
-
-        table_name = table_mapping.get(reference_type)
-        if not table_name:
-            return jsonify({'success': False, 'error': 'Неизвестный тип справочника'})
-
-        # Проверка существования
-        with product_dao.db.get_cursor() as cur:
-            cur.execute(f"SELECT COUNT(*) FROM {table_name} WHERE name = %s", (name,))
-            if cur.fetchone()[0] > 0:
-                return jsonify({'success': False, 'error': 'Такое название уже существует'})
-
-        # Создаем новую запись
-        reference = product_dao.create_reference(reference_type, name)
-
-        return jsonify({
-            'success': True,
-            'message': 'Запись успешно создана',
-            'reference': reference
-        })
-
-    except Exception as e:
-        return jsonify({'success': False, 'error': str(e)})
-
-
-@app.route('/admin/settings/update_reference', methods=['POST'])
-@login_required
-@admin_required
-def update_reference():
-    """Обновление записи в справочнике"""
-    try:
-        data = request.get_json()
-        reference_type = data.get('reference_type')
-        ref_id = data.get('id')
-        name = data.get('name', '').strip()
-
-        if not reference_type:
-            return jsonify({'success': False, 'error': 'Не указан тип справочника'})
-
-        if not ref_id:
-            return jsonify({'success': False, 'error': 'Не указан ID записи'})
-
-        if not name:
-            return jsonify({'success': False, 'error': 'Название не может быть пустым'})
-
-        # Проверяем, не существует ли уже такое название (кроме текущей записи)
-        table_mapping = {
-            'programming_language': 'programming_languages',
-            'os_type': 'os_types',
-            'computer_type': 'computer_types'
-        }
-
-        table_name = table_mapping.get(reference_type)
-        if not table_name:
-            return jsonify({'success': False, 'error': 'Неизвестный тип справочника'})
-
-        # Проверка существования другого элемента с таким же названием
-        with product_dao.db.get_cursor() as cur:
-            cur.execute(f"SELECT COUNT(*) FROM {table_name} WHERE name = %s AND id != %s",
-                        (name, ref_id))
-            if cur.fetchone()[0] > 0:
-                return jsonify({'success': False, 'error': 'Такое название уже существует'})
-
-        # Обновляем запись
-        success = product_dao.update_reference(reference_type, ref_id, name)
-
-        if success:
-            return jsonify({
-                'success': True,
-                'message': 'Запись успешно обновлена',
-                'reference': {'id': ref_id, 'name': name}
-            })
-        else:
-            return jsonify({'success': False, 'error': 'Запись не найдена'})
-
-    except Exception as e:
-        return jsonify({'success': False, 'error': str(e)})
-
-
-@app.route('/admin/settings/delete_reference', methods=['POST'])
-@login_required
-@admin_required
-def delete_reference():
-    """Удаление записи из справочника"""
-    try:
-        data = request.get_json()
-        reference_type = data.get('reference_type')
-        ref_id = data.get('id')
-
-        if not reference_type:
-            return jsonify({'success': False, 'error': 'Не указан тип справочника'})
-
-        if not ref_id:
-            return jsonify({'success': False, 'error': 'Не указан ID записи'})
-
-        # Удаляем запись
-        success = product_dao.delete_reference(reference_type, ref_id)
-
-        if success:
-            return jsonify({
-                'success': True,
-                'message': 'Запись успешно удалена'
-            })
-        else:
-            return jsonify({'success': False, 'error': 'Запись не найдена'})
-
-    except ValueError as e:
-        # Обрабатываем ошибку "используется в продуктах"
-        return jsonify({'success': False, 'error': str(e)})
-    except Exception as e:
-        return jsonify({'success': False, 'error': str(e)})
-
-
-@app.route('/admin/settings/create_author_role', methods=['POST'])
-@login_required
-@admin_required
-def create_author_role():
-    """Создание новой роли автора"""
-    try:
-        data = request.get_json()
-        name = data.get('name', '').strip()
-
-        if not name:
-            return jsonify({'success': False, 'error': 'Название роли не может быть пустым'})
-
-        # Проверяем, не существует ли уже такая роль
-        with application_dao.db.get_cursor() as cur:
-            cur.execute("SELECT COUNT(*) FROM expert_roles WHERE name = %s", (name,))
-            if cur.fetchone()[0] > 0:
-                return jsonify({'success': False, 'error': 'Роль с таким названием уже существует'})
-
-        # Создаем новую запись
-        with application_dao.db.get_cursor() as cur:
-            cur.execute("""
-                    INSERT INTO expert_roles (name) 
-                    VALUES (%s) 
-                    RETURNING id, name
-                """, (name,))
-            result = cur.fetchone()
-            role = {'id': result[0], 'name': result[1]}
-
-        return jsonify({
-            'success': True,
-            'message': 'Роль автора успешно создана',
-            'reference': role
         })
 
     except Exception as e:
