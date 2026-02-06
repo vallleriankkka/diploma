@@ -1,0 +1,510 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    :root {
+        --color-primary: #263045;
+        --color-secondary: #b99f6e;
+    }
+
+    .add-product-page {
+        color: var(--color-primary);
+    }
+
+    /* Кнопки */
+    .add-product-page .btn-success,
+    .add-product-page .btn-secondary {
+        color: var(--color-primary);
+        background-color: transparent;
+        border: 1px solid var(--color-secondary);
+        transition: all 0.3s ease;
+        padding: 10px 25px;
+    }
+
+    .add-product-page .btn-success:hover,
+    .add-product-page .btn-success:focus {
+        background-color: var(--color-secondary);
+        color: var(--color-primary);
+        border-color: var(--color-secondary);
+    }
+
+    .add-product-page .btn-secondary {
+        border-color: var(--color-primary);
+    }
+
+    .add-product-page .btn-secondary:hover,
+    .add-product-page .btn-secondary:focus {
+        background-color: var(--color-primary);
+        color: var(--color-secondary);
+        border-color: var(--color-primary);
+    }
+
+    /* Поля формы */
+    .add-product-page .form-control,
+    .add-product-page .form-select {
+        background-color: transparent;
+        color: var(--color-primary);
+        border: 1px solid var(--color-secondary);
+        border-radius: 4px;
+        padding: 12px 15px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .add-product-page .form-control:focus,
+    .add-product-page .form-select:focus {
+        background-color: transparent;
+        color: var(--color-primary);
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 0.2rem rgba(38, 48, 69, 0.25);
+        outline: none;
+    }
+
+    .add-product-page .form-control::placeholder {
+        color: rgba(38, 48, 69, 0.6);
+    }
+
+    /* Чекбоксы */
+    .add-product-page .form-check-input {
+        border: 1px solid var(--color-secondary);
+        background-color: transparent;
+    }
+
+    .add-product-page .form-check-input:checked {
+        background-color: var(--color-secondary);
+        border-color: var(--color-secondary);
+    }
+
+    .add-product-page .form-check-input:focus {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 0.2rem rgba(38, 48, 69, 0.25);
+    }
+
+    /* Метки */
+    .add-product-page .form-label {
+        color: var(--color-primary);
+        margin-bottom: 8px;
+        display: block;
+        font-size: 0.95rem;
+    }
+
+    .add-product-page .form-label.required::after {
+        content: " *";
+        color: var(--color-secondary);
+    }
+
+    .add-product-page .form-text {
+        color: var(--color-primary);
+        opacity: 0.8;
+        font-size: 0.875rem;
+        margin-top: 5px;
+    }
+
+    /* Текст */
+    .add-product-page .text-success,
+    .add-product-page .text-danger {
+        color: var(--color-primary) !important;
+    }
+
+    .add-product-page .text-danger {
+        font-style: italic;
+    }
+
+    /* Заголовки */
+    .add-product-page h1 {
+        color: var(--color-primary);
+        border-bottom: 2px solid var(--color-secondary);
+        padding-bottom: 10px;
+        margin-bottom: 30px;
+        font-size: 1.75rem;
+    }
+
+    /* Контейнер */
+    .add-product-page .container {
+        background-color: transparent;
+        padding: 20px;
+        margin-top: 20px;
+        max-width: 800px;
+    }
+
+    /* Адаптивные стили */
+
+    /* Мобильные устройства (< 576px) */
+    @media (max-width: 575.98px) {
+        .add-product-page .container {
+            padding: 15px;
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .add-product-page h1 {
+            font-size: 1.5rem;
+            margin-bottom: 25px;
+            text-align: center;
+            padding-bottom: 8px;
+        }
+
+        .add-product-page .form-control,
+        .add-product-page .form-select {
+            padding: 14px;
+            font-size: 16px;
+            min-height: 48px;
+            width: 100%;
+        }
+
+        .add-product-page .row {
+            margin-left: -5px;
+            margin-right: -5px;
+        }
+
+        .add-product-page .col-md-4 {
+            padding-left: 5px;
+            padding-right: 5px;
+            margin-bottom: 15px;
+            width: 100%;
+        }
+
+        .add-product-page .col-md-4:last-child {
+            margin-bottom: 0;
+        }
+
+        .add-product-page .btn {
+            width: 100%;
+            padding: 16px;
+            font-size: 1.1rem;
+            min-height: 52px;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .add-product-page .btn:last-child {
+            margin-bottom: 0;
+        }
+
+        .add-product-page textarea.form-control {
+            min-height: 140px;
+            resize: vertical;
+        }
+
+        .add-product-page .mb-3 {
+            margin-bottom: 1.5rem !important;
+        }
+
+        .add-product-page .form-label {
+            font-size: 1rem;
+        }
+    }
+
+    /* Планшеты (от 576px до 768px) */
+    @media (min-width: 576px) and (max-width: 767.98px) {
+        .add-product-page .container {
+            padding: 25px;
+            max-width: 90%;
+            margin: 20px auto;
+        }
+
+        .add-product-page h1 {
+            font-size: 1.6rem;
+        }
+
+        .add-product-page .form-control,
+        .add-product-page .form-select {
+            padding: 12px 14px;
+            font-size: 16px;
+            min-height: 46px;
+        }
+
+        .add-product-page .btn {
+            padding: 12px 24px;
+            min-height: 46px;
+            font-size: 1rem;
+            margin-right: 10px;
+            margin-bottom: 0;
+        }
+
+        .add-product-page .col-md-4 {
+            margin-bottom: 20px;
+        }
+
+        .add-product-page textarea.form-control {
+            min-height: 120px;
+        }
+
+        .add-product-page .form-label {
+            font-size: 0.95rem;
+        }
+    }
+
+    /* Десктоп (от 768px) */
+    @media (min-width: 768px) {
+        .add-product-page .container {
+            padding: 30px;
+            max-width: 800px;
+            margin: 30px auto;
+        }
+
+        .add-product-page h1 {
+            font-size: 1.75rem;
+        }
+
+        .add-product-page .form-control,
+        .add-product-page .form-select {
+            padding: 12px 15px;
+            font-size: 1rem;
+        }
+
+        .add-product-page .btn {
+            padding: 10px 25px;
+            min-height: 44px;
+            margin-right: 15px;
+        }
+
+        .add-product-page .btn:last-child {
+            margin-right: 0;
+        }
+
+        .add-product-page textarea.form-control {
+            min-height: 120px;
+        }
+
+        .add-product-page .form-label {
+            font-size: 0.95rem;
+        }
+    }
+
+    /* Улучшения для сенсорных устройств */
+    .add-product-page .btn,
+    .add-product-page .form-control,
+    .add-product-page .form-select,
+    .add-product-page .form-check-input {
+        touch-action: manipulation;
+    }
+
+    /* Адаптивное выравнивание кнопок */
+    @media (max-width: 575.98px) {
+        .add-product-page form > .btn {
+            display: block;
+            width: 100%;
+            margin: 0 0 10px 0 !important;
+        }
+
+        .add-product-page form > .btn:last-child {
+            margin-bottom: 0 !important;
+        }
+    }
+
+    @media (min-width: 576px) {
+        .add-product-page form > .btn {
+            display: inline-block;
+            width: auto;
+        }
+    }
+
+    /* Адаптивный текст */
+    @media (max-width: 767.98px) {
+        .add-product-page .form-text {
+            font-size: 0.85rem;
+        }
+    }
+
+    /* Анимации */
+    .add-product-page .form-control,
+    .add-product-page .form-select,
+    .add-product-page .btn {
+        transition: all 0.3s ease;
+    }
+
+    /* Ховер эффекты для мобильных */
+    @media (hover: hover) and (pointer: fine) {
+        .add-product-page .btn:hover {
+            transform: translateY(-1px);
+        }
+    }
+
+    /* Исправление для iOS */
+    @supports (-webkit-touch-callout: none) {
+        .add-product-page .form-control,
+        .add-product-page .form-select {
+            font-size: 16px !important;
+        }
+    }
+</style>
+
+<div class="container add-product-page">
+    <h1>Добавить продукт</h1>
+
+    <form method="post" id="productForm">
+        <div class="mb-3">
+            <label class="form-label required">Наименование</label>
+            <input type="text" class="form-control" name="name" value="{{ request.form.name or '' }}" required
+                   pattern="[А-Яа-яЁёA-Za-z0-9\s\-.,!?()]+"
+                   title="Только буквы, цифры, пробелы и основные знаки препинания"
+                   placeholder="Введите наименование продукта">
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label required">Описание</label>
+            <textarea class="form-control" name="description" rows="4" required
+                      pattern="[А-Яа-яЁёA-Za-z0-9\s\-.,!?()\n\r]+"
+                      title="Только буквы, цифры, пробелы и основные знаки препинания"
+                      placeholder="Введите описание продукта">{{ request.form.description or '' }}</textarea>
+        </div>
+
+        <div class="row">
+            <div class="col-12 col-md-4 mb-3">
+                <label class="form-label required">Тип ЭВМ</label>
+                <select class="form-select" name="computer_type_id" required>
+                    <option value="">Выберите тип ЭВМ</option>
+                    {% for computer_type in computer_types %}
+                    <option value="{{ computer_type[0] }}"
+                            {% if request.form.computer_type_id== computer_type[0]|string %}selected{% endif %}>
+                        {{ computer_type[1] }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-12 col-md-4 mb-3">
+                <label class="form-label required">Язык программирования</label>
+                <select class="form-select" name="programming_language_id" required>
+                    <option value="">Выберите язык</option>
+                    {% for language in programming_languages %}
+                    <option value="{{ language[0] }}"
+                            {% if request.form.programming_language_id== language[0]|string %}selected{% endif %}>
+                        {{ language[1] }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-12 col-md-4 mb-3">
+                <label class="form-label required">Операционная система</label>
+                <select class="form-select" name="operating_system_id" required>
+                    <option value="">Выберите ОС</option>
+                    {% for os in os_types %}
+                    <option value="{{ os[0] }}"
+                            {% if request.form.operating_system_id== os[0]|string %}selected{% endif %}>
+                        {{ os[1] }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label required">Объем (МБ)</label>
+            <input type="number" class="form-control" name="volume" id="volume"
+                   value="{{ request.form.volume or '' }}" required
+                   min="1" max="100000" step="1"
+                   placeholder="Введите объем в мегабайтах">
+        </div>
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-success">Создать</button>
+            <a href="{{ url_for('products_list') }}" class="btn btn-secondary">Отмена</a>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Валидация объема
+    const volumeInput = document.getElementById('volume');
+    if (volumeInput) {
+        volumeInput.addEventListener('input', function() {
+            const volume = parseInt(this.value);
+            const min = parseInt(this.min);
+            const max = parseInt(this.max);
+
+            if (volume < min) {
+                this.setCustomValidity(`Объем должен быть не менее ${min} МБ`);
+            } else if (volume > max) {
+                this.setCustomValidity(`Объем не может превышать ${max} МБ`);
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+
+        // Автоматическое форматирование объема
+        volumeInput.addEventListener('blur', function() {
+            let value = parseInt(this.value);
+            if (isNaN(value)) {
+                value = '';
+                return;
+            }
+
+            // Ограничиваем значения
+            if (value < 1) value = 1;
+            if (value > 100000) value = 100000;
+
+            this.value = value;
+        });
+    }
+
+    // Адаптивная инициализация
+    document.addEventListener('DOMContentLoaded', function() {
+        // Инициализация поля объема
+        if (volumeInput && volumeInput.value) {
+            volumeInput.dispatchEvent(new Event('blur'));
+        }
+
+        // Адаптивное поведение для мобильных
+        function adaptFormForMobile() {
+            const isMobile = window.innerWidth < 576;
+            const formControls = document.querySelectorAll('.add-product-page .form-control, .add-product-page .form-select');
+
+            if (isMobile) {
+                // На мобильных улучшаем UX
+                formControls.forEach(control => {
+                    control.style.fontSize = '16px';
+                });
+
+                // Добавляем фокус на первое поле
+                const firstInput = document.querySelector('.add-product-page .form-control');
+                if (firstInput && !firstInput.value) {
+                    setTimeout(() => {
+                        firstInput.focus();
+                    }, 300);
+                }
+            }
+        }
+
+        // Выполняем при загрузке
+        adaptFormForMobile();
+
+        // Обновляем при изменении размера окна
+        window.addEventListener('resize', adaptFormForMobile);
+
+        // Улучшение для сенсорных устройств
+        document.querySelectorAll('.add-product-page .btn').forEach(btn => {
+            btn.addEventListener('touchstart', function() {
+                this.style.opacity = '0.8';
+            });
+
+            btn.addEventListener('touchend', function() {
+                this.style.opacity = '1';
+            });
+        });
+
+        // Валидация формы перед отправкой
+        const form = document.getElementById('productForm');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                const requiredFields = this.querySelectorAll('[required]');
+                let isValid = true;
+
+                requiredFields.forEach(field => {
+                    if (!field.value.trim()) {
+                        field.style.borderColor = 'var(--color-primary)';
+                        isValid = false;
+                    } else {
+                        field.style.borderColor = '';
+                    }
+                });
+
+                if (!isValid) {
+                    e.preventDefault();
+                    alert('Пожалуйста, заполните все обязательные поля');
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}
