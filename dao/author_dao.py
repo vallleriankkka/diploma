@@ -188,3 +188,4 @@ class AuthorDAO:
             cur.execute("SELECT user_id FROM author WHERE id = %s", (author_id,))
             result = cur.fetchone()
             return result[0] if result else None
+

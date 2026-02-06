@@ -176,6 +176,7 @@ class ApplicationDAO:
                 """, (application_id,))
             return cursor.fetchall()
 
+
     def add_author_to_application(self, application_id: int, author_data: dict) -> None:
         """Добавление автора в заявку"""
         with self.db.get_cursor() as cur:
@@ -394,7 +395,6 @@ class ApplicationDAO:
             import traceback
             traceback.print_exc()
             return None
-
     def get_by_id_admin(self, application_id):
         """Получить заявку для администратора (без проверки владельца)"""
         with self.db.get_cursor() as cur:
@@ -409,3 +409,13 @@ class ApplicationDAO:
                 WHERE a.id = %s
             """, (application_id,))
             return cur.fetchone()
+
+    def get_all_author_roles(self) -> List[dict]:
+        """Получение всех ролей авторов"""
+        with self.db.get_cursor() as cur:
+            cur.execute("""
+                SELECT id, name 
+                FROM expert_roles 
+                ORDER BY name
+            """)
+            return [{'id': row[0], 'name': row[1]} for row in cur.fetchall()]
