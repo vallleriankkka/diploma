@@ -1,0 +1,404 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    /* Стили для страницы списка экспертных комиссий */
+    .commissions-list-page {
+        color: #263045;
+    }
+
+    /* Стили кнопок как на странице авторов */
+    .commissions-list-page .btn-outline-accent {
+        color: #263045; /* Pantone 296С */
+        border-color: #b99f6e; /* Pantone 465С */
+        background-color: transparent;
+    }
+
+    .commissions-list-page .btn-outline-accent:hover {
+        background-color: #b99f6e; /* Pantone 465С */
+        color: #263045; /* Pantone 296С */
+        border-color: #b99f6e;
+    }
+
+    /* Кнопка создания комиссии */
+    .commissions-list-page .btn-success {
+        color: #263045;
+        border-color: #b99f6e;
+        background-color: transparent;
+    }
+
+    .commissions-list-page .btn-success:hover {
+        background-color: #b99f6e;
+        border-color: #b99f6e;
+        color: #263045;
+    }
+
+    /* Кнопка Просмотр */
+    .commissions-list-page .btn-primary {
+        color: #263045;
+        border-color: #263045;
+        background-color: transparent;
+    }
+
+    .commissions-list-page .btn-primary:hover {
+        background-color: #263045;
+        color: #d0d0d0;
+        border-color: #263045;
+    }
+
+    /* Кнопка Удалить */
+    .commissions-list-page .btn-outline-danger {
+        color: #263045;
+        border-color: #263045;
+        background-color: transparent;
+    }
+
+    .commissions-list-page .btn-outline-danger:hover {
+        background-color: #263045;
+        color: #d0d0d0;
+        border-color: #263045;
+    }
+
+    /* Кнопка в алерте */
+    .commissions-list-page .alert-info .btn-primary {
+        color: #263045;
+        border-color: #b99f6e;
+        background-color: transparent;
+    }
+
+    .commissions-list-page .alert-info .btn-primary:hover {
+        background-color: #b99f6e;
+        border-color: #b99f6e;
+        color: #263045;
+    }
+
+    .commissions-list-page .table-actions .btn {
+        border-radius: 0.25rem;
+        transition: all 0.2s ease;
+    }
+
+    .commissions-list-page .table {
+        color: #263045; /* Pantone 296С для текста таблицы */
+    }
+
+    .commissions-list-page .table-striped > tbody > tr:nth-of-type(odd) {
+        background-color: rgba(185, 159, 110, 0.05); /* Слегка прозрачный Pantone 465С */
+    }
+
+    .commissions-list-page .table thead th {
+        background-color: rgba(38, 48, 69, 0.1); /* Слегка прозрачный Pantone 296С */
+        color: #263045; /* Pantone 296С */
+        border-bottom: 2px solid #b99f6e; /* Pantone 465С */
+    }
+
+    .commissions-list-page .badge.bg-info {
+        background-color: rgba(185, 159, 110, 0.2) !important; /* Полупрозрачный Pantone 465С */
+        color: #263045; /* Pantone 296С */
+        border: 1px solid rgba(185, 159, 110, 0.3);
+    }
+
+    .commissions-list-page .badge.bg-warning {
+        background-color: rgba(38, 48, 69, 0.1) !important; /* Полупрозрачный Pantone 296С */
+        color: #263045; /* Pantone 296С */
+        border: 1px solid rgba(38, 48, 69, 0.2);
+    }
+
+    .commissions-list-page h1 {
+        color: #263045; /* Pantone 296С */
+    }
+
+    .commissions-list-page .alert-info {
+        background-color: rgba(185, 159, 110, 0.1);
+        border: 1px solid #b99f6e;
+        color: #263045;
+    }
+
+    .commissions-list-page .btn-sm {
+        padding: 0.15rem 0.4rem;
+        font-size: 0.75rem;
+        line-height: 1.2;
+    }
+
+    /* Убрал лишние обертки как в таблице авторов */
+    .commissions-list-page .container {
+        background-color: transparent;
+        padding: 20px;
+        max-width: 1200px;
+    }
+
+    .commissions-list-page .d-inline {
+        display: inline-block !important;
+    }
+
+    .commissions-list-page form.d-inline {
+        display: inline-block !important;
+        margin-left: 0.2rem;
+    }
+
+    .commissions-list-page .table td {
+        vertical-align: middle;
+    }
+
+    /* Адаптивные стили */
+
+    /* Мобильные устройства (< 576px) */
+    @media (max-width: 575.98px) {
+        .commissions-list-page .container {
+            padding: 15px;
+            max-width: 100%;
+        }
+
+        .commissions-list-page h1 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .commissions-list-page .d-flex.justify-content-between.align-items-center {
+            flex-direction: column;
+            gap: 15px;
+            text-align: center;
+        }
+
+        .commissions-list-page .btn-success {
+            width: 100%;
+            padding: 14px;
+            font-size: 1rem;
+            min-height: 52px;
+        }
+
+        .commissions-list-page .table {
+            font-size: 0.9rem;
+            display: block;
+            overflow-x: auto;
+        }
+
+        .commissions-list-page .table thead {
+            display: none;
+        }
+
+        .commissions-list-page .table tbody tr {
+            display: block;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(185, 159, 110, 0.3);
+            border-radius: 8px;
+            background-color: transparent;
+            padding: 15px;
+        }
+
+        .commissions-list-page .table tbody td {
+            display: block;
+            text-align: left;
+            border: none;
+            padding: 8px 0;
+            position: relative;
+        }
+
+        .commissions-list-page .table tbody td:before {
+            content: attr(data-label);
+            font-weight: bold;
+            display: block;
+            color: #263045;
+            margin-bottom: 4px;
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+
+        .commissions-list-page .table tbody td:first-child {
+            padding-top: 0;
+        }
+
+        .commissions-list-page .table tbody td:last-child {
+            padding-bottom: 0;
+        }
+
+        .commissions-list-page .table-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .commissions-list-page .table-actions .btn {
+            width: 100%;
+            padding: 12px;
+            min-height: 46px;
+        }
+
+        .commissions-list-page form.d-inline {
+            display: block !important;
+            margin-left: 0;
+            margin-top: 10px;
+        }
+
+        .commissions-list-page .alert-info {
+            padding: 12px;
+            text-align: center;
+        }
+
+        .commissions-list-page .alert-info .btn {
+            width: 100%;
+            margin-top: 10px;
+        }
+    }
+
+    /* Планшеты (от 576px до 768px) */
+    @media (min-width: 576px) and (max-width: 767.98px) {
+        .commissions-list-page .container {
+            padding: 20px;
+            max-width: 95%;
+        }
+
+        .commissions-list-page h1 {
+            font-size: 1.6rem;
+        }
+
+        .commissions-list-page .table {
+            font-size: 0.95rem;
+        }
+
+        .commissions-list-page .table-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .commissions-list-page .table-actions .btn {
+            min-width: 120px;
+            padding: 8px 16px;
+        }
+
+        .commissions-list-page .btn-success {
+            padding: 12px 20px;
+            min-height: 46px;
+        }
+    }
+
+    /* Десктоп (от 768px) */
+    @media (min-width: 768px) {
+        .commissions-list-page .container {
+            padding: 30px;
+        }
+
+        .commissions-list-page h1 {
+            font-size: 1.75rem;
+        }
+
+        .commissions-list-page .table-actions .btn {
+            min-width: 100px;
+        }
+    }
+
+    /* Улучшения для сенсорных устройств */
+    .commissions-list-page .btn {
+        touch-action: manipulation;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+        .commissions-list-page .table tbody tr:hover {
+            background-color: rgba(185, 159, 110, 0.08);
+        }
+    }
+
+    /* Исправление для iOS */
+    @supports (-webkit-touch-callout: none) {
+        .commissions-list-page .btn,
+        .commissions-list-page .form-control {
+            font-size: 16px !important;
+        }
+    }
+</style>
+
+<div class="commissions-list-page">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Экспертные комиссии</h1>
+            <a href="{{ url_for('commission_create') }}" class="btn btn-success">Создать комиссию</a>
+        </div>
+
+        {% if commissions %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Название</th>
+                    <th>Описание</th>
+                    <th>Дата создания</th>
+                    <th>Действия</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for commission in commissions %}
+                <tr>
+                    <td data-label="Название">
+                        {{ commission[1] }}
+                    </td>
+                    <td data-label="Описание">{{ commission[2] or '—' }}</td>
+                    <td data-label="Дата создания">{{ commission[3]|safe_strftime('%d.%m.%Y %H:%M') }}</td>
+                    <td data-label="Действия" class="table-actions">
+                        <a href="{{ url_for('commission_view', id=commission[0]) }}"
+                           class="btn btn-sm btn-outline-accent">Просмотр</a>
+                        <form action="{{ url_for('commission_delete', id=commission[0]) }}"
+                              method="POST" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-outline-accent"
+                                    onclick="return confirm('Удалить комиссию?')">
+                                Удалить
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            <h4>Комиссии не найдены</h4>
+            <p>Создайте первую экспертную комиссию.</p>
+            <a href="{{ url_for('commission_create') }}" class="btn btn-outline-accent">Создать комиссию</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    // Адаптивная инициализация для таблицы
+    function adaptTableForMobile() {
+        const isMobile = window.innerWidth < 576;
+        const table = document.querySelector('.table');
+
+        if (isMobile && table) {
+            // Добавляем метки для мобильных устройств
+            const headers = table.querySelectorAll('thead th');
+            const tbodyRows = table.querySelectorAll('tbody tr');
+
+            headers.forEach((header, index) => {
+                const label = header.textContent;
+                tbodyRows.forEach(row => {
+                    const cells = row.querySelectorAll('td');
+                    if (cells[index]) {
+                        cells[index].setAttribute('data-label', label);
+                    }
+                });
+            });
+        }
+    }
+
+    // Инициализация при загрузке и изменении размера
+    document.addEventListener('DOMContentLoaded', function() {
+        adaptTableForMobile();
+        window.addEventListener('resize', adaptTableForMobile);
+
+        // Улучшение для сенсорных устройств
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('touchstart', function() {
+                this.style.opacity = '0.8';
+            });
+
+            btn.addEventListener('touchend', function() {
+                this.style.opacity = '1';
+            });
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,813 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    :root {
+        --color-primary: #263045;
+        --color-secondary: #b99f6e;
+    }
+
+    .add-author-page {
+        color: var(--color-primary);
+    }
+
+    /* Кнопки */
+    .add-author-page .btn-success,
+    .add-author-page .btn-secondary {
+        color: var(--color-primary);
+        background-color: transparent;
+        border: 1px solid var(--color-secondary);
+        transition: all 0.3s ease;
+        padding: 10px 25px;
+    }
+
+    .add-author-page .btn-success:hover,
+    .add-author-page .btn-success:focus {
+        background-color: var(--color-secondary);
+        color: var(--color-primary);
+        border-color: var(--color-secondary);
+    }
+
+    .add-author-page .btn-secondary {
+        border-color: var(--color-primary);
+    }
+
+    .add-author-page .btn-secondary:hover,
+    .add-author-page .btn-secondary:focus {
+        background-color: var(--color-primary);
+        color: var(--color-secondary);
+        border-color: var(--color-primary);
+    }
+
+    /* Поля формы */
+    .add-author-page .form-control,
+    .add-author-page .form-select {
+        background-color: transparent;
+        color: var(--color-primary);
+        border: 1px solid var(--color-secondary);
+        border-radius: 4px;
+        padding: 12px 15px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+
+    .add-author-page .form-control:focus,
+    .add-author-page .form-select:focus {
+        background-color: transparent;
+        color: var(--color-primary);
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 0.2rem rgba(38, 48, 69, 0.25);
+        outline: none;
+    }
+
+    .add-author-page .form-control::placeholder {
+        color: rgba(38, 48, 69, 0.6);
+    }
+
+    /* Чекбоксы */
+    .add-author-page .form-check-input {
+        border: 1px solid var(--color-secondary);
+        background-color: transparent;
+    }
+
+    .add-author-page .form-check-input:checked {
+        background-color: var(--color-secondary);
+        border-color: var(--color-secondary);
+    }
+
+    .add-author-page .form-check-input:focus {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 0.2rem rgba(38, 48, 69, 0.25);
+    }
+
+    .add-author-page .form-check-label {
+        color: var(--color-primary);
+    }
+
+    /* Метки */
+    .add-author-page .form-label {
+        color: var(--color-primary);
+        margin-bottom: 8px;
+        display: block;
+        font-size: 0.95rem;
+    }
+
+    .add-author-page .form-label.required::after {
+        content: " *";
+        color: var(--color-secondary);
+    }
+
+    .add-author-page .form-text {
+        color: var(--color-primary);
+        opacity: 0.8;
+        font-size: 0.875rem;
+        margin-top: 5px;
+    }
+
+    /* Текст */
+    .add-author-page .text-success,
+    .add-author-page .text-danger {
+        color: var(--color-primary) !important;
+    }
+
+    .add-author-page .text-danger {
+        font-style: italic;
+    }
+
+    /* Заголовки */
+    .add-author-page h1 {
+        color: var(--color-primary);
+        border-bottom: 2px solid var(--color-secondary);
+        padding-bottom: 10px;
+        margin-bottom: 30px;
+        font-size: 1.75rem;
+    }
+
+    /* Контейнер */
+    .add-author-page .container {
+        background-color: transparent;
+        padding: 20px;
+        margin-top: 20px;
+        max-width: 1000px;
+    }
+
+    /* Уведомления */
+    .alert {
+        background-color: transparent;
+        border: 1px solid var(--color-secondary);
+        color: var(--color-primary);
+    }
+
+    .alert-success {
+        border-color: var(--color-secondary);
+    }
+
+    .alert-danger {
+        border-color: var(--color-primary);
+    }
+
+    /* Адаптивные стили */
+
+    /* Мобильные устройства (< 576px) */
+    @media (max-width: 575.98px) {
+        .add-author-page .container {
+            padding: 15px;
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .add-author-page h1 {
+            font-size: 1.5rem;
+            margin-bottom: 25px;
+            text-align: center;
+            padding-bottom: 8px;
+        }
+
+        .alert {
+            padding: 12px;
+            font-size: 0.9rem;
+        }
+
+        .form-control,
+        .form-select {
+            padding: 14px;
+            font-size: 16px;
+            min-height: 48px;
+            width: 100%;
+        }
+
+        .row {
+            margin-left: -5px;
+            margin-right: -5px;
+        }
+
+        .col-md-4,
+        .col-md-6 {
+            padding-left: 5px;
+            padding-right: 5px;
+            margin-bottom: 15px;
+            width: 100%;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            font-size: 1.1rem;
+            min-height: 52px;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .btn:last-child {
+            margin-bottom: 0;
+        }
+
+        textarea.form-control {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .mb-3 {
+            margin-bottom: 1.5rem !important;
+        }
+
+        .form-label {
+            font-size: 1rem;
+        }
+
+        .form-text {
+            font-size: 0.8rem;
+        }
+    }
+
+    /* Планшеты (от 576px до 768px) */
+    @media (min-width: 576px) and (max-width: 767.98px) {
+        .add-author-page .container {
+            padding: 25px;
+            max-width: 95%;
+            margin: 20px auto;
+        }
+
+        .add-author-page h1 {
+            font-size: 1.6rem;
+        }
+
+        .form-control,
+        .form-select {
+            padding: 12px;
+            font-size: 16px;
+            min-height: 46px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            min-height: 46px;
+            font-size: 1rem;
+            margin-right: 10px;
+            margin-bottom: 0;
+        }
+
+        .col-md-4,
+        .col-md-6 {
+            margin-bottom: 20px;
+        }
+
+        textarea.form-control {
+            min-height: 80px;
+        }
+
+        .form-label {
+            font-size: 0.95rem;
+        }
+
+        .form-text {
+            font-size: 0.82rem;
+        }
+    }
+
+    /* Десктоп (от 768px) */
+    @media (min-width: 768px) {
+        .add-author-page .container {
+            padding: 30px;
+            max-width: 1000px;
+            margin: 30px auto;
+        }
+
+        .add-author-page h1 {
+            font-size: 1.75rem;
+        }
+
+        .form-control,
+        .form-select {
+            padding: 10px 12px;
+            min-height: 44px;
+        }
+
+        .btn {
+            padding: 10px 25px;
+            min-height: 44px;
+            margin-right: 15px;
+        }
+
+        .btn:last-child {
+            margin-right: 0;
+        }
+
+        textarea.form-control {
+            min-height: 80px;
+        }
+
+        .form-label {
+            font-size: 0.95rem;
+        }
+    }
+
+    /* Большие экраны (от 992px) */
+    @media (min-width: 992px) {
+        .add-author-page .container {
+            max-width: 1000px;
+        }
+
+        .col-md-4 {
+            padding-left: 15px;
+            padding-right: 15px;
+        }
+
+        .form-control,
+        .form-select {
+            padding: 12px 15px;
+        }
+
+        .btn {
+            padding: 12px 15px;
+        }
+    }
+
+    /* Улучшения для сенсорных устройств */
+    .btn,
+    .form-control,
+    .form-select,
+    .form-check-input {
+        touch-action: manipulation;
+    }
+
+    /* Адаптивное выравнивание кнопок */
+    @media (max-width: 575.98px) {
+        form > .btn {
+            display: block;
+            width: 100%;
+            margin: 0 0 10px 0 !important;
+        }
+
+        form > .btn:last-child {
+            margin-bottom: 0 !important;
+        }
+    }
+
+    @media (min-width: 576px) {
+        form > .btn {
+            display: inline-block;
+            width: auto;
+        }
+    }
+
+    /* Адаптивная сетка */
+    @media (max-width: 767.98px) {
+        .row .col-md-4,
+        .row .col-md-6 {
+            width: 100%;
+        }
+    }
+
+    /* Исправление для iOS */
+    @supports (-webkit-touch-callout: none) {
+        .form-control,
+        .form-select {
+            font-size: 16px !important;
+        }
+
+        .btn {
+            font-size: 16px !important;
+        }
+    }
+
+    /* Анимации */
+    .form-control,
+    .form-select,
+    .btn {
+        transition: all 0.3s ease;
+    }
+
+    /* Валидация полей */
+    .form-control:invalid {
+        border-color: var(--color-primary);
+    }
+
+    /* Чекбокс стиль */
+    .form-check {
+        margin-bottom: 1rem;
+    }
+
+    /* Поля для студента/сотрудника */
+    #education-level-field,
+    #position-field {
+        transition: all 0.3s ease;
+    }
+</style>
+
+<div class="container add-author-page">
+    <h1>Добавить автора</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show mb-4"
+         role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <form method="post" id="authorForm">
+        <div class="row">
+            <div class="col-12 col-md-4 mb-3">
+                <label class="form-label required">Фамилия</label>
+                <input type="text" class="form-control" name="surname" value="{{ request.form.surname or '' }}" required
+                       pattern="[А-Яа-яЁёA-Za-z\s\-]+" title="Только буквы, пробелы и дефисы"
+                       placeholder="Введите фамилию">
+            </div>
+            <div class="col-12 col-md-4 mb-3">
+                <label class="form-label required">Имя</label>
+                <input type="text" class="form-control" name="name" value="{{ request.form.name or '' }}" required
+                       pattern="[А-Яа-яЁёA-Za-z\s\-]+" title="Только буквы, пробелы и дефисы" placeholder="Введите имя">
+            </div>
+            <div class="col-12 col-md-4 mb-3">
+                <label class="form-label">Отчество</label>
+                <input type="text" class="form-control" name="patronymic" value="{{ request.form.patronymic or '' }}"
+                       pattern="[А-Яа-яЁёA-Za-z\s\-]*" title="Только буквы, пробелы и дефисы"
+                       placeholder="Введите отчество">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12 col-md-6 mb-3">
+                <label class="form-label required">Дата рождения</label>
+                <input type="date" class="form-control" name="birth_date" id="birth_date"
+                       value="{{ request.form.birth_date or '' }}" required max="{{ today }}">
+                <div class="form-text" id="ageInfo"></div>
+            </div>
+            <div class="col-12 col-md-6 mb-3">
+                <label class="form-label required">Гражданство</label>
+                <input type="text" class="form-control" name="citizenship"
+                       value="{{ request.form.citizenship or 'Российская Федерация' }}" required
+                       pattern="[А-Яа-яЁёA-Za-z\s\-]+" title="Только буквы, пробелы и дефисы"
+                       placeholder="Введите гражданство">
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label required">Адрес</label>
+            <textarea class="form-control" name="address" rows="3" required placeholder="Введите полный адрес">{{ request.form.address or '' }}</textarea>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label required">Подразделение</label>
+            <input type="text" class="form-control" name="department"
+                   value="{{ request.form.department or '' }}"
+                   required
+                   placeholder="Введите название подразделения">
+            <div class="form-text">Например: "Факультет информатики", "Кафедра математики"</div>
+        </div>
+
+        <!-- Поля для паспортных данных -->
+        <div class="row mb-3">
+            <div class="col-12 col-md-6 col-lg-4 mb-3">
+                <label class="form-label required">Паспорт (серия и номер)</label>
+                <input type="text" class="form-control" name="passport" id="passport"
+                       value="{{ request.form.passport or '' }}" required pattern="^\d{10}$"
+                       title="10 цифр без пробелов" placeholder="1234567890" maxlength="10">
+                <div class="form-text">10 цифр без пробелов и разделителей</div>
+            </div>
+            <div class="col-12 col-md-6 col-lg-4 mb-3">
+                <label class="form-label required">Дата выдачи паспорта</label>
+                <input type="date" class="form-control" name="passport_issue_date" id="passport_issue_date"
+                       value="{{ request.form.passport_issue_date or '' }}" required max="{{ today }}">
+            </div>
+            <div class="col-12 col-md-6 col-lg-4 mb-3">
+                <label class="form-label">Кем выдан паспорт</label>
+                <input type="text" class="form-control" name="passport_issued_by"
+                       value="{{ request.form.passport_issued_by or '' }}" placeholder="Например: ОВД г. Москвы">
+            </div>
+            <div class="col-12 col-md-6 col-lg-4 mb-3">
+                <label class="form-label required">Код подразделения</label>
+                <input type="text" class="form-control" name="passport_issued_code" id="passport_issued_code"
+                       value="{{ request.form.passport_issued_code or '' }}" required pattern="^\d{3}-\d{3}$"
+                       title="Формат: XXX-XXX" placeholder="123-456" maxlength="7">
+                <div class="form-text">Формат: 123-456</div>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-12 col-md-6 mb-3">
+                <label class="form-label required">СНИЛС</label>
+                <input type="text" class="form-control" name="snils" id="snils" value="{{ request.form.snils or '' }}"
+                       required pattern="^\d{3}-\d{3}-\d{3} \d{2}$" title="Формат: XXX-XXX-XXX XX"
+                       placeholder="123-456-789 00" maxlength="14">
+                <div class="form-text">Формат: 123-456-789 00</div>
+            </div>
+            <div class="col-12 col-md-6 mb-3">
+                <label class="form-label required">ИНН</label>
+                <input type="text" class="form-control" name="inn" id="inn" value="{{ request.form.inn or '' }}"
+                       required pattern="^\d{12}$" title="12 цифр" placeholder="123456789012" maxlength="12">
+                <div class="form-text">12 цифр</div>
+            </div>
+        </div>
+
+        <!-- Чекбокс студента и поле уровня образования -->
+        <div class="mb-3">
+            <div class="form-check">
+                {% set is_student = request.form.get('is_student', 'true') == 'true' %}
+                <input class="form-check-input" type="checkbox" name="is_student" id="is_student" value="true" {% if
+                       is_student %}checked{% endif %}>
+                <label class="form-check-label" for="is_student">Студент</label>
+            </div>
+            <div class="form-text">Снимите галочку, если автор является сотрудником</div>
+        </div>
+
+        <!-- Поле уровня образования для студентов -->
+        <div class="mb-3" id="education-level-field"
+             style="display: {% if is_student %}block{% else %}none{% endif %};">
+            <label class="form-label required">Уровень образования</label>
+            <select class="form-select" name="education_level_id" id="education_level_id">
+                <option value="">Выберите уровень образования</option>
+                {% for level in education_levels %}
+                <option value="{{ level[0] }}" {% if request.form.education_level_id|string== level[0]|string
+                        %}selected{% endif %}>
+                    {{ level[1] }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Поле должности для сотрудников -->
+        <div class="mb-3" id="position-field" style="display: {% if not is_student %}block{% else %}none{% endif %};">
+            <label class="form-label">Должность</label>
+            <input type="text" class="form-control" name="position" id="position"
+                   value="{{ request.form.position or '' }}" placeholder="Введите должность сотрудника">
+        </div>
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-success">Создать</button>
+            <a href="{{ url_for('authors_list') }}" class="btn btn-secondary">Отмена</a>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Адаптивная инициализация
+    function adaptFormForMobile() {
+        const isMobile = window.innerWidth < 576;
+        const formControls = document.querySelectorAll('.form-control, .form-select');
+
+        if (isMobile) {
+            // На мобильных улучшаем UX
+            formControls.forEach(control => {
+                control.style.fontSize = '16px';
+                control.style.minHeight = '48px';
+            });
+
+            // Автофокус на первое поле
+            const firstInput = document.querySelector('.form-control');
+            if (firstInput && !firstInput.value) {
+                setTimeout(() => {
+                    firstInput.focus();
+                }, 300);
+            }
+        } else {
+            // На десктопе стандартные стили
+            formControls.forEach(control => {
+                control.style.fontSize = '';
+                control.style.minHeight = '';
+            });
+        }
+    }
+
+    // Обработка чекбокса "Студент"
+    document.getElementById('is_student').addEventListener('change', function() {
+        const positionField = document.getElementById('position-field');
+        const educationLevelField = document.getElementById('education-level-field');
+        const educationLevelSelect = document.getElementById('education_level_id');
+        const positionInput = document.getElementById('position');
+
+        if (this.checked) {
+            // Если студент
+            positionField.style.display = 'none';
+            if (positionInput) positionInput.value = '';
+            educationLevelField.style.display = 'block';
+            if (educationLevelSelect) educationLevelSelect.required = true;
+        } else {
+            // Если не студент
+            positionField.style.display = 'block';
+            educationLevelField.style.display = 'none';
+            if (educationLevelSelect) {
+                educationLevelSelect.value = '';
+                educationLevelSelect.required = false;
+            }
+        }
+    });
+
+    // Расчет возраста
+    document.getElementById('birth_date').addEventListener('change', function() {
+        const birthDate = new Date(this.value);
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+
+        const ageInfo = document.getElementById('ageInfo');
+        if (age < 14) {
+            ageInfo.innerHTML = '<span>Возраст: ' + age + '. Автор должен быть старше 14 лет!</span>';
+            ageInfo.style.color = 'var(--color-primary)';
+        } else {
+            ageInfo.innerHTML = '<span>Возраст: ' + age + '</span>';
+            ageInfo.style.color = 'var(--color-primary)';
+        }
+    });
+
+    // Автоматическое форматирование СНИЛС
+    document.getElementById('snils').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+
+        // Сохраняем позицию курсора
+        const cursorPosition = e.target.selectionStart;
+
+        // Форматируем только если есть цифры
+        if (value.length > 0) {
+            if (value.length <= 3) {
+                value = value;
+            } else if (value.length <= 6) {
+                value = value.substring(0, 3) + '-' + value.substring(3);
+            } else if (value.length <= 9) {
+                value = value.substring(0, 3) + '-' + value.substring(3, 6) + '-' + value.substring(6);
+            } else if (value.length <= 11) {
+                value = value.substring(0, 3) + '-' + value.substring(3, 6) + '-' + value.substring(6, 9) + ' ' + value.substring(9, 11);
+            } else {
+                value = value.substring(0, 3) + '-' + value.substring(3, 6) + '-' + value.substring(6, 9) + ' ' + value.substring(9, 11);
+            }
+        }
+
+        e.target.value = value;
+
+        // Восстанавливаем позицию курсора с учетом добавленных символов
+        let newCursorPosition = cursorPosition;
+        if (cursorPosition >= 3 && cursorPosition < value.length) newCursorPosition++;
+        if (cursorPosition >= 7 && cursorPosition < value.length) newCursorPosition++;
+        if (cursorPosition >= 11 && cursorPosition < value.length) newCursorPosition++;
+
+        e.target.setSelectionRange(newCursorPosition, newCursorPosition);
+    });
+
+    // Автоматическое форматирование кода подразделения
+    document.getElementById('passport_issued_code').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+
+        // Сохраняем позицию курсора
+        const cursorPosition = e.target.selectionStart;
+
+        // Форматируем только если есть цифры
+        if (value.length > 0) {
+            if (value.length <= 3) {
+                value = value;
+            } else if (value.length <= 6) {
+                value = value.substring(0, 3) + '-' + value.substring(3);
+            } else {
+                value = value.substring(0, 3) + '-' + value.substring(3, 6);
+            }
+        }
+
+        e.target.value = value;
+
+        // Восстанавливаем позицию курсора с учетом добавленного дефиса
+        let newCursorPosition = cursorPosition;
+        if (cursorPosition >= 3 && cursorPosition < value.length) newCursorPosition++;
+
+        e.target.setSelectionRange(newCursorPosition, newCursorPosition);
+    });
+
+    // Ограничение ввода только цифр для ИНН и паспорта
+    document.getElementById('inn').addEventListener('input', function(e) {
+        this.value = this.value.replace(/\D/g, '');
+    });
+
+    document.getElementById('passport').addEventListener('input', function(e) {
+        this.value = this.value.replace(/\D/g, '');
+    });
+
+    // Валидация формы при отправке
+    document.getElementById('authorForm').addEventListener('submit', function(e) {
+        const isStudent = document.getElementById('is_student').checked;
+        const educationLevelSelect = document.getElementById('education_level_id');
+
+        if (isStudent && (!educationLevelSelect || !educationLevelSelect.value)) {
+            e.preventDefault();
+            alert('Для студента необходимо выбрать уровень образования');
+            if (educationLevelSelect) educationLevelSelect.focus();
+            return false;
+        }
+
+        // Проверка формата СНИЛС
+        const snilsInput = document.getElementById('snils');
+        const snilsRegex = /^\d{3}-\d{3}-\d{3} \d{2}$/;
+        if (!snilsRegex.test(snilsInput.value)) {
+            e.preventDefault();
+            alert('Проверьте формат СНИЛС. Должен быть: XXX-XXX-XXX XX');
+            snilsInput.focus();
+            return false;
+        }
+
+        // Проверка формата кода подразделения
+        const codeInput = document.getElementById('passport_issued_code');
+        const codeRegex = /^\d{3}-\d{3}$/;
+        if (!codeRegex.test(codeInput.value)) {
+            e.preventDefault();
+            alert('Проверьте формат кода подразделения. Должен быть: XXX-XXX');
+            codeInput.focus();
+            return false;
+        }
+
+        // Проверка формата паспорта
+        const passportInput = document.getElementById('passport');
+        const passportRegex = /^\d{10}$/;
+        if (!passportRegex.test(passportInput.value)) {
+            e.preventDefault();
+            alert('Паспорт должен содержать ровно 10 цифр');
+            passportInput.focus();
+            return false;
+        }
+
+        // Проверка формата ИНН
+        const innInput = document.getElementById('inn');
+        const innRegex = /^\d{12}$/;
+        if (!innRegex.test(innInput.value)) {
+            e.preventDefault();
+            alert('ИНН должен содержать ровно 12 цифр');
+            innInput.focus();
+            return false;
+        }
+
+        return true;
+    });
+
+    // Инициализация
+    document.addEventListener('DOMContentLoaded', function() {
+        // Выполняем адаптивную инициализацию
+        adaptFormForMobile();
+
+        // Обновляем при изменении размера окна
+        window.addEventListener('resize', adaptFormForMobile);
+
+        // Инициализация расчета возраста
+        const birthDateInput = document.getElementById('birth_date');
+        if (birthDateInput.value) {
+            birthDateInput.dispatchEvent(new Event('change'));
+        }
+
+        // Установка максимальной даты (сегодня) для даты рождения и выдачи паспорта
+        const today = "{{ today }}";
+        document.getElementById('birth_date').max = today;
+        if (document.getElementById('passport_issue_date')) {
+            document.getElementById('passport_issue_date').max = today;
+        }
+
+        // Автоматически форматируем СНИЛС при загрузке, если есть значение
+        const snilsInput = document.getElementById('snils');
+        if (snilsInput && snilsInput.value) {
+            let value = snilsInput.value.replace(/\D/g, '');
+            if (value.length > 0) {
+                if (value.length <= 3) {
+                    value = value;
+                } else if (value.length <= 6) {
+                    value = value.substring(0, 3) + '-' + value.substring(3, 6);
+                } else if (value.length <= 9) {
+                    value = value.substring(0, 3) + '-' + value.substring(3, 6) + '-' + value.substring(6, 9);
+                } else {
+                    value = value.substring(0, 3) + '-' + value.substring(3, 6) + '-' + value.substring(6, 9) + ' ' + value.substring(9, 11);
+                }
+                snilsInput.value = value;
+            }
+        }
+
+        // Автоматически форматируем код подразделения при загрузке, если есть значение
+        const codeInput = document.getElementById('passport_issued_code');
+        if (codeInput && codeInput.value) {
+            let value = codeInput.value.replace(/\D/g, '');
+            if (value.length > 0) {
+                if (value.length <= 3) {
+                    value = value;
+                } else {
+                    value = value.substring(0, 3) + '-' + value.substring(3, 6);
+                }
+                codeInput.value = value;
+            }
+        }
+
+        // Улучшение для сенсорных устройств
+        const submitButton = document.querySelector('.btn-success');
+        if (submitButton) {
+            submitButton.addEventListener('touchstart', function() {
+                this.style.opacity = '0.8';
+            });
+
+            submitButton.addEventListener('touchend', function() {
+                this.style.opacity = '1';
+            });
+        }
+    });
+</script>
+{% endblock %}

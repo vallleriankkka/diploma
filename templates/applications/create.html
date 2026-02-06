@@ -1,0 +1,867 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    :root {
+    --color-primary: #263045;
+    --color-secondary: #b99f6e;
+}
+
+/* Стили для страницы создания заявки */
+.create-application-page {
+    color: var(--color-primary);
+}
+
+/* Основные кнопки */
+.create-application-page .btn-success,
+.create-application-page .btn-primary,
+.create-application-page .btn-secondary,
+.create-application-page .btn-danger {
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+    background-color: transparent;
+    transition: all 0.3s ease;
+}
+
+.create-application-page .btn-success:hover,
+.create-application-page .btn-primary:hover,
+.create-application-page .btn-secondary:hover,
+.create-application-page .btn-danger:hover,
+.create-application-page .btn-success:active,
+.create-application-page .btn-primary:active,
+.create-application-page .btn-secondary:active,
+.create-application-page .btn-danger:active {
+    background-color: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+}
+
+/* Иконки в кнопках */
+.create-application-page .btn i {
+    color: var(--color-primary);
+}
+
+.create-application-page .btn:hover i,
+.create-application-page .btn:active i {
+    color: white;
+}
+
+/* Поля формы */
+.create-application-page .form-control {
+    background-color: transparent;
+    color: var(--color-primary);
+    border: none;
+    border-bottom: 1px solid var(--color-secondary);
+    border-radius: 0;
+    padding-left: 0;
+    padding-right: 0;
+    transition: all 0.3s ease;
+}
+
+.create-application-page .form-control:focus {
+    background-color: transparent;
+    color: var(--color-primary);
+    border-bottom: 2px solid var(--color-primary);
+    box-shadow: none;
+    outline: none;
+}
+
+.create-application-page .form-select {
+    background-color: transparent;
+    color: var(--color-primary);
+    border: none;
+    border-bottom: 1px solid var(--color-secondary);
+    border-radius: 0;
+    padding-left: 0;
+    padding-right: 0;
+    transition: all 0.3s ease;
+}
+
+.create-application-page .form-select:focus {
+    border-bottom: 2px solid var(--color-primary);
+    box-shadow: none;
+    outline: none;
+}
+
+/* Метки */
+.create-application-page .form-label {
+    color: var(--color-primary);
+    font-weight: 500;
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+@media (min-width: 768px) {
+    .create-application-page .form-label {
+        font-size: 1rem;
+    }
+}
+
+.create-application-page .form-label.required::after {
+    content: " *";
+    color: var(--color-secondary);
+}
+
+/* Вспомогательный текст */
+.create-application-page .form-text {
+    color: var(--color-primary);
+    opacity: 0.8;
+    font-style: italic;
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+}
+
+@media (min-width: 768px) {
+    .create-application-page .form-text {
+        font-size: 0.875rem;
+    }
+}
+
+/* Ошибки */
+.create-application-page .text-danger {
+    color: var(--color-primary) !important;
+    font-weight: 500;
+    font-style: italic;
+    font-size: 0.9rem;
+}
+
+/* Заголовки */
+.create-application-page h1,
+.create-application-page h5 {
+    color: var(--color-primary);
+}
+
+.create-application-page h1 {
+    border-bottom: none;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+    text-align: center;
+}
+
+@media (min-width: 576px) {
+    .create-application-page h1 {
+        font-size: 1.75rem;
+        text-align: left;
+    }
+}
+
+@media (min-width: 768px) {
+    .create-application-page h1 {
+        font-size: 2rem;
+        margin-bottom: 30px;
+    }
+}
+
+.create-application-page .card-title {
+    color: var(--color-primary);
+    border-bottom: 2px solid var(--color-secondary);
+    padding-bottom: 5px;
+}
+
+/* Карточки */
+.create-application-page .card {
+    border: none;
+    background-color: transparent;
+    color: var(--color-primary);
+    margin-bottom: 20px;
+}
+
+.create-application-page .card-header {
+    background-color: transparent;
+    border-bottom: none;
+    color: var(--color-primary);
+    padding: 0 0 10px 0;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+@media (min-width: 768px) {
+    .create-application-page .card-header {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+}
+
+/* Уведомления */
+.create-application-page .alert-info {
+    background-color: transparent;
+    border: 1px solid var(--color-secondary);
+    color: var(--color-primary);
+    margin-top: 20px;
+    padding: 1rem;
+    font-size: 0.9rem;
+}
+
+.create-application-page .alert-info i {
+    color: var(--color-primary);
+}
+
+/* Строки авторов */
+.create-application-page .author-row {
+    padding: 15px;
+    border-bottom: 1px solid rgba(185, 159, 110, 0.2);
+    background-color: rgba(38, 48, 69, 0.05);
+    border-radius: 8px;
+    margin-bottom: 15px;
+    position: relative;
+}
+
+.create-application-page .author-row:last-child {
+    border-bottom: none;
+}
+
+/* Общий процент */
+.create-application-page #totalPercent {
+    color: var(--color-primary);
+    font-weight: 500;
+    padding-top: 10px;
+    border-top: 1px solid rgba(185, 159, 110, 0.2);
+    margin-top: 20px;
+    text-align: center;
+    font-size: 1rem;
+}
+
+@media (min-width: 768px) {
+    .create-application-page #totalPercent {
+        text-align: left;
+    }
+}
+
+/* Адаптивные стили */
+
+/* Мобильные устройства (< 576px) */
+@media (max-width: 575.98px) {
+    .create-application-page .container {
+        padding: 10px;
+    }
+
+    .create-application-page h1 {
+        font-size: 1.4rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .create-application-page .card-header {
+        padding: 0.5rem 0;
+        margin-bottom: 1rem;
+    }
+
+    .create-application-page .card-title {
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .create-application-page .row {
+        margin-left: -0.25rem;
+        margin-right: -0.25rem;
+    }
+
+    .create-application-page .col-md-3,
+    .create-application-page .col-md-2,
+    .create-application-page .col-md-6 {
+        padding-left: 0.25rem;
+        padding-right: 0.25rem;
+    }
+
+    .create-application-page .author-row {
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+
+    .create-application-page .btn-sm {
+        max-width: 100%;
+        font-size: 0.85rem;
+        padding: 0.5rem;
+    }
+
+    .create-application-page .form-control,
+    .create-application-page .form-select {
+        font-size: 0.95rem;
+        padding: 0.375rem 0;
+    }
+
+    .create-application-page .form-text {
+        font-size: 0.8rem;
+    }
+
+    .mt-4.pt-3 {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: stretch;
+    }
+
+    .mt-4.pt-3 .btn {
+        width: 100%;
+        margin: 0 !important;
+        padding: 0.75rem;
+        font-size: 1rem;
+    }
+}
+
+/* Планшеты (от 576px до 768px) */
+@media (min-width: 576px) and (max-width: 767.98px) {
+    .create-application-page .container {
+        padding: 20px;
+    }
+
+    .create-application-page h1 {
+        font-size: 1.6rem;
+    }
+
+    .create-application-page .author-row {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .create-application-page .author-row > div {
+        margin-bottom: 0;
+    }
+
+    .create-application-page .author-row > div:nth-last-child(1) {
+        grid-column: span 2;
+        margin-top: 0.5rem;
+    }
+
+    .create-application-page .btn-sm {
+        max-width: 180px;
+    }
+
+    .mt-4.pt-3 {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .mt-4.pt-3 .btn {
+        flex: 1;
+        min-width: 150px;
+    }
+}
+
+/* Десктоп (от 768px) */
+@media (min-width: 768px) {
+    .create-application-page .author-row {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 1rem;
+        align-items: start;
+    }
+
+    .create-application-page .author-row > div:nth-child(1) { grid-column: span 3; }
+    .create-application-page .author-row > div:nth-child(2) { grid-column: span 2; }
+    .create-application-page .author-row > div:nth-child(3) { grid-column: span 2; }
+    .create-application-page .author-row > div:nth-child(4) { grid-column: span 2; }
+    .create-application-page .author-row > div:nth-child(5) { grid-column: span 6; }
+    .create-application-page .author-row > div:nth-child(6) { grid-column: span 6; }
+    .create-application-page .author-row > div:nth-child(7) { grid-column: span 2; }
+
+    .mt-4.pt-3 {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .mt-4.pt-3 .btn {
+        min-width: 160px;
+    }
+}
+
+/* Улучшения для сенсорных устройств */
+.btn,
+.form-control,
+.form-select {
+    min-height: 44px;
+    touch-action: manipulation;
+}
+
+.btn-sm {
+    min-height: 36px;
+}
+
+/* Адаптивные шрифты для мобильных */
+@media (max-width: 767.98px) {
+    .create-application-page .form-label {
+        font-size: 0.9rem;
+    }
+
+    .create-application-page .form-control,
+    .create-application-page .form-select {
+        font-size: 1rem;
+    }
+}
+
+/* Анимации */
+.author-row {
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Адаптивная кнопка "Добавить автора" */
+.card-header .btn-sm {
+    white-space: nowrap;
+    min-width: 160px;
+}
+
+@media (max-width: 767.98px) {
+    .card-header .btn-sm {
+        min-width: 140px;
+        font-size: 0.85rem;
+        padding: 0.5rem 0.75rem;
+    }
+}
+
+/* Адаптивное отображение процента */
+#totalPercent {
+    font-size: 1.1rem;
+    padding: 0.75rem;
+    background-color: rgba(38, 48, 69, 0.1);
+    border-radius: 4px;
+    margin-top: 1rem;
+}
+
+@media (max-width: 575.98px) {
+    #totalPercent {
+        font-size: 1rem;
+        padding: 0.5rem;
+    }
+}
+
+/* Улучшение для полей ввода процентов */
+.percent-input {
+    text-align: center;
+    font-weight: 500;
+}
+
+@media (max-width: 767.98px) {
+    .percent-input {
+        font-size: 1.1rem;
+    }
+}
+
+/* Адаптивное поле с кнопкой удаления */
+.author-row .col-md-2:last-child {
+    display: flex;
+    align-items: flex-end;
+}
+
+@media (max-width: 767.98px) {
+    .author-row .col-md-2:last-child {
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+/* Добавляем классы для уведомлений */
+.border-danger {
+    border-color: var(--color-primary) !important;
+}
+
+.border-warning {
+    border-color: rgba(185, 159, 110, 0.5) !important;
+}
+
+.border-success {
+    border-color: var(--color-secondary) !important;
+}
+
+.text-success {
+    color: var(--color-secondary) !important;
+}
+
+/* Стили для состояния ошибки валидации */
+.is-invalid {
+    border-bottom: 2px solid var(--color-primary) !important;
+}
+
+/* Иконки в уведомлениях процентов */
+#totalPercent i {
+    color: var(--color-primary);
+}
+</style>
+
+<div class="container create-application-page">
+    <h1>Создать заявку на свидетельствование ЭВМ</h1>
+    <form method="post" id="applicationForm">
+
+        <!-- Основная информация -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Основная информация</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-12 col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label required">Название заявки</label>
+                            <input type="text" class="form-control" name="title" required>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label required">Продукт</label>
+                            <select class="form-select" name="product_id" required>
+                                <option value="">Выберите продукт</option>
+                                {% for product in products %}
+                                <option value="{{ product[0] }}">{{ product[1] }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Авторы заявки -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-2 mb-md-0">Список авторов</h5>
+                <button type="button" class="btn btn-secondary mt-2 mt-md-0" onclick="addAuthorRow()">
+                    Добавить автора
+                </button>
+            </div>
+            <div class="card-body">
+                <div id="authors-container">
+                    <div class="author-row">
+                        <div class="mb-3">
+                            <label class="form-label required">Автор</label>
+                            <select class="form-select" name="author_ids[]" required>
+                                <option value="">Выберите автора</option>
+                                {% for author in authors %}
+                                <option value="{{ author[0] }}">{{ author[1] }} {{ author[2] }} {{ author[3] or '' }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label required">Роль</label>
+                            <select class="form-select" name="role_ids[]" required>
+                                <option value="">Выберите роль</option>
+                                {% for role in roles %}
+                                <option value="{{ role[0] }}">{{ role[1] }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label required">% участия</label>
+                            <input type="number" class="form-control percent-input" name="percents[]" min="0" max="100"
+                                   step="0.1" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label required">Время участия (часы)</label>
+                            <input type="number" class="form-control" name="times[]" min="1" max="1000" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label required">Краткое описание вклада</label>
+                            <input type="text" class="form-control" name="description[]" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label required">Наименование и номер оборудования</label>
+                            <input type="text" class="form-control" name="equipment[]" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">&nbsp;</label>
+                            <button type="button" class="btn btn-sm btn-danger w-100" onclick="removeAuthorRow(this)"
+                                    disabled>
+                                Удалить
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div id="totalPercent" class="mt-3"></div>
+            </div>
+        </div>
+
+        <!-- Экспертная комиссия -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Экспертная комиссия</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">Выберите экспертную комиссию</label>
+                    <select class="form-select" name="commission_id">
+                        <option value="">— Без экспертной комиссии —</option>
+                        {% for commission in commissions %}
+                        <option value="{{ commission[0] }}">
+                            {{ commission[1] }}
+                            {% if commission[2] %} - {{ commission[2] }}{% endif %}
+                            {% if session.role == 'admin' and commission[5] %} ({{ commission[5] }}){% endif %}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    <div class="form-text">
+                        Выберите готовую экспертную комиссию для оценки заявки
+                    </div>
+                </div>
+
+                {% if not commissions %}
+                <div class="alert alert-info">
+                    <strong>У вас нет созданных экспертных комиссий</strong>
+                    <p class="mb-0">Вы можете создать экспертную комиссию в соответствующем разделе</p>
+                    <a href="{{ url_for('commission_create') }}" class="btn btn-sm btn-primary mt-2">
+                        <i class="bi bi-plus-circle me-1"></i>Создать экспертную комиссию
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- НИР -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12 col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label required">Наименование и номер НИР</label>
+                            <input type="text" class="form-control" name="nir" required>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Кнопки -->
+        <div class="mt-4 pt-3 border-top">
+            <button type="submit" class="btn btn-success">
+                Создать заявку
+            </button>
+            <a href="{{ url_for('applications_list') }}" class="btn btn-secondary ms-2">
+                Отмена
+            </a>
+        </div>
+    </form>
+</div>
+
+<script>
+    let authorRowCount = 1;
+
+    function addAuthorRow() {
+        authorRowCount++;
+        const container = document.getElementById('authors-container');
+        const newRow = document.createElement('div');
+        newRow.className = 'author-row';
+        newRow.innerHTML = `
+            <div class="mb-3">
+                <label class="form-label required">Автор</label>
+                <select class="form-select" name="author_ids[]" required>
+                    <option value="">Выберите автора</option>
+                    {% for author in authors %}
+                    <option value="{{ author[0] }}">{{ author[1] }} {{ author[2] }} {{ author[3] or '' }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label required">Роль</label>
+                <select class="form-select" name="role_ids[]" required>
+                    <option value="">Выберите роль</option>
+                    {% for role in roles %}
+                    <option value="{{ role[0] }}">{{ role[1] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label required">% участия</label>
+                <input type="number" class="form-control percent-input" name="percents[]" min="0" max="100" step="0.1" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label required">Время участия (часы)</label>
+                <input type="number" class="form-control" name="times[]" min="1" max="1000" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label required">Краткое описание вклада</label>
+                <input type="text" class="form-control" name="description[]" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label required">Наименование и номер оборудования</label>
+                <input type="text" class="form-control" name="equipment[]" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">&nbsp;</label>
+                <button type="button" class="btn btn-sm btn-danger w-100" onclick="removeAuthorRow(this)">
+                    Удалить
+                </button>
+            </div>
+        `;
+        container.appendChild(newRow);
+
+        // Добавляем обработчик для нового поля процента
+        newRow.querySelector('.percent-input').addEventListener('input', updateTotalPercent);
+
+        // Активируем кнопку удаления у первой строки
+        if (authorRowCount === 2) {
+            const firstDeleteBtn = container.querySelector('.author-row:first-child .btn-danger');
+            if (firstDeleteBtn) {
+                firstDeleteBtn.disabled = false;
+            }
+        }
+
+        // Инициализируем процент для новой строки
+        updateTotalPercent();
+
+        // Скролл к новой строке на мобильных
+        if (window.innerWidth < 768) {
+            newRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    }
+
+    function removeAuthorRow(button) {
+        const row = button.closest('.author-row');
+        row.style.opacity = '0';
+        row.style.transform = 'translateY(-10px)';
+        setTimeout(() => {
+            row.remove();
+            authorRowCount--;
+            updateTotalPercent();
+
+            // Если осталась одна строка, деактивируем кнопку удаления
+            if (authorRowCount === 1) {
+                const firstDeleteBtn = document.querySelector('.author-row .btn-danger');
+                if (firstDeleteBtn) {
+                    firstDeleteBtn.disabled = true;
+                }
+            }
+        }, 300);
+    }
+
+    function updateTotalPercent() {
+        const percentInputs = document.querySelectorAll('.percent-input');
+        let total = 0;
+        percentInputs.forEach(input => {
+            total += parseFloat(input.value) || 0;
+        });
+
+        const totalElement = document.getElementById('totalPercent');
+        if (total > 100) {
+            totalElement.innerHTML = `<span>
+                <i class="bi bi-exclamation-triangle me-1"></i>Общий процент: ${total.toFixed(1)}% (превышает 100%)
+            </span>`;
+            totalElement.classList.add('border', 'border-danger');
+        } else if (total < 100) {
+            totalElement.innerHTML = `<span>
+                <i class="bi bi-info-circle me-1"></i>Общий процент: ${total.toFixed(1)}% (осталось ${(100 - total).toFixed(1)}%)
+            </span>`;
+            totalElement.classList.remove('border', 'border-danger');
+            totalElement.classList.add('border', 'border-warning');
+        } else {
+            totalElement.innerHTML = `<span>
+                <i class="bi bi-check-circle me-1"></i>Общий процент: ${total.toFixed(1)}%
+            </span>`;
+            totalElement.classList.remove('border', 'border-danger', 'border-warning');
+            totalElement.classList.add('border', 'border-success');
+        }
+    }
+
+    // Адаптивная функция для проверки полей
+    function checkFormFields() {
+        if (window.innerWidth < 768) {
+            // На мобильных проверяем, что все поля заполнены
+            const requiredFields = document.querySelectorAll('[required]');
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    field.classList.add('is-invalid');
+                } else {
+                    field.classList.remove('is-invalid');
+                }
+            });
+        }
+    }
+
+    // Адаптивная инициализация
+    document.addEventListener('DOMContentLoaded', function() {
+        // Устанавливаем адаптивные стили для процентов
+        const percentInputs = document.querySelectorAll('.percent-input');
+        percentInputs.forEach(input => {
+            input.addEventListener('input', updateTotalPercent);
+
+            // Адаптивный шаг для мобильных
+            if (window.innerWidth < 768) {
+                input.setAttribute('step', '1');
+            } else {
+                input.setAttribute('step', '0.1');
+            }
+        });
+
+        // Адаптивное отображение кнопок
+        function adaptButtons() {
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(btn => {
+                if (window.innerWidth < 576) {
+                    btn.classList.add('py-2');
+                } else {
+                    btn.classList.remove('py-2');
+                }
+            });
+        }
+
+        // Инициализируем
+        updateTotalPercent();
+        adaptButtons();
+        checkFormFields();
+
+        // Добавляем обработчик изменения размера окна
+        window.addEventListener('resize', function() {
+            adaptButtons();
+
+            // Обновляем шаг для процентов
+            const percentInputs = document.querySelectorAll('.percent-input');
+            percentInputs.forEach(input => {
+                if (window.innerWidth < 768) {
+                    input.setAttribute('step', '1');
+                } else {
+                    input.setAttribute('step', '0.1');
+                }
+            });
+        });
+
+        // Обработчик отправки формы с адаптивной валидацией
+        document.getElementById('applicationForm').addEventListener('submit', function(e) {
+            // Проверяем сумму процентов
+            const percentInputs = document.querySelectorAll('.percent-input');
+            let total = 0;
+            percentInputs.forEach(input => {
+                total += parseFloat(input.value) || 0;
+            });
+
+            if (Math.abs(total - 100) > 0.1) {
+                e.preventDefault();
+
+                // Адаптивное сообщение об ошибке
+                const errorMsg = window.innerWidth < 768
+                    ? `Ошибка: сумма процентов должна быть 100%\nТекущая сумма: ${total.toFixed(1)}%`
+                    : `Сумма процентов участия должна быть 100%. Текущая сумма: ${total.toFixed(1)}%`;
+
+                alert(errorMsg);
+
+                // Подсвечиваем поле процента на мобильных
+                if (window.innerWidth < 768) {
+                    percentInputs.forEach(input => {
+                        if (!input.value || parseFloat(input.value) <= 0) {
+                            input.classList.add('is-invalid');
+                            input.focus();
+                        }
+                    });
+                }
+
+                return false;
+            }
+
+            return true;
+        });
+    });
+</script>
+{% endblock %}
