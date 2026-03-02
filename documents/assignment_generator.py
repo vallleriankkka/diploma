@@ -250,11 +250,10 @@ class AssignmentAgreementGenerator:
 
         # Отладочный вывод
         print(f"\nDEBUG: Key replacements for author #{author_index}:")
-        print(f"  FULLNAME: '{replacements['{{FULLNAME}}']}'")
-        print(f"  SHARE_PERCENTAGE: '{replacements['{{SHARE_PERCENTAGE}}']}'")
-        print(f"  SHARE_TEXT: '{replacements['{{SHARE_TEXT}}']}'")
-        print(f"  SUM: '{replacements['{{SUM}}']}'")
-        print(f"  PRODUCTNAME: '{replacements['{{PRODUCTNAME}}']}'")
+        print(f"  FULLNAME: '{replacements['FULLNAME']}'")
+        print(f"  SHARE_TEXT: '{replacements['SHARE_TEXT']}'")
+        print(f"  SUM: '{replacements['SUM']}'")
+        print(f"  PRODUCTNAME: '{replacements['PRODUCTNAME']}'")
 
         print(f"\n{'=' * 50}")
         print(f"DEBUG: END FILL TEMPLATE FOR AUTHOR #{author_index}")

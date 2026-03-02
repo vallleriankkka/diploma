@@ -91,13 +91,13 @@ class AbstractGenerator:
         }
 
         print(f"\nDEBUG: Key replacements for abstract:")
-        print(f"  PRODUCT_NAME: '{replacements['{{PRODUCT_NAME}}']}'")
-        print(f"  ANNOTATION: '{replacements['{{ANNOTATION}}'][:50]}...'")
-        print(f"  COMPUTER_TYPE: '{replacements['{{COMPUTER_TYPE}}']}'")
-        print(f"  LANGUAGE: '{replacements['{{LANGUAGE}}']}'")
-        print(f"  OS: '{replacements['{{OS}}']}'")
-        print(f"  VOLUME: '{replacements['{{VOLUME}}']}'")
-        print(f"  AUTHORS: '{replacements['{{AUTHORS}}']}'")
+        print(f"  PRODUCT_NAME: '{replacements['PRODUCT_NAME']}'")
+        print(f"  ANNOTATION: '{replacements['ANNOTATION'][:50]}...'")
+        print(f"  COMPUTER_TYPE: '{replacements['COMPUTER_TYPE']}'")
+        print(f"  LANGUAGE: '{replacements['LANGUAGE']}'")
+        print(f"  OS: '{replacements['OS']}'")
+        print(f"  VOLUME: '{replacements['VOLUME']}'")
+        print(f"  AUTHORS: '{replacements['AUTHORS']}'")
 
         print("\n" + "=" * 50)
         print("DEBUG: END FILL ABSTRACT TEMPLATE")
