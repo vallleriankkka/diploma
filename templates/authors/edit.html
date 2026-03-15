@@ -435,9 +435,10 @@
                 <div class="form-text">10 цифр без пробелов</div>
             </div>
             <div class="col-12 col-md-6 col-lg-4 mb-3">
-                <label class="form-label">Дата выдачи паспорта</label>
+                <label class="form-label required">Дата выдачи паспорта</label>
                 <input type="date" class="form-control" name="passport_issue_date" id="passport_issue_date"
-                       value="{{ author[15].strftime('%Y-%m-%d') if author[15] else '' }}" max="{{ today }}">
+                       value="{{ author[15].strftime('%Y-%m-%d') if author[15] else '' }}">
+                <div class="form-text" id="passportDateInfo"></div>
             </div>
             <div class="col-12 col-md-6 col-lg-4 mb-3">
                 <label class="form-label">Кем выдан паспорт</label>
@@ -557,15 +558,19 @@
         }
     });
 
-    // Расчет возраста
+    // Расчет возраста с проверкой на 14-100 лет
     function calculateAge() {
         const birthDateInput = document.getElementById('birth_date');
-        if (!birthDateInput.value) return;
+        if (!birthDateInput || !birthDateInput.value) return;
 
         const birthDate = new Date(birthDateInput.value);
         const today = new Date();
-        let age = today.getFullYear() - birthDate.getFullYear();
-        const monthDiff = today.getMonth() - birthDate.getMonth();
+
+        // Создаем дату 100 лет назад для сравнения
+        const hundredYearsAgo = new Date(today);
+        hundredYearsAgo.setFullYear(today.getFullYear() - 100);
+
+        let age = today.getFullYear() - birthDate.getFullYear();    const monthDiff = today.getMonth() - birthDate.getMonth();
 
         if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
             age--;
@@ -573,8 +578,57 @@
 
         const ageInfo = document.getElementById('ageInfo');
         if (ageInfo) {
-            ageInfo.textContent = `Возраст: ${age}`;
-            ageInfo.style.color = age < 14 ? 'var(--color-primary)' : 'var(--color-primary)';
+            if (age < 14) {
+                ageInfo.innerHTML = '<span>Возраст: ' + age + '. Автор должен быть старше 14 лет!</span>';
+                ageInfo.style.color = 'var(--color-primary)';
+                birthDateInput.setCustomValidity('Автор должен быть старше 14 лет');
+            } else if (birthDate < hundredYearsAgo) {
+                ageInfo.innerHTML = '<span>Возраст: ' + age + '. Возраст не может превышать 100 лет!</span>';
+                ageInfo.style.color = 'var(--color-primary)';
+                birthDateInput.setCustomValidity('Возраст не может превышать 100 лет');
+            } else {
+                ageInfo.innerHTML = '<span>Возраст: ' + age + '</span>';
+                ageInfo.style.color = 'var(--color-primary)';
+                birthDateInput.setCustomValidity('');
+            }
+        }
+    }
+    // Проверка даты выдачи паспорта
+    function validatePassportDate() {
+        const passportDateInput = document.getElementById('passport_issue_date');
+        if (!passportDateInput || !passportDateInput.value) return;
+
+        const issueDate = new Date(passportDateInput.value);
+        const today = new Date();
+
+        // Создаем дату 100 лет назад
+        const hundredYearsAgo = new Date(today);
+        hundredYearsAgo.setFullYear(today.getFullYear() - 100);
+
+        // Создаем или находим элемент для отображения информации
+        let passportDateInfo = document.getElementById('passportDateInfo');
+        if (!passportDateInfo) {
+            passportDateInfo = document.createElement('div');
+            passportDateInfo.id = 'passportDateInfo';
+            passportDateInfo.className = 'form-text';
+            passportDateInput.parentNode.appendChild(passportDateInfo);
+        }
+
+        // Проверки
+        if (issueDate > today) {
+            passportDateInfo.innerHTML = '<span>Дата выдачи не может быть в будущем!</span>';
+            passportDateInfo.style.color = 'var(--color-primary)';
+            passportDateInput.setCustomValidity('Дата выдачи не может быть в будущем');
+        }
+        else if (issueDate < hundredYearsAgo) {
+            passportDateInfo.innerHTML = '<span>Дата выдачи не может быть раньше, чем 100 лет назад!</span>';
+            passportDateInfo.style.color = 'var(--color-primary)';
+            passportDateInput.setCustomValidity('Дата выдачи не может быть раньше, чем 100 лет назад');
+        }
+        else {
+            passportDateInfo.innerHTML = '<span>Дата выдачи корректна</span>';
+            passportDateInfo.style.color = 'var(--color-primary)';
+            passportDateInput.setCustomValidity('');
         }
     }
 
@@ -627,6 +681,59 @@
         const passportCodeInput = document.getElementById('passport_code');
         const snilsInput = document.getElementById('snils');
         const innInput = document.getElementById('inn');
+        const birthDateInput = document.getElementById('birth_date');
+        const passportDateInput = document.getElementById('passport_issue_date');
+
+        // Проверка возраста
+        if (birthDateInput && birthDateInput.value) {
+            const birthDate = new Date(birthDateInput.value);
+            const today = new Date();
+            const hundredYearsAgo = new Date(today);
+            hundredYearsAgo.setFullYear(today.getFullYear() - 100);
+
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const monthDiff = today.getMonth() - birthDate.getMonth();
+
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+
+            if (age < 14) {
+                e.preventDefault();
+                alert('Автор должен быть старше 14 лет');
+                birthDateInput.focus();
+                return false;
+            }
+
+            if (birthDate < hundredYearsAgo) {
+                e.preventDefault();
+                alert('Возраст автора не может превышать 100 лет');
+                birthDateInput.focus();
+                return false;
+            }
+        }
+
+        // Проверка даты выдачи паспорта (если поле заполнено)
+        if (passportDateInput && passportDateInput.value) {
+            const issueDate = new Date(passportDateInput.value);
+            const today = new Date();
+            const hundredYearsAgo = new Date(today);
+            hundredYearsAgo.setFullYear(today.getFullYear() - 100);
+
+            if (issueDate > today) {
+                e.preventDefault();
+                alert('Дата выдачи паспорта не может быть в будущем');
+                passportDateInput.focus();
+                return false;
+            }
+
+            if (issueDate < hundredYearsAgo) {
+                e.preventDefault();
+                alert('Дата выдачи паспорта не может быть раньше, чем 100 лет назад');
+                passportDateInput.focus();
+                return false;
+            }
+        }
 
         // Проверка студента
         if (isStudent && educationSelect && !educationSelect.value) {
@@ -677,14 +784,36 @@
         adaptFormForMobile();
         window.addEventListener('resize', adaptFormForMobile);
 
-        // Установка максимальной даты
-        const today = "{{ today }}";
-        document.getElementById('birth_date').max = today;
-        document.getElementById('passport_issue_date').max = today;
+         // Получаем сегодняшнюю дату
+        const todayStr = "{{ today }}";
+        const today = new Date(todayStr);
+
+        // Минимальная дата (100 лет назад)
+        const minDate = new Date(today);
+        minDate.setFullYear(today.getFullYear() - 100);
+        const minDateStr = minDate.toISOString().split('T')[0];
+
+        // Устанавливаем ограничения для даты рождения
+        const birthDateInput = document.getElementById('birth_date');
+        if (birthDateInput) {
+            birthDateInput.setAttribute('max', todayStr);
+            birthDateInput.setAttribute('min', minDateStr);
+            birthDateInput.addEventListener('change', calculateAge);
+        }
+
+        // Устанавливаем ограничения для даты выдачи паспорта
+        const passportDateInput = document.getElementById('passport_issue_date');
+        if (passportDateInput) {
+            passportDateInput.setAttribute('max', todayStr);
+            passportDateInput.setAttribute('min', minDateStr);
+            passportDateInput.addEventListener('change', validatePassportDate);
+        }
 
         // Инициализация расчета возраста
         calculateAge();
-        document.getElementById('birth_date').addEventListener('change', calculateAge);
+
+        // Инициализация проверки даты паспорта
+        validatePassportDate();
 
         // Форматирование документов
         const passportInput = document.getElementById('passport');
