@@ -752,18 +752,22 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label required">% участия</label>
-                            <input type="number" class="form-control percent-input"
-                                   name="percents[]" min="0" max="100" step="0.1"
+                            <input type="text" class="form-control percent-input"
+                                   name="percents[]"
+                                   inputmode="numeric" pattern="\d*"
                                    value="{{ author[3] }}"
                                    {% if app_status not in [1, 6] and session.role !='admin' %}readonly{% endif %}
                                    required>
+                            <div class="form-text percent-info">Только целые числа, максимум 100%</div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label required">Время участия (часы)</label>
-                            <input type="number" class="form-control" name="times[]"
-                                   min="1" max="1000" value="{{ author[4] if author[4] else '' }}"
+                            <input type="text" class="form-control time-input" name="times[]"
+                                   inputmode="numeric" pattern="\d*"
+                                   value="{{ author[4] if author[4] else '' }}"
                                    {% if app_status not in [1, 6] and session.role !='admin' %}readonly{% endif %}
                                    required>
+                            <div class="form-text time-info">Только цифры, максимум 24 000 часов</div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label required">Краткое описание вклада</label>
@@ -817,13 +821,18 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label required">% участия</label>
-                            <input type="number" class="form-control percent-input"
-                                   name="percents[]" min="0" max="100" step="0.1" required>
+                            <input type="text" class="form-control percent-input"
+                                   name="percents[]"
+                                   inputmode="numeric" pattern="\d*"
+                                   placeholder="0" required>
+                            <div class="form-text percent-info">Только целые числа, максимум 100%</div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label required">Время участия (часы)</label>
-                            <input type="number" class="form-control" name="times[]"
-                                   min="1" max="1000" required>
+                            <input type="text" class="form-control time-input" name="times[]"
+                                   inputmode="numeric" pattern="\d*"
+                                   placeholder="0" required>
+                            <div class="form-text time-info">Только цифры, максимум 24 000 часов</div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label required">Краткое описание вклада</label>
@@ -921,204 +930,420 @@
 </div>
 
 <script>
-    let authorRowCount = {{ application_authors|length if application_authors else 1 }};
-    const canEdit = {{ 'true' if (app_status in [1, 6] or session.role == 'admin') else 'false' }};
+    // Константы для валидации
+const MAX_PERCENT = 100;
+const MAX_HOURS = 24000;
 
-    function addAuthorRow() {
-        if (!canEdit) return;
+// Функция форматирования числа с разделителями
+function formatNumber(number) {
+    return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+}
 
-        authorRowCount++;
-        const container = document.getElementById('authors-container');
-        const newRow = document.createElement('div');
-        newRow.className = 'author-row';
-        newRow.innerHTML = `
-            <div class="mb-3">
-                <label class="form-label required">Автор</label>
-                <select class="form-select" name="author_ids[]" required>
-                    <option value="">Выберите автора</option>
-                    {% for author in authors %}
-                    <option value="{{ author[0] }}">{{ author[1] }} {{ author[2] }} {{ author[3] or '' }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="mb-3">
-                <label class="form-label required">Роль</label>
-                <select class="form-select" name="role_ids[]" required>
-                    <option value="">Выберите роль</option>
-                    {% for role in roles %}
-                    <option value="{{ role[0] }}">{{ role[1] }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="mb-3">
-                <label class="form-label required">% участия</label>
-                <input type="number" class="form-control percent-input"
-                       name="percents[]" min="0" max="100" step="0.1" required>
-            </div>
-            <div class="mb-3">
-                <label class="form-label required">Время участия (часы)</label>
-                <input type="number" class="form-control" name="times[]"
-                       min="1" max="1000" required>
-            </div>
-            <div class="mb-3">
-                <label class="form-label required">Краткое описание вклада</label>
-                <input class="form-control" name="description[]" required>
-            </div>
-            <div class="mb-3">
-                <label class="form-label required">Наименование и номер оборудования</label>
-                <input class="form-control" name="equipment[]" required>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">&nbsp;</label>
-                <button type="button" class="btn btn-sm btn-danger w-100" onclick="removeAuthorRow(this)">
-                    Удалить
-                </button>
-            </div>
-        `;
-        container.appendChild(newRow);
+// Валидация процентов
+function validatePercent(input) {
+    // Удаляем все кроме цифр
+    input.value = input.value.replace(/\D/g, '');
 
-        // Добавляем обработчик для нового поля процента
-        newRow.querySelector('.percent-input').addEventListener('input', updateTotalPercent);
+    // Убираем ведущие нули
+    if (input.value.length > 1 && input.value.startsWith('0')) {
+        input.value = input.value.replace(/^0+/, '');
+    }
 
-        // Активируем кнопку удаления у первой строки
-        if (authorRowCount === 2) {
-            const firstDeleteBtn = container.querySelector('.author-row:first-child .btn-danger');
-            if (firstDeleteBtn) {
-                firstDeleteBtn.disabled = false;
-            }
+    // Проверка на пустое значение
+    if (input.value === '') {
+        input.setCustomValidity('Введите процент участия');
+        updatePercentInfo(input);
+        return;
+    }
+
+    const percent = parseInt(input.value, 10);
+
+    // Проверка на корректное число
+    if (isNaN(percent)) {
+        input.setCustomValidity('Введите корректное число');
+        input.value = '';
+        updatePercentInfo(input);
+        return;
+    }
+
+    // Проверка максимального значения
+    if (percent > MAX_PERCENT) {
+        input.setCustomValidity(`Процент не может превышать ${MAX_PERCENT}%`);
+        input.value = MAX_PERCENT.toString();
+    } else if (percent < 0) {
+        input.setCustomValidity('Процент не может быть отрицательным');
+        input.value = '0';
+    } else {
+        input.setCustomValidity('');
+    }
+
+    updatePercentInfo(input);
+}
+
+// Обновление информации о проценте
+function updatePercentInfo(input) {
+    const infoDiv = input.closest('.mb-3')?.querySelector('.percent-info');
+    if (!infoDiv) return;
+
+    const value = input.value;
+    if (value === '') {
+        infoDiv.innerHTML = 'Только целые числа, максимум 100%';
+        return;
+    }
+
+    const percent = parseInt(value, 10);
+    if (isNaN(percent)) {
+        infoDiv.innerHTML = 'Только целые числа, максимум 100%';
+        return;
+    }
+
+    if (percent > MAX_PERCENT) {
+        infoDiv.innerHTML = `<span style="color: var(--color-primary);">${percent}% (превышает лимит ${MAX_PERCENT}%)</span>`;
+    } else {
+        infoDiv.innerHTML = `${percent}% (максимум: ${MAX_PERCENT}%)`;
+    }
+}
+
+// Валидация времени участия
+function validateTime(input) {
+    // Удаляем все кроме цифр
+    input.value = input.value.replace(/\D/g, '');
+
+    // Убираем ведущие нули
+    if (input.value.length > 1 && input.value.startsWith('0')) {
+        input.value = input.value.replace(/^0+/, '');
+    }
+
+    // Проверка на пустое значение
+    if (input.value === '') {
+        input.setCustomValidity('Введите время участия');
+        updateTimeInfo(input);
+        return;
+    }
+
+    const hours = parseInt(input.value, 10);
+
+    // Проверка на корректное число
+    if (isNaN(hours)) {
+        input.setCustomValidity('Введите корректное число');
+        input.value = '';
+        updateTimeInfo(input);
+        return;
+    }
+
+    // Проверка максимального значения
+    if (hours > MAX_HOURS) {
+        input.setCustomValidity(`Время не может превышать ${formatNumber(MAX_HOURS)} часов`);
+        input.value = MAX_HOURS.toString();
+    } else if (hours < 1) {
+        input.setCustomValidity('Время должно быть не менее 1 часа');
+        if (hours === 0) {
+            input.value = '1';
         }
+    } else {
+        input.setCustomValidity('');
+    }
 
-        // Инициализируем процент для новой строки
+    updateTimeInfo(input);
+}
+
+// Обновление информации о времени
+function updateTimeInfo(input) {
+    const infoDiv = input.closest('.mb-3')?.querySelector('.time-info');
+    if (!infoDiv) return;
+
+    const value = input.value;
+    if (value === '') {
+        infoDiv.innerHTML = 'Только цифры, максимум 24 000 часов';
+        return;
+    }
+
+    const hours = parseInt(value, 10);
+    if (isNaN(hours)) {
+        infoDiv.innerHTML = 'Только цифры, максимум 24 000 часов';
+        return;
+    }
+
+    if (hours > MAX_HOURS) {
+        infoDiv.innerHTML = `<span style="color: var(--color-primary);">${formatNumber(hours)} часов (превышает лимит ${formatNumber(MAX_HOURS)})</span>`;
+    } else {
+        infoDiv.innerHTML = `${formatNumber(hours)} часов (максимум: ${formatNumber(MAX_HOURS)})`;
+    }
+}
+let authorRowCount = {{ application_authors|length if application_authors else 1 }};
+const canEdit = {{ 'true' if (app_status in [1, 6] or session.role == 'admin') else 'false' }};
+function addAuthorRow() {
+    if (!canEdit) return;
+
+    authorRowCount++;
+    const container = document.getElementById('authors-container');
+    const newRow = document.createElement('div');
+    newRow.className = 'author-row';
+    newRow.innerHTML = `
+        <div class="mb-3">
+            <label class="form-label required">Автор</label>
+            <select class="form-select" name="author_ids[]" required>
+                <option value="">Выберите автора</option>
+                {% for author in authors %}
+                <option value="{{ author[0] }}">{{ author[1] }} {{ author[2] }} {{ author[3] or '' }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label required">Роль</label>
+            <select class="form-select" name="role_ids[]" required>
+                <option value="">Выберите роль</option>
+                {% for role in roles %}
+                <option value="{{ role[0] }}">{{ role[1] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label required">% участия</label>
+            <input type="text" class="form-control percent-input" name="percents[]"
+                   inputmode="numeric" pattern="\d*"
+                   placeholder="0" required>
+            <div class="form-text percent-info">Только целые числа, максимум 100%</div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label required">Время участия (часы)</label>
+            <input type="text" class="form-control time-input" name="times[]"
+                   inputmode="numeric" pattern="\d*"
+                   placeholder="0" required>
+            <div class="form-text time-info">Только цифры, максимум 24 000 часов</div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label required">Краткое описание вклада</label>
+            <input class="form-control" name="description[]" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label required">Наименование и номер оборудования</label>
+            <input class="form-control" name="equipment[]" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">&nbsp;</label>
+            <button type="button" class="btn btn-sm btn-danger w-100" onclick="removeAuthorRow(this)">
+                Удалить
+            </button>
+        </div>
+    `;
+    container.appendChild(newRow);
+
+    // Добавляем обработчики для новых полей
+    const percentInput = newRow.querySelector('.percent-input');
+    const timeInput = newRow.querySelector('.time-input');
+
+    percentInput.addEventListener('input', function() {
+        validatePercent(this);
         updateTotalPercent();
+    });
 
-        // Скролл к новой строке на мобильных
-        if (window.innerWidth < 768) {
-            newRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    percentInput.addEventListener('blur', function() {
+        if (this.value === '') {
+            this.value = '0';
+            validatePercent(this);
         }
-    }
-
-    function removeAuthorRow(button) {
-        if (!canEdit) return;
-
-        const row = button.closest('.author-row');
-        row.style.opacity = '0';
-        row.style.transform = 'translateY(-10px)';
-        setTimeout(() => {
-            row.remove();
-            authorRowCount--;
-            updateTotalPercent();
-
-            // Если осталась одна строка, деактивируем кнопку удаления
-            if (authorRowCount === 1) {
-                const firstDeleteBtn = document.querySelector('.author-row .btn-danger');
-                if (firstDeleteBtn) {
-                    firstDeleteBtn.disabled = true;
-                }
-            }
-        }, 300);
-    }
-
-    function updateTotalPercent() {
-        const percentInputs = document.querySelectorAll('.percent-input');
-        let total = 0;
-        percentInputs.forEach(input => {
-            total += parseFloat(input.value) || 0;
-        });
-
-        const totalElement = document.getElementById('totalPercent');
-        if (total > 100) {
-            totalElement.innerHTML = `<span style="color: #263045">
-                <i class="bi bi-exclamation-triangle me-1"></i>Общий процент: ${total.toFixed(1)}% (превышает 100%)
-            </span>`;
-            totalElement.classList.add('border', 'border-danger');
-        } else if (total < 100) {
-            totalElement.innerHTML = `<span style="color: #263045">
-                <i class="bi bi-info-circle me-1"></i>Общий процент: ${total.toFixed(1)}% (осталось ${(100 - total).toFixed(1)}%)
-            </span>`;
-            totalElement.classList.remove('border', 'border-danger');
-            totalElement.classList.add('border', 'border-warning');
-        } else {
-            totalElement.innerHTML = `<span style="color: #263045">
-                <i class="bi bi-check-circle me-1"></i>Общий процент: ${total.toFixed(1)}%
-            </span>`;
-            totalElement.classList.remove('border', 'border-danger', 'border-warning');
-            totalElement.classList.add('border', 'border-success');
+        // Убеждаемся что значение целое
+        if (this.value.includes('.')) {
+            this.value = Math.round(parseFloat(this.value)).toString();
+            validatePercent(this);
         }
-    }
-
-    // Адаптивная функция для установки шага ввода
-    function adaptInputStep() {
-        const percentInputs = document.querySelectorAll('.percent-input');
-        percentInputs.forEach(input => {
-            if (window.innerWidth < 768) {
-                input.setAttribute('step', '1');
-            } else {
-                input.setAttribute('step', '0.1');
-            }
-        });
-    }
-
-    // Адаптивная инициализация
-    document.addEventListener('DOMContentLoaded', function() {
-        // Устанавливаем обработчики для полей процента
-        const percentInputs = document.querySelectorAll('.percent-input');
-        percentInputs.forEach(input => {
-            input.addEventListener('input', updateTotalPercent);
-        });
-
-        // Адаптируем шаг ввода
-        adaptInputStep();
-
-        // Инициализируем отображение общего процента
         updateTotalPercent();
+    });
 
-        // Обработчик изменения размера окна
-        window.addEventListener('resize', adaptInputStep);
-
-        // Обработчик отправки формы
-        const form = document.getElementById('applicationForm');
-        if (form && canEdit) {
-            form.addEventListener('submit', function(e) {
-                // Проверяем сумму процентов
-                const percentInputs = document.querySelectorAll('.percent-input');
-                let total = 0;
-                percentInputs.forEach(input => {
-                    total += parseFloat(input.value) || 0;
-                });
-
-                if (Math.abs(total - 100) > 0.1) {
-                    e.preventDefault();
-
-                    // Адаптивное сообщение об ошибке
-                    const errorMsg = window.innerWidth < 768
-                        ? `Ошибка: сумма процентов должна быть 100%\nТекущая сумма: ${total.toFixed(1)}%`
-                        : `Сумма процентов участия должна быть 100%. Текущая сумма: ${total.toFixed(1)}%`;
-
-                    alert(errorMsg);
-
-                    // Подсвечиваем поле процента на мобильных
-                    if (window.innerWidth < 768) {
-                        percentInputs.forEach(input => {
-                            if (!input.value || parseFloat(input.value) <= 0) {
-                                input.classList.add('is-invalid');
-                                input.focus();
-                            }
-                        });
-                    }
-
-                    return false;
-                }
-
-                return true;
-            });
-        } else if (form) {
-            // Если редактирование запрещено, блокируем отправку
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                alert('Редактирование заявки запрещено в текущем статусе.');
-                return false;
-            });
+    // Запрещаем ввод точки
+    percentInput.addEventListener('keydown', function(e) {
+        if (e.key === '.') {
+            e.preventDefault();
         }
     });
+
+    timeInput.addEventListener('input', function() {
+        validateTime(this);
+    });
+
+    timeInput.addEventListener('blur', function() {
+        if (this.value === '') {
+            this.value = '1';
+            validateTime(this);
+        }
+    });
+
+    // Активируем кнопку удаления у первой строки
+    if (authorRowCount === 2) {
+        const firstDeleteBtn = container.querySelector('.author-row:first-child .btn-danger');
+        if (firstDeleteBtn) {
+            firstDeleteBtn.disabled = false;
+        }
+    }
+
+    // Инициализируем процент для новой строки
+    updateTotalPercent();
+
+    // Скролл к новой строке на мобильных
+    if (window.innerWidth < 768) {
+        newRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+}
+
+function removeAuthorRow(button) {
+    if (!canEdit) return;
+
+    const row = button.closest('.author-row');
+    row.style.opacity = '0';
+    row.style.transform = 'translateY(-10px)';
+    setTimeout(() => {
+        row.remove();
+        authorRowCount--;
+        updateTotalPercent();
+
+        // Если осталась одна строка, деактивируем кнопку удаления
+        if (authorRowCount === 1) {
+            const firstDeleteBtn = document.querySelector('.author-row .btn-danger');
+            if (firstDeleteBtn) {
+                firstDeleteBtn.disabled = true;
+            }
+        }
+    }, 300);
+}
+function updateTotalPercent() {
+    const percentInputs = document.querySelectorAll('.percent-input');
+    let total = 0;
+    percentInputs.forEach(input => {
+        total += parseInt(input.value, 10) || 0;
+    });
+
+    const totalElement = document.getElementById('totalPercent');
+    if (total > MAX_PERCENT) {
+        totalElement.innerHTML = `<span style="color: #263045">
+            <i class="bi bi-exclamation-triangle me-1"></i>Общий процент: ${total}% (превышает 100%)
+        </span>`;
+        totalElement.classList.add('border', 'border-danger');
+        totalElement.classList.remove('border-warning', 'border-success');
+    } else if (total < MAX_PERCENT) {
+        totalElement.innerHTML = `<span style="color: #263045">
+            <i class="bi bi-info-circle me-1"></i>Общий процент: ${total}% (осталось ${MAX_PERCENT - total}%)
+        </span>`;
+        totalElement.classList.remove('border', 'border-danger');
+        totalElement.classList.add('border', 'border-warning');
+    } else {
+        totalElement.innerHTML = `<span style="color: #263045">
+            <i class="bi bi-check-circle me-1"></i>Общий процент: ${total}%
+        </span>`;
+        totalElement.classList.remove('border', 'border-danger', 'border-warning');
+        totalElement.classList.add('border', 'border-success');
+    }
+}
+
+// Адаптивная функция для установки шага ввода
+function adaptInputStep() {
+    const percentInputs = document.querySelectorAll('.percent-input');
+    percentInputs.forEach(input => {
+        if (window.innerWidth < 768) {
+            input.setAttribute('step', '1');
+        } else {
+            input.setAttribute('step', '0.1');
+        }
+    });
+}
+// Адаптивная инициализация
+document.addEventListener('DOMContentLoaded', function() {
+    // Устанавливаем обработчики для существующих полей процента
+    const percentInputs = document.querySelectorAll('.percent-input');
+    const timeInputs = document.querySelectorAll('.time-input');
+
+    percentInputs.forEach(input => {
+        // Если поле доступно для редактирования
+        if (!input.readOnly) {
+            input.addEventListener('input', function() {
+                validatePercent(this);
+                updateTotalPercent();
+            });
+
+            input.addEventListener('blur', function() {
+                if (this.value === '') {
+                    this.value = '0';
+                    validatePercent(this);
+                }
+                // Убеждаемся что значение целое
+                if (this.value.includes('.')) {
+                    this.value = Math.round(parseFloat(this.value)).toString();
+                    validatePercent(this);
+                }
+                updateTotalPercent();
+            });
+
+            // Запрещаем ввод точки
+            input.addEventListener('keydown', function(e) {
+                if (e.key === '.') {
+                    e.preventDefault();
+                }
+            });
+
+            // Инициализация
+            if (input.value) {
+                validatePercent(input);
+            }
+        }
+    });
+
+    timeInputs.forEach(input => {
+        if (!input.readOnly) {
+            input.addEventListener('input', function() {
+                validateTime(this);
+            });
+
+            input.addEventListener('blur', function() {
+                if (this.value === '') {
+                    this.value = '1';
+                    validateTime(this);
+                }
+            });
+
+            // Инициализация
+            if (input.value) {
+                validateTime(input);
+            }
+        }
+    });
+
+    // Инициализируем отображение общего процента
+    updateTotalPercent();
+
+    // Обработчик отправки формы
+    const form = document.getElementById('applicationForm');
+    if (form && canEdit) {
+        form.addEventListener('submit', function(e) {
+            // Проверяем сумму процентов
+            const percentInputs = document.querySelectorAll('.percent-input');
+            let total = 0;
+            percentInputs.forEach(input => {
+                total += parseInt(input.value, 10) || 0;
+            });
+
+            if (Math.abs(total - MAX_PERCENT) > 0.1) {
+                e.preventDefault();
+
+                // Адаптивное сообщение об ошибке
+                const errorMsg = window.innerWidth < 768
+                    ? `Ошибка: сумма процентов должна быть ${MAX_PERCENT}%\nТекущая сумма: ${total}%`
+                    : `Сумма процентов участия должна быть ${MAX_PERCENT}%. Текущая сумма: ${total}%`;
+
+                alert(errorMsg);
+
+                return false;
+            }
+
+            return true;
+        });
+    } else if (form) {
+        // Если редактирование запрещено, блокируем отправку
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Редактирование заявки запрещено в текущем статусе.');
+            return false;
+        });
+    }
+});
 </script>
 {% endblock %}
