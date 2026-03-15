@@ -339,44 +339,206 @@
 
         <div class="mb-3">
             <label class="form-label required">Объем (МБ)</label>
-            <input type="number" class="form-control" name="volume" id="volume" value="{{ product[3] }}" required
-                   min="1" max="100000" step="1">
+            <input type="text" class="form-control" name="volume" id="volume"
+                   value="{{ product[3] }}" required
+                   inputmode="numeric" pattern="\d*"
+                   placeholder="Введите объем в мегабайтах (только цифры)">
+            <div class="form-text" id="volumeInfo">Только цифры, максимум 2 000 000 000 МБ</div>
         </div>
 
         <button type="submit" class="btn btn-warning btn-outline-accent">Обновить</button>
         <a href="{{ url_for('products_list') }}" class="btn btn-secondary btn-outline-accent">Отмена</a>
     </form>
 </div>
-
 <script>
-    // Валидация объема
-    document.getElementById('volume').addEventListener('input', function() {
-        const volume = parseInt(this.value);
-        const min = parseInt(this.min);
-        const max = parseInt(this.max);
+    // Константа для максимального объема (2 миллиарда)
+    const MAX_VOLUME = 2000000000;
 
-        if (volume < min) {
-            this.setCustomValidity(`Объем должен быть не менее ${min} МБ`);
-        } else if (volume > max) {
-            this.setCustomValidity(`Объем не может превышать ${max} МБ`);
+    // Функция форматирования числа с разделителями
+    function formatNumber(number) {
+        return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+    }
+
+    // Функция обновления информационного сообщения
+    function updateVolumeInfo(value) {
+        const volumeInfo = document.getElementById('volumeInfo');
+        if (!volumeInfo) return;
+
+        const numValue = parseInt(value, 10);
+        if (isNaN(numValue) || value === '') {
+            volumeInfo.innerHTML = 'Только цифры, максимум 2 000 000 000 МБ';
+            return;
+        }
+
+        if (numValue > MAX_VOLUME) {
+            volumeInfo.innerHTML = `<span style="color: var(--color-primary);">Объем: ${formatNumber(numValue)} МБ (превышает лимит ${formatNumber(MAX_VOLUME)} МБ)</span>`;
         } else {
-            this.setCustomValidity('');
+            volumeInfo.innerHTML = `Объем: ${formatNumber(numValue)} МБ (максимум: ${formatNumber(MAX_VOLUME)} МБ)`;
         }
-    });
+    }
 
-    // Автоматическое форматирование объема
-    document.getElementById('volume').addEventListener('blur', function() {
-        let value = parseInt(this.value);
-        if (isNaN(value)) {
-            value = 1;
+    // Валидация объема (только цифры, максимум 2 млрд)
+    const volumeInput = document.getElementById('volume');
+    if (volumeInput) {
+        // Ограничение ввода только цифр
+        volumeInput.addEventListener('input', function(e) {
+            // Удаляем все нецифровые символы
+            this.value = this.value.replace(/\D/g, '');
+
+            // Убираем ведущие нули
+            if (this.value.length > 1 && this.value.startsWith('0')) {
+                this.value = this.value.replace(/^0+/, '');
+            }
+
+            // Проверка на пустое значение
+            if (this.value === '') {
+                this.setCustomValidity('Введите объем');
+                updateVolumeInfo('');
+                return;
+            }
+
+            // Преобразуем в число для проверки
+            const volume = parseInt(this.value, 10);
+
+            // Проверка на корректное число
+            if (isNaN(volume)) {
+                this.setCustomValidity('Введите корректное число');
+                this.value = '';
+                updateVolumeInfo('');
+                return;
+            }
+
+            // Проверка максимального значения
+            if (volume > MAX_VOLUME) {
+                this.setCustomValidity(`Объем не может превышать ${MAX_VOLUME.toLocaleString()} МБ`);
+                this.value = MAX_VOLUME.toString(); // Автоматически устанавливаем максимальное значение
+            } else if (volume < 1) {
+                this.setCustomValidity('Объем должен быть не менее 1 МБ');
+                if (volume === 0) {
+                    this.value = '1'; // Автоматически устанавливаем минимальное значение
+                }
+            } else {
+                this.setCustomValidity('');
+            }
+
+            // Обновляем информационное сообщение
+            updateVolumeInfo(this.value);
+        });
+
+        // Проверка при потере фокуса
+        volumeInput.addEventListener('blur', function() {
+            if (this.value === '') {
+                this.value = '1'; // Значение по умолчанию
+            }
+
+            let volume = parseInt(this.value, 10);
+
+            // Проверка на NaN
+            if (isNaN(volume)) {
+                this.value = '1';
+                volume = 1;
+            }
+
+            // Применяем ограничения
+            if (volume > MAX_VOLUME) {
+                volume = MAX_VOLUME;
+            }
+            if (volume < 1) {
+                volume = 1;
+            }
+
+            // Убираем ведущие нули
+            this.value = volume.toString();
+            updateVolumeInfo(this.value);
+        });
+
+        // Запрещаем ввод с клавиатуры нецифровых символов
+        volumeInput.addEventListener('keydown', function(e) {
+            // Разрешаем: backspace, delete, tab, escape, enter, стрелки
+            if (e.key === 'Backspace' || e.key === 'Delete' || e.key === 'Tab' ||
+                e.key === 'Escape' || e.key === 'Enter' || e.key === 'ArrowLeft' ||
+                e.key === 'ArrowRight' || e.key === 'Home' || e.key === 'End') {
+                return; // Разрешаем эти клавиши
+            }
+
+            // Разрешаем цифры
+            if (e.key >= '0' && e.key <= '9') {
+                return;
+            }
+
+            // Запрещаем все остальное
+            e.preventDefault();
+        });
+
+        // Инициализация при загрузке
+        if (volumeInput.value) {
+            // Форматируем существующее значение
+            let volume = parseInt(volumeInput.value, 10);
+            if (!isNaN(volume)) {
+                if (volume > MAX_VOLUME) volume = MAX_VOLUME;
+                if (volume < 1) volume = 1;
+                volumeInput.value = volume.toString();
+                updateVolumeInfo(volumeInput.value);
+            }
         }
+    }
 
-        // Ограничиваем значения
-        if (value < 1) value = 1;
-        if (value > 100000) value = 100000;
+    // Валидация формы перед отправкой
+    const form = document.getElementById('productForm');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const requiredFields = this.querySelectorAll('[required]');
+            let isValid = true;
+            let firstInvalidField = null;
 
-        this.value = value;
-    });
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    field.style.borderColor = 'var(--color-primary)';
+                    isValid = false;
+                    if (!firstInvalidField) firstInvalidField = field;
+                } else {
+                    field.style.borderColor = '';
+                }
+            });
+
+            // Специальная проверка для объема
+            const volumeField = document.getElementById('volume');
+            if (volumeField && volumeField.value) {
+                const volume = parseInt(volumeField.value, 10);
+
+                if (isNaN(volume)) {
+                    isValid = false;
+                    alert('Пожалуйста, введите корректное значение объема');
+                    volumeField.focus();
+                    return false;
+                }
+
+                if (volume > MAX_VOLUME) {
+                    isValid = false;
+                    alert(`Объем не может превышать ${MAX_VOLUME.toLocaleString()} МБ`);
+                    volumeField.value = MAX_VOLUME.toString();
+                    volumeField.focus();
+                    return false;
+                }
+
+                if (volume < 1) {
+                    isValid = false;
+                    alert('Объем должен быть не менее 1 МБ');
+                    volumeField.value = '1';
+                    volumeField.focus();
+                    return false;
+                }
+            }
+
+            if (!isValid) {
+                e.preventDefault();
+                if (firstInvalidField) {
+                    alert('Пожалуйста, заполните все обязательные поля');
+                    firstInvalidField.focus();
+                }
+            }
+        });
+    }
 
     // Адаптивная инициализация
     document.addEventListener('DOMContentLoaded', function() {
@@ -395,16 +557,18 @@
                 // На мобильных добавляем увеличенные отступы
                 formControls.forEach(control => {
                     control.style.padding = '12px';
+                    control.style.fontSize = '16px'; // Предотвращает масштабирование на iOS
                 });
 
                 // Увеличиваем размер текста в select
                 document.querySelectorAll('.edit-product-page select').forEach(select => {
-                    select.style.fontSize = '16px'; // Предотвращает масштабирование на iOS
+                    select.style.fontSize = '16px';
                 });
             } else {
                 // На десктопе стандартные отступы
                 formControls.forEach(control => {
                     control.style.padding = '';
+                    control.style.fontSize = '';
                 });
 
                 document.querySelectorAll('.edit-product-page select').forEach(select => {
@@ -422,6 +586,14 @@
         // Улучшение для сенсорных устройств
         document.querySelectorAll('.edit-product-page .btn').forEach(btn => {
             btn.style.touchAction = 'manipulation';
+
+            btn.addEventListener('touchstart', function() {
+                this.style.opacity = '0.8';
+            });
+
+            btn.addEventListener('touchend', function() {
+                this.style.opacity = '1';
+            });
         });
     });
 </script>
