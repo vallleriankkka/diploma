@@ -138,7 +138,7 @@ class ApplicationDAO:
                        er.name as role_name
                 FROM applicationauthor aa
                 LEFT JOIN author au ON aa.author_id = au.id
-                LEFT JOIN expert_roles er ON aa.role_id = er.id
+                LEFT JOIN author_roles er ON aa.role_id = er.id
                 WHERE aa.application_id = %s
             """, (application_id,))
             return cur.fetchall()
@@ -170,7 +170,7 @@ class ApplicationDAO:
                     FROM applicationauthor aa
                     JOIN author au ON aa.author_id = au.id
                     LEFT JOIN education_level el ON au.education_level_id = el.id
-                    LEFT JOIN expert_roles er ON aa.role_id = er.id
+                    LEFT JOIN author_roles er ON aa.role_id = er.id
                     WHERE aa.application_id = %s
                     ORDER BY aa.id
                 """, (application_id,))
@@ -415,7 +415,7 @@ class ApplicationDAO:
         with self.db.get_cursor() as cur:
             cur.execute("""
                 SELECT id, name 
-                FROM expert_roles 
+                FROM author_roles 
                 ORDER BY name
             """)
             return [{'id': row[0], 'name': row[1]} for row in cur.fetchall()]

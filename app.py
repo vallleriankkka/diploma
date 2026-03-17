@@ -559,14 +559,14 @@ def create_author_role():
 
         # Проверяем, не существует ли уже такая роль
         with application_dao.db.get_cursor() as cur:
-            cur.execute("SELECT COUNT(*) FROM expert_roles WHERE name = %s", (name,))
+            cur.execute("SELECT COUNT(*) FROM author_roles WHERE name = %s", (name,))
             if cur.fetchone()[0] > 0:
                 return jsonify({'success': False, 'error': 'Роль с таким названием уже существует'})
 
         # Создаем новую запись
         with application_dao.db.get_cursor() as cur:
             cur.execute("""
-                    INSERT INTO expert_roles (name) 
+                    INSERT INTO author_roles (name) 
                     VALUES (%s) 
                     RETURNING id, name
                 """, (name,))
@@ -2484,9 +2484,9 @@ def get_os_types():
 
 
 def get_expert_roles():
-    """Получение списка ролей экспертов"""
+    """Получение списка ролей """
     with db.get_cursor() as cur:
-        cur.execute("SELECT * FROM expert_roles ORDER BY name")
+        cur.execute("SELECT * FROM author_roles ORDER BY name")
         return cur.fetchall()
 
 
