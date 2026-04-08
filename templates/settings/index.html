@@ -30,7 +30,6 @@
         font-weight: 600;
     }
 
-    /* Стили для табов - ТЕКСТ ЦВЕТОМ ПЕРВИЧНЫМ (263045) */
     .settings-tabs {
         border-bottom: 2px solid var(--color-secondary);
         margin-bottom: 25px;
@@ -40,7 +39,7 @@
     }
 
     .settings-tabs .nav-link {
-        color: #263045 !important; /* ЯВНО УКАЗАН ЦВЕТ С !important */
+        color: #263045 !important;
         background-color: transparent;
         border: 1px solid transparent;
         border-bottom: none;
@@ -53,14 +52,14 @@
     .settings-tabs .nav-link:hover {
         background-color: rgba(185, 159, 110, 0.1);
         border-color: var(--color-secondary);
-        color: #263045 !important; /* ЯВНО УКАЗАН ЦВЕТ С !important */
+        color: #263045 !important;
     }
 
     .settings-tabs .nav-link.active {
         background-color: var(--color-background);
         border-color: var(--color-secondary);
         border-bottom-color: transparent;
-        color: #263045 !important; /* ЯВНО УКАЗАН ЦВЕТ С !important */
+        color: #263045 !important;
         position: relative;
     }
 
@@ -82,7 +81,6 @@
         border-radius: 0 0 5px 5px;
     }
 
-    /* Карточки и формы */
     .settings-page .card {
         background-color: var(--color-background);
         border: 1px solid var(--color-secondary);
@@ -135,7 +133,6 @@
         font-weight: normal;
     }
 
-    /* Стили для инпут групп */
     .settings-page .input-group {
         width: 100%;
         margin-bottom: 5px;
@@ -158,7 +155,6 @@
         font-weight: normal;
     }
 
-    /* Алерты с текущими значениями */
     .settings-page .alert-light {
         background-color: rgba(185, 159, 110, 0.1);
         border-color: var(--color-secondary);
@@ -184,7 +180,6 @@
         font-weight: normal;
     }
 
-    /* Кнопки */
     .settings-page .btn-primary {
         color: var(--color-primary);
         border-color: var(--color-secondary);
@@ -228,7 +223,6 @@
         color: var(--color-background);
     }
 
-    /* Стили для справочников */
     .reference-table {
         background-color: var(--color-background);
         border: 1px solid var(--color-secondary);
@@ -292,32 +286,125 @@
         font-style: italic;
     }
 
-    /* Кнопки в справочниках - ОСОБЕННО КНОПКА УДАЛЕНИЯ */
     .reference-table .btn-outline-warning {
-        color: var(--color-primary);
-        border-color: var(--color-secondary);
+        color: var(--color-primary) !important;
+        border-color: var(--color-secondary) !important;
         background-color: transparent;
+        transition: all 0.3s ease;
+        min-width: 34px;
+        padding: 5px 10px;
     }
 
     .reference-table .btn-outline-warning:hover {
-        background-color: var(--color-secondary);
-        color: var(--color-primary);
+        background-color: var(--color-secondary) !important;
+        border-color: var(--color-secondary) !important;
+        color: var(--color-primary) !important;
     }
 
     .reference-table .btn-outline-danger {
-        color: var(--color-primary); /* Цвет текста #263045 */
-        border-color: var(--color-primary); /* Цвет рамки #263045 */
+        color: var(--color-primary) !important;
+        border-color: var(--color-secondary) !important;
         background-color: transparent;
+        transition: all 0.3s ease;
+        min-width: 34px;
+        padding: 5px 10px;
+    }
+    .reference-table .btn-outline-danger:hover {
+        background-color: var(--color-secondary) !important;
+        border-color: var(--color-secondary) !important;
+        color: var(--color-primary) !important;
+    }
+
+    .users-table {
+        background-color: var(--color-background);
+        border: 1px solid var(--color-secondary);
+        border-radius: 5px;
+        overflow: hidden;
+        width: 100%;
+    }
+
+    .users-table table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .users-table th {
+        background-color: rgba(185, 159, 110, 0.2);
+        color: var(--color-primary);
+        padding: 12px 15px;
+        text-align: left;
+        font-weight: 500;
+        border-bottom: 1px solid var(--color-secondary);
+    }
+
+    .users-table td {
+        padding: 12px 15px;
+        color: var(--color-primary);
+        border-bottom: 1px solid rgba(185, 159, 110, 0.3);
+    }
+
+    .users-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .users-table .btn-outline-danger.delete-user {
+        color: var(--color-primary) !important;
+        border-color: var(--color-secondary) !important;
+        background-color: transparent;
+        transition: all 0.3s ease;
+        min-width: 34px;
+        padding: 5px 10px;
+    }
+
+    .users-table .btn-outline-danger.delete-user:hover:not(:disabled) {
+        background-color: var(--color-secondary) !important;
+        border-color: var(--color-secondary) !important;
+        color: var(--color-primary) !important;
+    }
+
+    .users-table .btn-outline-danger.delete-user:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+     .settings-page .btn-outline-primary {
+        color: var(--color-primary) !important;
+        border-color: var(--color-secondary) !important;
+        background-color: transparent;
+        font-weight: normal;
         transition: all 0.3s ease;
     }
 
-    .reference-table .btn-outline-danger:hover {
-        background-color: var(--color-primary); /* Фон при наведении #263045 */
-        color: var(--color-background); /* Текст при наведении #d0d0d0 */
-        border-color: var(--color-primary);
+    .settings-page .btn-outline-primary:hover {
+        background-color: var(--color-secondary) !important;
+        border-color: var(--color-secondary) !important;
+        color: var(--color-primary) !important;
     }
 
-    /* Модальные окна */
+    /* Select ролей в таблице пользователей - чтобы соответствовал стилю */
+    .users-table .form-select.form-select-sm.role-select {
+        background-color: var(--color-background);
+        color: var(--color-primary);
+        border: 1px solid var(--color-secondary);
+        font-size: 0.85rem;
+        padding: 5px 8px;
+        border-radius: 4px;
+    }
+
+    .users-table .form-select.form-select-sm.role-select:focus {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 0.2rem rgba(38, 48, 69, 0.25);
+    }
+
+    .users-table .form-select.form-select-sm.role-select:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+    .users-table tr:hover {
+        background-color: rgba(185, 159, 110, 0.05);
+    }
+
     .settings-page .modal-content {
         background-color: var(--color-background);
         border: 1px solid var(--color-secondary);
@@ -356,449 +443,27 @@
         font-size: 0.8rem;
     }
 
-    /* Стили для ролей авторов */
-    .roles-description {
-        background-color: rgba(185, 159, 110, 0.1);
-        border: 1px solid var(--color-secondary);
-        border-radius: 5px;
-        padding: 15px;
-        margin-bottom: 20px;
-        color: var(--color-primary);
+    .error-message {
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 10px;
+        padding: 8px 12px;
+        background-color: rgba(220, 53, 69, 0.1);
+        border-radius: 4px;
+        display: none;
     }
 
-    .roles-description h6 {
-        color: var(--color-primary);
-        border-bottom: 1px solid var(--color-secondary);
-        padding-bottom: 8px;
-        margin-bottom: 12px;
-        font-weight: 500;
-    }
-
-    .roles-description ul {
-        margin: 0;
-        padding-left: 20px;
-    }
-
-    .roles-description li {
-        margin-bottom: 8px;
-        font-size: 0.95rem;
-    }
-
-    .roles-description .text-muted {
-        color: #666 !important;
-        font-size: 0.9rem;
-        margin-top: 5px;
-        display: block;
-    }
-
-    /* Мобильные устройства (< 576px) */
-    @media (max-width: 575.98px) {
-        .settings-page .container-fluid {
-            padding: 10px;
-            margin-top: 10px;
-        }
-
-        .settings-page h1 {
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-            padding-bottom: 8px;
-        }
-
-        .settings-tabs {
-            flex-direction: column;
-            border-bottom: none;
-            gap: 5px;
-        }
-
-        .settings-tabs .nav-link {
-            border-radius: 5px;
-            border: 1px solid rgba(185, 159, 110, 0.3);
-            text-align: center;
-            color: #263045 !important; /* ЯВНО ДЛЯ МОБИЛЬНЫХ */
-        }
-
-        .settings-tabs .nav-link.active {
-            border-color: var(--color-secondary);
-            color: #263045 !important; /* ЯВНО ДЛЯ МОБИЛЬНЫХ */
-        }
-
-        .tab-content {
-            padding: 15px;
-            border: 1px solid var(--color-secondary);
-            border-radius: 5px;
-        }
-
-        .settings-page .card-header {
-            padding: 12px 15px;
-            text-align: center;
-            font-weight: 500;
-        }
-
-        .settings-page .card-body {
-            padding: 15px;
-        }
-
-        /* Сетка настроек на мобильных */
-        .settings-page .row.mb-4 {
-            margin-bottom: 20px !important;
-            background: rgba(185, 159, 110, 0.05);
-            border: 1px solid rgba(185, 159, 110, 0.2);
-            border-radius: 8px;
-            padding: 15px;
-        }
-
-        .settings-page .col-md-3 {
-            margin-bottom: 15px;
-            padding: 0;
-        }
-
-        .settings-page .col-md-9 {
-            padding: 0;
-        }
-
-        .settings-page .form-label {
-            font-size: 1rem;
-            margin-bottom: 10px;
-            font-weight: 500;
-        }
-
-        .settings-page .form-control,
-        .settings-page .form-select {
-            font-size: 1rem;
-            padding: 12px;
-            border-radius: 6px;
-            font-weight: normal;
-        }
-
-        .settings-page .input-group {
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .settings-page .input-group .form-select {
-            border-right: 1px solid var(--color-secondary);
-            border-radius: 6px;
-            width: 100%;
-        }
-
-        .settings-page .input-group .btn {
-            border-left: 1px solid var(--color-secondary);
-            border-radius: 6px;
-            width: 100%;
-            margin-top: 5px;
-            font-weight: normal;
-        }
-
-        .settings-page .alert-light {
-            padding: 15px;
-            min-height: auto;
-            font-size: 0.95rem;
-            font-weight: normal;
-        }
-
-        .settings-page .alert-light strong {
-            font-size: 1rem;
-            margin-bottom: 8px;
-            font-weight: 500;
-        }
-
-        /* Справочники на мобильных */
-        .reference-table .table-header {
-            flex-direction: column;
-            gap: 10px;
-            text-align: center;
-        }
-
-        .reference-table .table-row {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 10px;
-            padding: 15px;
-        }
-
-        .reference-table .table-cell {
-            width: 100%;
-            padding: 0;
-        }
-
-        .reference-table .table-cell.actions {
-            width: 100%;
-            justify-content: center;
-            margin-top: 10px;
-        }
-
-        /* Кнопки в справочниках на мобильных */
-        .reference-table .btn-outline-danger {
-            color: var(--color-primary); /* Цвет текста #263045 */
-            border-color: var(--color-primary); /* Цвет рамки #263045 */
-        }
-
-        .reference-table .btn-outline-danger:hover {
-            background-color: var(--color-primary); /* Фон при наведении #263045 */
-            color: var(--color-background); /* Текст при наведении #d0d0d0 */
-        }
-
-        /* Роли авторов на мобильных */
-        .roles-description {
-            padding: 12px;
-        }
-
-        /* Кнопки действий на мобильных */
-        .settings-page .mt-4 {
-            margin-top: 20px !important;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .settings-page .mt-4 .btn {
-            width: 100%;
-            padding: 14px;
-            font-size: 1rem;
-            margin: 0 !important;
-            font-weight: normal;
-        }
-
-        /* Модальные окна на мобильных */
-        .settings-page .modal-dialog {
-            margin: 10px;
-            max-width: calc(100% - 20px);
-        }
-
-        .settings-page .modal-content {
-            border-radius: 10px;
-        }
-
-        .settings-page .modal-header,
-        .settings-page .modal-body,
-        .settings-page .modal-footer {
-            padding: 15px;
-        }
-
-        .settings-page .modal-footer {
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .settings-page .modal-footer .btn {
-            width: 100%;
-            margin: 0;
-            font-weight: normal;
-        }
-    }
-
-    /* Планшеты (от 576px до 768px) */
-    @media (min-width: 576px) and (max-width: 767.98px) {
-        .settings-page .container-fluid {
-            padding: 20px;
-        }
-
-        .settings-page h1 {
-            font-size: 1.6rem;
-            margin-bottom: 25px;
-        }
-
-        .settings-page .row.mb-4 {
-            margin-bottom: 25px !important;
-        }
-
-        .settings-page .col-md-3 {
-            padding-right: 10px;
-        }
-
-        .settings-page .col-md-9 {
-            padding-left: 10px;
-        }
-
-        .settings-page .alert-light {
-            padding: 15px;
-            font-size: 0.9rem;
-            font-weight: normal;
-        }
-
-        .reference-table .table-header {
-            padding: 12px;
-        }
-
-        .settings-page .mt-4 {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .settings-page .mt-4 .btn {
-            flex: 1;
-            min-width: 160px;
-            font-weight: normal;
-        }
-
-        .settings-page .modal-dialog {
-            max-width: 500px;
-            margin: 30px auto;
-        }
-    }
-
-    /* Десктоп (от 768px) */
-    @media (min-width: 768px) {
-        .settings-page .container-fluid {
-            padding: 30px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .settings-page h1 {
-            font-size: 1.75rem;
-            text-align: left;
-            margin-bottom: 30px;
-        }
-
-        .settings-tabs {
-            margin-bottom: 30px;
-        }
-
-        .settings-page .row.mb-4 {
-            margin-bottom: 30px !important;
-        }
-
-        .settings-page .col-md-3 {
-            padding-right: 15px;
-        }
-
-        .settings-page .col-md-9 {
-            padding-left: 15px;
-        }
-
-        .settings-page .input-group {
-            flex-wrap: nowrap;
-        }
-
-        .settings-page .input-group .form-select {
-            flex: 1;
-        }
-
-        .settings-page .input-group .btn {
-            flex-shrink: 0;
-            font-weight: normal;
-        }
-
-        .reference-table {
-            margin-bottom: 30px;
-        }
-
-        .settings-page .mt-4 {
-            display: flex;
-            gap: 15px;
-            justify-content: flex-start;
-        }
-
-        .settings-page .mt-4 .btn {
-            min-width: 180px;
-            font-weight: normal;
-        }
-    }
-
-    /* Большие экраны (> 1200px) */
-    @media (min-width: 1200px) {
-        .settings-page .container-fluid {
-            max-width: 1400px;
-        }
-
-        .settings-page h1 {
-            font-size: 2rem;
-        }
-
-        .settings-page .card-body {
-            padding: 30px;
-        }
-    }
-
-    /* Адаптация для вертикальной ориентации */
-    @media (max-height: 600px) and (orientation: landscape) {
-        .settings-page .container-fluid {
-            padding: 10px;
-        }
-
-        .settings-page .row.mb-4 {
-            margin-bottom: 15px !important;
-            padding: 10px;
-        }
-
-        .settings-page .alert-light {
-            min-height: 80px;
-            padding: 10px;
-        }
-
-        .settings-page .modal-dialog {
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-    }
-
-    /* Анимации и переходы */
-    .settings-page .card,
-    .settings-page .btn,
-    .settings-page .form-control,
-    .settings-page .alert-light,
-    .reference-table .table-row {
-        transition: all 0.3s ease;
-    }
-
-    /* Улучшение для сенсорных устройств */
-    @media (hover: none) and (pointer: coarse) {
-        .settings-page .btn,
-        .settings-page .form-control,
-        .settings-page .form-select {
-            min-height: 48px;
-        }
-
-        .settings-page .btn {
-            padding: 12px 20px;
-            font-weight: normal;
-        }
-
-        .settings-page .input-group .btn {
-            padding: 0 20px;
-        }
-
-        .settings-page .modal-footer .btn {
-            min-height: 50px;
-        }
-
-        .reference-table .btn {
-            min-height: 40px;
-            padding: 8px 12px;
-        }
-    }
-
-    /* Текст в алертах на маленьких экранах */
     @media (max-width: 767.98px) {
-        .settings-page .alert-light small {
-            font-size: 0.9rem;
-            line-height: 1.4;
-            font-weight: normal;
-        }
-
-        .settings-page .alert-light .text-muted {
-            font-size: 0.85rem;
-            line-height: 1.3;
-        }
-
-        .settings-page .alert-light div:not(.text-muted) {
-            margin-top: 5px !important;
-            font-size: 0.95rem !important;
-            font-weight: normal;
-        }
-    }
-
-    /* Горизонтальная прокрутка для длинных выпадающих списков */
-    @media (max-width: 767.98px) {
-        .settings-page .form-select {
-            max-width: 100%;
+        .users-table {
             overflow-x: auto;
+            display: block;
         }
-
-        .settings-page .input-group {
-            overflow: visible;
+        .users-table table {
+            min-width: 500px;
+        }
+        .settings-page .mt-4 .btn {
+            width: 100%;
+            margin-bottom: 10px;
         }
     }
 </style>
@@ -806,31 +471,28 @@
 <div class="container-fluid settings-page">
     <h1>Настройки системы</h1>
 
-    <!-- Табы -->
+    <div id="globalError" class="error-message"></div>
+
     <ul class="nav nav-tabs settings-tabs" id="settingsTabs" role="tablist">
-        <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="general-tab" data-bs-toggle="tab"
-                    data-bs-target="#general" type="button" role="tab">
-                Основные настройки
+        <li class="nav-item">
+            <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general"
+                    type="button" role="tab">Основные настройки
             </button>
         </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link" id="references-tab" data-bs-toggle="tab"
-                    data-bs-target="#references" type="button" role="tab">
-                Управление справочниками
+        <li class="nav-item">
+            <button class="nav-link" id="references-tab" data-bs-toggle="tab" data-bs-target="#references" type="button"
+                    role="tab">Управление справочниками
             </button>
         </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link" id="roles-tab" data-bs-toggle="tab"
-                    data-bs-target="#roles" type="button" role="tab">
-                Роли авторов
+        <li class="nav-item">
+            <button class="nav-link" id="users-tab" data-bs-toggle="tab" data-bs-target="#users" type="button"
+                    role="tab">Управление пользователями
             </button>
         </li>
     </ul>
 
-    <!-- Контент табов -->
     <div class="tab-content" id="settingsTabsContent">
-        <!-- Таб основных настроек -->
+        <!-- Основные настройки -->
         <div class="tab-pane fade show active" id="general" role="tabpanel">
             <div class="card">
                 <div class="card-header">
@@ -838,84 +500,33 @@
                 </div>
                 <div class="card-body">
                     <form id="settingsForm">
-
-                        <!-- Доверенное лицо -->
                         <div class="row mb-4">
                             <div class="col-12 col-md-3">
-                                <label for="assigneeSelect" class="form-label">
-                                    Правоприобретатель
-                                </label>
-                                <div class="input-group">
-                                    <select class="form-select" id="assigneeSelect" name="assignee_id">
-                                        <option value="">Не выбрано</option>
-                                        {% for option in assignee_options %}
-                                        <option value="{{ option.id if option.id else '' }}"
-                                                {% if current_settings.assignee_id== option.id %}selected{% endif %}
-                                                data-post="{{ option.post or '' }}">
-                                            {{ option.display_name }}
-                                        </option>
-                                        {% endfor %}
-                                    </select>
-                                    <button type="button" class="btn btn-outline-primary"
-                                            data-bs-toggle="modal" data-bs-target="#createAssigneeModal">
-                                        <i class="bi bi-plus-lg"></i>
-                                    </button>
-                                </div>
-                                <div class="form-text">Выберите правоприобретателя из списка или создайте нового</div>
-                            </div>
-
-                            <div class="col-12 col-md-9 mt-3 mt-md-0">
-                                <div class="alert alert-light border h-100">
-                                    <small>
-                                        <strong>Текущее значение:</strong>
-                                        {% if current_settings.assignee_name %}
-                                        <div class="mt-2">{{ current_settings.assignee_name }}</div>
-                                        {% if current_settings.assignee_post %}
-                                        <div class="text-muted mt-1">
-                                            {{ current_settings.assignee_post }}
-                                        </div>
-                                        {% endif %}
-                                        {% else %}
-                                        <div class="text-muted mt-2">Не выбрано</div>
-                                        {% endif %}
-                                    </small>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Доверенность -->
-                        <div class="row mb-4">
-                            <div class="col-12 col-md-3">
-                                <label for="powerOfAttorneySelect" class="form-label">
-                                    Доверенность
-                                </label>
+                                <label for="powerOfAttorneySelect" class="form-label">Доверенность</label>
                                 <div class="input-group">
                                     <select class="form-select" id="powerOfAttorneySelect" name="power_of_attorney_id">
                                         <option value="">Не выбрано</option>
                                         {% for option in power_of_attorney_options %}
-                                        <option value="{{ option.id if option.id else '' }}"
-                                                {% if current_settings.power_of_attorney_id== option.id %}selected{%
-                                                endif %}>
+                                        <option value="{{ option.id if option.id else '' }}" {% if
+                                                current_settings.power_of_attorney_id== option.id %}selected{% endif %}>
                                             {{ option.display_name }}
                                         </option>
                                         {% endfor %}
                                     </select>
-                                    <button type="button" class="btn btn-outline-primary"
-                                            data-bs-toggle="modal" data-bs-target="#createPowerOfAttorneyModal">
+                                    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal"
+                                            data-bs-target="#createPowerOfAttorneyModal">
                                         <i class="bi bi-plus-lg"></i>
                                     </button>
                                 </div>
-                                <div class="form-text">Выберите доверенность из списка или создайте новую</div>
                             </div>
-
                             <div class="col-12 col-md-9 mt-3 mt-md-0">
                                 <div class="alert alert-light border h-100">
                                     <small>
                                         <strong>Текущее значение:</strong>
                                         {% if current_settings.poa_number and current_settings.poa_date %}
-                                        <div class="mt-2">
-                                            {{ current_settings.poa_number }} ({{
-                                            current_settings.poa_date.strftime('%d.%m.%Y') }})
+                                        <div class="mt-2">{{ current_settings.poa_number }} ({{
+                                            current_settings.poa_date.strftime('%d.%m.%Y') if current_settings.poa_date
+                                            else '' }})
                                         </div>
                                         {% elif current_settings.poa_number %}
                                         <div class="mt-2">{{ current_settings.poa_number }}</div>
@@ -927,30 +538,25 @@
                             </div>
                         </div>
 
-                        <!-- Сумма -->
                         <div class="row mb-4">
                             <div class="col-12 col-md-3">
-                                <label for="sumSelect" class="form-label">
-                                    Сумма
-                                </label>
+                                <label for="sumSelect" class="form-label">Сумма</label>
                                 <div class="input-group">
                                     <select class="form-select" id="sumSelect" name="sum_id">
                                         <option value="">Не выбрано</option>
                                         {% for option in sum_options %}
-                                        <option value="{{ option.id if option.id else '' }}"
-                                                {% if current_settings.sum_id== option.id %}selected{% endif %}>
+                                        <option value="{{ option.id if option.id else '' }}" {% if
+                                                current_settings.sum_id== option.id %}selected{% endif %}>
                                             {{ option.display_name }}
                                         </option>
                                         {% endfor %}
                                     </select>
-                                    <button type="button" class="btn btn-outline-primary"
-                                            data-bs-toggle="modal" data-bs-target="#createSumModal">
+                                    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal"
+                                            data-bs-target="#createSumModal">
                                         <i class="bi bi-plus-lg"></i>
                                     </button>
                                 </div>
-                                <div class="form-text">Выберите сумму из списка или создайте новую</div>
                             </div>
-
                             <div class="col-12 col-md-9 mt-3 mt-md-0">
                                 <div class="alert alert-light border h-100">
                                     <small>
@@ -965,31 +571,26 @@
                             </div>
                         </div>
 
-                        <!-- Проректор -->
                         <div class="row mb-4">
                             <div class="col-12 col-md-3">
-                                <label for="provostSelect" class="form-label">
-                                    Проректор
-                                </label>
+                                <label for="provostSelect" class="form-label">Проректор</label>
                                 <div class="input-group">
                                     <select class="form-select" id="provostSelect" name="provost_id">
                                         <option value="">Не выбрано</option>
                                         {% for option in provost_options %}
-                                        <option value="{{ option.id if option.id else '' }}"
-                                                {% if current_settings.provost_id== option.id %}selected{% endif %}
+                                        <option value="{{ option.id if option.id else '' }}" {% if
+                                                current_settings.provost_id== option.id %}selected{% endif %}
                                                 data-post="{{ option.post or '' }}">
                                             {{ option.display_name }}
                                         </option>
                                         {% endfor %}
                                     </select>
-                                    <button type="button" class="btn btn-outline-primary"
-                                            data-bs-toggle="modal" data-bs-target="#createProvostModal">
+                                    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal"
+                                            data-bs-target="#createProvostModal">
                                         <i class="bi bi-plus-lg"></i>
                                     </button>
                                 </div>
-                                <div class="form-text">Выберите проректора из списка или создайте нового</div>
                             </div>
-
                             <div class="col-12 col-md-9 mt-3 mt-md-0">
                                 <div class="alert alert-light border h-100">
                                     <small>
@@ -997,9 +598,7 @@
                                         {% if current_settings.provost_name %}
                                         <div class="mt-2">{{ current_settings.provost_name }}</div>
                                         {% if current_settings.provost_post %}
-                                        <div class="text-muted mt-1">
-                                            {{ current_settings.provost_post }}
-                                        </div>
+                                        <div class="text-muted mt-1">{{ current_settings.provost_post }}</div>
                                         {% endif %}
                                         {% else %}
                                         <div class="text-muted mt-2">Не выбрано</div>
@@ -1009,11 +608,9 @@
                             </div>
                         </div>
 
-
-                        <!-- Кнопки сохранения -->
                         <div class="mt-4">
-                            <button type="button" class="btn btn-primary" onclick="saveAllSettings()">
-                                Сохранить все настройки
+                            <button type="button" class="btn btn-primary" onclick="saveAllSettings()">Сохранить все
+                                настройки
                             </button>
                             <button type="button" class="btn btn-outline-secondary" onclick="window.location.reload()">
                                 Отмена
@@ -1024,15 +621,13 @@
             </div>
         </div>
 
-        <!-- Таб управления справочниками -->
+        <!-- Справочники -->
         <div class="tab-pane fade" id="references" role="tabpanel">
-            <!-- Языки программирования -->
             <div class="reference-table">
                 <div class="table-header">
                     <h5>Языки программирования</h5>
                     <button type="button" class="btn btn-outline-primary btn-sm"
-                            onclick="showAddModal('programming_language')">
-                        <i class="bi bi-plus"></i> Добавить
+                            onclick="showAddModal('programming_language')"><i class="bi bi-plus"></i> Добавить
                     </button>
                 </div>
                 <div class="table-body" id="programmingLanguagesTable">
@@ -1040,14 +635,12 @@
                     <div class="table-row" data-id="{{ lang.id }}">
                         <div class="table-cell">{{ lang.name }}</div>
                         <div class="table-cell actions">
-                            <button type="button" class="btn btn-sm btn-outline-warning"
-                                    onclick="editReference('programming_language', {{ lang.id }}, '{{ lang.name }}')">
-                                <i class="bi bi-pencil"></i>
-                            </button>
-                            <button type="button" class="btn btn-sm btn-outline-danger"
-                                    onclick="deleteReference('programming_language', {{ lang.id }})">
-                                <i class="bi bi-trash"></i>
-                            </button>
+                            <button class="btn btn-sm btn-outline-warning"
+                                    onclick="editReference('programming_language', {{ lang.id }}, '{{ lang.name }}')"><i
+                                    class="bi bi-pencil"></i></button>
+                            <button class="btn btn-sm btn-outline-danger"
+                                    onclick="deleteReference('programming_language', {{ lang.id }})"><i
+                                    class="bi bi-trash"></i></button>
                         </div>
                     </div>
                     {% else %}
@@ -1056,13 +649,11 @@
                 </div>
             </div>
 
-            <!-- Типы ОС -->
             <div class="reference-table">
                 <div class="table-header">
                     <h5>Типы операционных систем</h5>
-                    <button type="button" class="btn btn-outline-primary btn-sm"
-                            onclick="showAddModal('os_type')">
-                        <i class="bi bi-plus"></i> Добавить
+                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="showAddModal('os_type')"><i
+                            class="bi bi-plus"></i> Добавить
                     </button>
                 </div>
                 <div class="table-body" id="osTypesTable">
@@ -1070,13 +661,11 @@
                     <div class="table-row" data-id="{{ os.id }}">
                         <div class="table-cell">{{ os.name }}</div>
                         <div class="table-cell actions">
-                            <button type="button" class="btn btn-sm btn-outline-warning"
-                                    onclick="editReference('os_type', {{ os.id }}, '{{ os.name }}')">
-                                <i class="bi bi-pencil"></i>
-                            </button>
-                            <button type="button" class="btn btn-sm btn-outline-danger"
-                                    onclick="deleteReference('os_type', {{ os.id }})">
-                                <i class="bi bi-trash"></i>
+                            <button class="btn btn-sm btn-outline-warning"
+                                    onclick="editReference('os_type', {{ os.id }}, '{{ os.name }}')"><i
+                                    class="bi bi-pencil"></i></button>
+                            <button class="btn btn-sm btn-outline-danger"
+                                    onclick="deleteReference('os_type', {{ os.id }})"><i class="bi bi-trash"></i>
                             </button>
                         </div>
                     </div>
@@ -1086,13 +675,11 @@
                 </div>
             </div>
 
-            <!-- Типы ЭВМ -->
             <div class="reference-table">
                 <div class="table-header">
                     <h5>Типы ЭВМ</h5>
                     <button type="button" class="btn btn-outline-primary btn-sm"
-                            onclick="showAddModal('computer_type')">
-                        <i class="bi bi-plus"></i> Добавить
+                            onclick="showAddModal('computer_type')"><i class="bi bi-plus"></i> Добавить
                     </button>
                 </div>
                 <div class="table-body" id="computerTypesTable">
@@ -1100,14 +687,12 @@
                     <div class="table-row" data-id="{{ computer.id }}">
                         <div class="table-cell">{{ computer.name }}</div>
                         <div class="table-cell actions">
-                            <button type="button" class="btn btn-sm btn-outline-warning"
+                            <button class="btn btn-sm btn-outline-warning"
                                     onclick="editReference('computer_type', {{ computer.id }}, '{{ computer.name }}')">
-                                <i class="bi bi-pencil"></i>
-                            </button>
-                            <button type="button" class="btn btn-sm btn-outline-danger"
-                                    onclick="deleteReference('computer_type', {{ computer.id }})">
-                                <i class="bi bi-trash"></i>
-                            </button>
+                                <i class="bi bi-pencil"></i></button>
+                            <button class="btn btn-sm btn-outline-danger"
+                                    onclick="deleteReference('computer_type', {{ computer.id }})"><i
+                                    class="bi bi-trash"></i></button>
                         </div>
                     </div>
                     {% else %}
@@ -1115,17 +700,11 @@
                     {% endfor %}
                 </div>
             </div>
-        </div>
 
-        <!-- Таб ролей авторов (НОВЫЙ) -->
-        <div class="tab-pane fade" id="roles" role="tabpanel">
-
-            <!-- Таблица ролей авторов -->
             <div class="reference-table">
                 <div class="table-header">
                     <h5>Роли авторов</h5>
-                    <button type="button" class="btn btn-outline-primary btn-sm"
-                            onclick="showAddModal('author_role')">
+                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="showAddModal('author_role')">
                         <i class="bi bi-plus"></i> Добавить роль
                     </button>
                 </div>
@@ -1134,13 +713,11 @@
                     <div class="table-row" data-id="{{ role.id }}">
                         <div class="table-cell">{{ role.name }}</div>
                         <div class="table-cell actions">
-                            <button type="button" class="btn btn-sm btn-outline-warning"
-                                    onclick="editReference('author_role', {{ role.id }}, '{{ role.name }}')">
-                                <i class="bi bi-pencil"></i>
-                            </button>
-                            <button type="button" class="btn btn-sm btn-outline-danger"
-                                    onclick="deleteReference('author_role', {{ role.id }})">
-                                <i class="bi bi-trash"></i>
+                            <button class="btn btn-sm btn-outline-warning"
+                                    onclick="editReference('author_role', {{ role.id }}, '{{ role.name }}')"><i
+                                    class="bi bi-pencil"></i></button>
+                            <button class="btn btn-sm btn-outline-danger"
+                                    onclick="deleteReference('author_role', {{ role.id }})"><i class="bi bi-trash"></i>
                             </button>
                         </div>
                     </div>
@@ -1150,53 +727,85 @@
                 </div>
             </div>
         </div>
-    </div>
-</div>
 
-<!-- Модальные окна для создания основных сущностей -->
-<div class="modal fade" id="createAssigneeModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Создать нового правоприобретателя</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="createAssigneeForm" data-endpoint="/admin/settings/create_assignee">
-                    <div class="mb-3">
-                        <label for="assigneeFullName" class="form-label">ФИО правоприобретателя</label>
-                        <input type="text" class="form-control" id="assigneeFullName" name="full_name" required>
+        <!-- Пользователи -->
+        <div class="tab-pane fade" id="users" role="tabpanel">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Список пользователей</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3 text-end">
+                        <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal"
+                                data-bs-target="#createUserModal">
+                            <i class="bi bi-plus-lg"></i> Добавить пользователя
+                        </button>
                     </div>
-                    <div class="mb-3">
-                        <label for="assigneePost" class="form-label">Должность</label>
-                        <input type="text" class="form-control" id="assigneePost" name="post">
+                    <div class="users-table">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Логин</th>
+                                <th>Роль</th>
+                                <th>Дата регистрации</th>
+                                <th>Действия</th>
+                            </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                            {% for user in users %}
+                            <tr data-id="{{ user.id }}">
+                                <td>{{ user.id }}</td>
+                                <td>{{ user.username }}</td>
+                                <td>
+                                    <select class="form-select form-select-sm role-select" data-id="{{ user.id }}"
+                                            style="width: auto; display: inline-block;" {% if user.id== session.user_id
+                                            %}disabled{% endif %}>
+                                        {% if user.role == 'user' %}
+                                        <option value="user" selected>Пользователь</option>
+                                        <option value="admin">Администратор</option>
+                                        {% else %}
+                                        <option value="user">Пользователь</option>
+                                        <option value="admin" selected>Администратор</option>
+                                        {% endif %}
+                                    </select>
+                                </td>
+                                <td>{{ user.created_at.strftime('%d.%m.%Y %H:%M') if user.created_at else '-' }}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-danger delete-user" data-id="{{ user.id }}"
+                                            data-username="{{ user.username }}" {% if user.id== session.user_id
+                                            %}disabled{% endif %}>
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center">Нет пользователей</td>
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                        <button type="submit" class="btn btn-primary">Создать</button>
-                    </div>
-                </form>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Модальные окна -->
 <div class="modal fade" id="createPowerOfAttorneyModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Создать новую доверенность</h5>
+            <div class="modal-header"><h5 class="modal-title">Создать доверенность</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <form id="createPowerOfAttorneyForm" data-endpoint="/admin/settings/create_power_of_attorney">
-                    <div class="mb-3">
-                        <label for="poaNumber" class="form-label">Номер доверенности</label>
-                        <input type="text" class="form-control" id="poaNumber" name="number" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="poaDate" class="form-label">Дата получения</label>
-                        <input type="date" class="form-control" id="poaDate" name="date_of_receipt" required>
+                    <div class="mb-3"><label class="form-label">Номер</label><input type="text" class="form-control"
+                                                                                    name="number" required></div>
+                    <div class="mb-3"><label class="form-label">Дата</label><input type="date" class="form-control"
+                                                                                   name="date_of_receipt" required>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
@@ -1211,16 +820,14 @@
 <div class="modal fade" id="createSumModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Создать новую сумму</h5>
+            <div class="modal-header"><h5 class="modal-title">Создать сумму</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <form id="createSumForm" data-endpoint="/admin/settings/create_sum">
-                    <div class="mb-3">
-                        <label for="sumValue" class="form-label">Сумма (руб.)</label>
-                        <input type="number" step="0.01" class="form-control" id="sumValue" name="value" required>
-                    </div>
+                    <div class="mb-3"><label class="form-label">Сумма (руб.)</label><input type="number" step="0.01"
+                                                                                           class="form-control"
+                                                                                           name="value" required></div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
                         <button type="submit" class="btn btn-primary">Создать</button>
@@ -1234,20 +841,15 @@
 <div class="modal fade" id="createProvostModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Создать нового проректора</h5>
+            <div class="modal-header"><h5 class="modal-title">Создать проректора</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <form id="createProvostForm" data-endpoint="/admin/settings/create_provost">
-                    <div class="mb-3">
-                        <label for="provostFullName" class="form-label">ФИО проректора</label>
-                        <input type="text" class="form-control" id="provostFullName" name="full_name" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="provostPost" class="form-label">Должность</label>
-                        <input type="text" class="form-control" id="provostPost" name="post">
-                    </div>
+                    <div class="mb-3"><label class="form-label">ФИО</label><input type="text" class="form-control"
+                                                                                  name="full_name" required></div>
+                    <div class="mb-3"><label class="form-label">Должность</label><input type="text" class="form-control"
+                                                                                        name="post"></div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
                         <button type="submit" class="btn btn-primary">Создать</button>
@@ -1258,23 +860,46 @@
     </div>
 </div>
 
-<!-- Модальные окна для управления справочниками -->
+<div class="modal fade" id="createUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title">Создать пользователя</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="createUserForm">
+                    <div class="mb-3"><label class="form-label">Логин</label><input type="text" class="form-control"
+                                                                                    id="userLogin" required></div>
+                    <div class="mb-3"><label class="form-label">Пароль</label><input type="password"
+                                                                                     class="form-control"
+                                                                                     id="userPassword" required></div>
+                    <div class="mb-3"><label class="form-label">Роль</label><select class="form-select" id="userRole">
+                        <option value="user">Пользователь</option>
+                        <option value="admin">Администратор</option>
+                    </select></div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                        <button type="submit" class="btn btn-primary">Создать</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="modal fade" id="referenceModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="referenceModalTitle">Добавить</h5>
+            <div class="modal-header"><h5 class="modal-title" id="referenceModalTitle">Добавить</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <form id="referenceForm">
                     <input type="hidden" id="referenceType" name="reference_type">
                     <input type="hidden" id="referenceId" name="id">
-                    <div class="mb-3">
-                        <label for="referenceName" class="form-label">Название</label>
-                        <input type="text" class="form-control" id="referenceName" name="name" required
-                               placeholder="Введите название">
-                    </div>
+                    <div class="mb-3"><label class="form-label">Название</label><input type="text" class="form-control"
+                                                                                       id="referenceName" name="name"
+                                                                                       required></div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
                         <button type="submit" class="btn btn-primary">Сохранить</button>
@@ -1288,16 +913,12 @@
 <div class="modal fade" id="deleteConfirmModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Подтверждение удаления</h5>
+            <div class="modal-header"><h5 class="modal-title">Подтверждение</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
-                <p>Вы уверены, что хотите удалить этот элемент?</p>
-                <p class="text-muted" id="deleteItemName"></p>
-                <input type="hidden" id="deleteReferenceType">
-                <input type="hidden" id="deleteReferenceId">
-            </div>
+            <div class="modal-body"><p>Вы уверены?</p>
+                <p class="text-muted" id="deleteItemName"></p><input type="hidden" id="deleteReferenceType"><input
+                        type="hidden" id="deleteReferenceId"></div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
                 <button type="button" class="btn btn-danger" onclick="confirmDelete()">Удалить</button>
@@ -1310,749 +931,250 @@
 
 {% block scripts %}
 <script>
-    // Адаптивная инициализация
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('Settings page loaded');
+    function showError(message) {
+        const errorDiv = document.getElementById('globalError');
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+        setTimeout(function() {
+            errorDiv.style.display = 'none';
+        }, 5000);
+    }
+function saveAllSettings() {
+    const form = document.getElementById('settingsForm');
+    const formData = new FormData(form);
+    const data = {
+        power_of_attorney_id: formData.get('power_of_attorney_id') || null,
+        sum_id: formData.get('sum_id') || null,
+        provost_id: formData.get('provost_id') || null
+    };
 
-        // Функция для адаптации input-group на мобильных устройствах
-        function adaptInputGroups() {
-            const inputGroups = document.querySelectorAll('.input-group');
-            const isMobile = window.innerWidth < 576;
+    console.log('1. Данные для отправки:', data);
 
-            inputGroups.forEach(group => {
-                if (isMobile) {
-                    group.style.flexDirection = 'column';
-                    group.style.gap = '10px';
+    const saveButton = document.querySelector('#settingsForm .btn-primary');
+    const originalText = saveButton.innerHTML;
+    saveButton.innerHTML = 'Сохранение...';
+    saveButton.disabled = true;
 
-                    const select = group.querySelector('.form-select');
-                    const button = group.querySelector('.btn');
-
-                    if (select) {
-                        select.style.width = '100%';
-                        select.style.borderRight = '1px solid var(--color-secondary)';
-                        select.style.borderRadius = '6px';
-                    }
-
-                    if (button) {
-                        button.style.width = '100%';
-                        button.style.borderLeft = '1px solid var(--color-secondary)';
-                        button.style.borderRadius = '6px';
-                    }
-                } else {
-                    group.style.flexDirection = '';
-                    group.style.gap = '';
-
-                    const select = group.querySelector('.form-select');
-                    const button = group.querySelector('.btn');
-
-                    if (select) {
-                        select.style.width = '';
-                        select.style.borderRight = 'none';
-                        select.style.borderRadius = '';
-                    }
-
-                    if (button) {
-                        button.style.width = '';
-                        button.style.borderLeft = 'none';
-                        button.style.borderRadius = '';
-                    }
-                }
-            });
+    fetch('/admin/settings/save', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => {
+        console.log('2. Статус ответа:', response.status);
+        console.log('3. Заголовки ответа:', response.headers);
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
-
-        // Функция для адаптации кнопок
-        function adaptButtons() {
-            const actionButtons = document.querySelectorAll('.mt-4 .btn');
-            const isMobile = window.innerWidth < 576;
-
-            actionButtons.forEach(btn => {
-                if (isMobile) {
-                    btn.style.width = '100%';
-                    btn.style.margin = '0';
-                } else {
-                    btn.style.width = '';
-                    btn.style.margin = '';
-                }
-            });
+        return response.text();  // Сначала получим как текст
+    })
+    .then(text => {
+        console.log('4. Ответ от сервера (текст):', text);
+        try {
+            const data = JSON.parse(text);
+            console.log('5. Распарсенный JSON:', data);
+            return data;
+        } catch (e) {
+            console.error('6. Ошибка парсинга JSON:', e);
+            throw new Error('Сервер вернул не JSON: ' + text.substring(0, 200));
         }
-
-        // Функция для адаптации модальных окон
-        function adaptModals() {
-            const modals = document.querySelectorAll('.modal-dialog');
-            const isMobile = window.innerWidth < 576;
-
-            modals.forEach(modal => {
-                if (isMobile) {
-                    modal.style.margin = '10px';
-                    modal.style.maxWidth = 'calc(100% - 20px)';
-                } else if (window.innerWidth < 768) {
-                    modal.style.maxWidth = '500px';
-                    modal.style.margin = '30px auto';
-                }
-            });
+    })
+    .then(data => {
+        console.log('7. Успешный ответ:', data);
+        saveButton.innerHTML = originalText;
+        saveButton.disabled = false;
+        if (data.success) {
+            alert('Настройки сохранены');
+            window.location.reload();
+        } else {
+            showError(data.error || 'Ошибка при сохранении');
         }
-
-        // Выполняем адаптацию при загрузке
-        adaptInputGroups();
-        adaptButtons();
-        adaptModals();
-
-        // Обновляем при изменении размера окна
-        window.addEventListener('resize', function() {
-            adaptInputGroups();
-            adaptButtons();
-            adaptModals();
-        });
-
-        // Автосохранение при изменении выпадающего списка
-        document.querySelectorAll('#assigneeSelect, #powerOfAttorneySelect, #sumSelect, #provostSelect').forEach(select => {
-            select.addEventListener('change', function() {
-                if (window.innerWidth >= 768) { // Только на десктопе
-                    const settingType = this.id.replace('Select', '');
-                    const referenceId = this.value;
-                    saveSingleSetting(settingType, referenceId);
-                }
-            });
-        });
-
-        // Логирование значений
-        ['assigneeSelect', 'powerOfAttorneySelect', 'sumSelect', 'provostSelect'].forEach(id => {
-            const select = document.getElementById(id);
-            if (select) {
-                console.log(`${id} value:`, select.value, 'selected option:', select.options[select.selectedIndex]?.text);
-            }
-        });
+    })
+    .catch(error => {
+        console.error('8. Ошибка полностью:', error);
+        saveButton.innerHTML = originalText;
+        saveButton.disabled = false;
+        showError('Ошибка при сохранении: ' + error.message);
     });
-
-    // Функция для сохранения одной настройки
-    function saveSingleSetting(settingType, referenceId) {
-        const data = {
-            setting_type: settingType,
-            reference_id: referenceId || null
-        };
-
-        console.log('Saving single setting:', data);
-
-        fetch('/admin/settings/update_single', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Обновляем отображение текущего значения
-                updateCurrentValueDisplay(settingType, referenceId);
-
-                showToast(data.message, 'success');
-            } else {
-                showToast(data.error, 'error');
-                // Восстанавливаем предыдущее значение
-                restorePreviousValue(settingType);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showToast('Ошибка при сохранении', 'error');
-            restorePreviousValue(settingType);
-        });
-    }
-
-    // Функция для сохранения всех настроек
-    function saveAllSettings() {
-        const form = document.getElementById('settingsForm');
-        const formData = new FormData(form);
-
-        const data = {
-            assignee_id: formData.get('assignee_id') || null,
-            power_of_attorney_id: formData.get('power_of_attorney_id') || null,
-            sum_id: formData.get('sum_id') || null,
-            provost_id: formData.get('provost_id') || null
-        };
-
-        console.log('Saving all settings:', data);
-
-        // Показываем индикатор загрузки
-        const saveButton = document.querySelector('#settingsForm .btn-primary');
-        const originalText = saveButton.innerHTML;
-        saveButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Сохранение...';
-        saveButton.disabled = true;
-
-        fetch('/admin/settings/save', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data)
-        })
-        .then(response => response.json())
-        .then(data => {
-            // Восстанавливаем кнопку
-            saveButton.innerHTML = originalText;
-            saveButton.disabled = false;
-
-            if (data.success) {
-                showToast('Все настройки успешно сохранены!', 'success');
-
-                // Обновляем все отображения
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1500);
-            } else {
-                showToast(data.error || 'Ошибка при сохранении настроек', 'error');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            saveButton.innerHTML = originalText;
-            saveButton.disabled = false;
-            showToast('Ошибка при сохранении', 'error');
-        });
-    }
-
-    // Общая функция для создания сущности
-    function createEntity(entityType, form) {
-        const formElement = document.getElementById(form);
-        const formData = new FormData(formElement);
-
-        // Валидация
-        let isValid = true;
-        const requiredFields = formElement.querySelectorAll('[required]');
-        requiredFields.forEach(field => {
-            if (!field.value.trim()) {
-                isValid = false;
-                field.classList.add('is-invalid');
-            } else {
-                field.classList.remove('is-invalid');
-            }
-        });
-
-        if (!isValid) {
-            showToast('Пожалуйста, заполните все обязательные поля', 'error');
-            return;
-        }
-
-        const data = {};
-        for (let [key, value] of formData.entries()) {
-            data[key] = value.trim();
-        }
-
-        // Получаем endpoint из data-endpoint формы
-        const endpoint = formElement.dataset.endpoint;
-
-        console.log(`Creating ${entityType}:`, data);
-
-        // Показываем индикатор загрузки
-        const submitButton = formElement.querySelector('button[type="submit"]');
-        const originalText = submitButton.innerHTML;
-        submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Создание...';
-        submitButton.disabled = true;
-
-        fetch(endpoint, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data)
-        })
-        .then(response => response.json())
-        .then(responseData => {
-            // Восстанавливаем кнопку
-            submitButton.innerHTML = originalText;
-            submitButton.disabled = false;
-
-            if (responseData.success) {
-                showToast(responseData.message, 'success');
-
-                // Добавляем новую опцию в соответствующий select
-                addNewOption(entityType, responseData);
-
-                // Автоматически выбираем созданную опцию
-                selectNewOption(entityType, responseData.id);
-
-                // Закрываем модальное окно
-                const modalId = `create${capitalizeFirstLetter(entityType)}Modal`;
-                const modal = bootstrap.Modal.getInstance(document.getElementById(modalId));
-                if (modal) {
-                    modal.hide();
-                }
-
-                // Очищаем форму
-                formElement.reset();
-            } else {
-                showToast(responseData.error, 'error');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            submitButton.innerHTML = originalText;
-            submitButton.disabled = false;
-            showToast('Ошибка при создании', 'error');
-        });
-    }
-
-    // Вспомогательные функции
-    function capitalizeFirstLetter(string) {
-        return string.charAt(0).toUpperCase() + string.slice(1);
-    }
-
-    function showToast(message, type = 'info') {
-        // Проверяем, существует ли контейнер для тостов
-        let toastContainer = document.getElementById('toast-container');
-        if (!toastContainer) {
-            toastContainer = document.createElement('div');
-            toastContainer.id = 'toast-container';
-            toastContainer.style.position = 'fixed';
-            toastContainer.style.top = '20px';
-            toastContainer.style.right = '20px';
-            toastContainer.style.zIndex = '9999';
-            document.body.appendChild(toastContainer);
-        }
-
-        // Создаем toast
-        const toastId = 'toast-' + Date.now();
-        const toast = document.createElement('div');
-        toast.id = toastId;
-        toast.className = 'toast';
-        toast.setAttribute('role', 'alert');
-        toast.setAttribute('aria-live', 'assertive');
-        toast.setAttribute('aria-atomic', 'true');
-
-        // Определяем цвет в зависимости от типа
-        let bgColor, textColor, icon;
-        switch(type) {
-            case 'success':
-                bgColor = 'var(--color-secondary)';
-                textColor = 'var(--color-primary)';
-                icon = 'bi-check-circle';
-                break;
-            case 'error':
-                bgColor = '#dc3545';
-                textColor = 'white';
-                icon = 'bi-x-circle';
-                break;
-            case 'warning':
-                bgColor = '#ffc107';
-                textColor = 'var(--color-primary)';
-                icon = 'bi-exclamation-triangle';
-                break;
-            default:
-                bgColor = 'var(--color-primary)';
-                textColor = 'white';
-                icon = 'bi-info-circle';
-        }
-
-        toast.innerHTML = `
-            <div class="toast-header" style="background-color: ${bgColor}; color: ${textColor};">
-                <i class="bi ${icon} me-2"></i>
-                <strong class="me-auto">Уведомление</strong>
-                <small>только что</small>
-                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-            </div>
-            <div class="toast-body" style="background-color: var(--color-background); color: var(--color-primary);">
-                ${message}
-            </div>
-        `;
-
-        toastContainer.appendChild(toast);
-
-        // Инициализируем и показываем toast
-        const bsToast = new bootstrap.Toast(toast, {
-            delay: 3000,
-            autohide: true
-        });
-
-        bsToast.show();
-
-        // Удаляем toast после скрытия
-        toast.addEventListener('hidden.bs.toast', function () {
-            toast.remove();
-        });
-    }
-
-    // Дополнительные вспомогательные функции
-    function updateCurrentValueDisplay(settingType, referenceId) {
-    const selectElement = document.getElementById(`${settingType}Select`);
-    const alertElement = document.querySelector(`#${settingType}Select`).closest('.row').querySelector('.alert-light');
-
-    if (!referenceId || referenceId === '') {
-        // Если выбрано "Не выбрано"
-        alertElement.innerHTML = `
-            <small>
-                <strong>Текущее значение:</strong>
-                <div class="text-muted mt-2">Не выбрано</div>
-            </small>
-        `;
-        return;
-    }
-
-    const selectedOption = selectElement.options[selectElement.selectedIndex];
-
-    if (alertElement && selectedOption) {
-        const displayText = selectedOption.text;
-        let postText = '';
-
-        // Для assignee и provost добавляем должность
-        if ((settingType === 'assignee' || settingType === 'provost') && selectedOption.dataset.post) {
-            postText = `<div class="text-muted mt-1">${selectedOption.dataset.post}</div>`;
-        }
-
-        // Для sum добавляем "руб."
-        if (settingType === 'sum' && displayText) {
-            postText = `<div class="text-muted mt-1">руб.</div>`;
-        }
-
-        alertElement.innerHTML = `
-            <small>
-                <strong>Текущее значение:</strong>
-                <div class="mt-2">${displayText}</div>
-                ${postText}
-            </small>
-        `;
-    }
 }
 
-    function restorePreviousValue(settingType) {
-        // Здесь можно восстановить предыдущее значение из localStorage
-        // или просто обновить страницу
-        console.log(`Restoring previous value for ${settingType}`);
+    // Управление пользователями
+    function initUserManagement() {
+        document.querySelectorAll('.role-select').forEach(select => {
+            select.addEventListener('change', function() {
+                const userId = this.dataset.id;
+                const newRole = this.value;
+                fetch('/admin/users/update_role', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: userId, role: newRole })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success) showError(data.error || 'Ошибка');
+                });
+            });
+        });
 
-        // Временное решение - перезагрузка страницы
-        setTimeout(() => {
-            window.location.reload();
-        }, 1000);
+        document.querySelectorAll('.delete-user').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const userId = this.dataset.id;
+                const username = this.dataset.username;
+                if (confirm(`Удалить пользователя "${username}"?`)) {
+                    fetch('/admin/users/delete', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ user_id: userId })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            this.closest('tr').remove();
+                        } else {
+                            showError(data.error || 'Ошибка');
+                        }
+                    });
+                }
+            });
+        });
     }
 
-    function addNewOption(entityType, responseData) {
-        const selectId = `${entityType}Select`;
-        const selectElement = document.getElementById(selectId);
+    document.getElementById('createUserForm')?.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const username = document.getElementById('userLogin').value.trim();
+        const password = document.getElementById('userPassword').value;
+        const role = document.getElementById('userRole').value;
+        if (!username || !password) { showError('Заполните поля'); return; }
+        if (password.length < 4) { showError('Пароль минимум 4 символа'); return; }
 
-        if (!selectElement) return;
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = 'Создание...';
+        submitBtn.disabled = true;
 
-        // Создаем новую опцию
-        const newOption = document.createElement('option');
-        newOption.value = responseData.id;
-        newOption.textContent = responseData.display_name || responseData.name;
-
-        // Добавляем дополнительные данные
-        if (responseData.post) {
-            newOption.dataset.post = responseData.post;
-        }
-        if (responseData.date) {
-            newOption.dataset.date = responseData.date;
-        }
-
-        // Добавляем опцию в select
-        selectElement.appendChild(newOption);
-
-        console.log(`Added new option to ${selectId}:`, responseData);
-    }
-
-    function selectNewOption(entityType, id) {
-        const selectId = `${entityType}Select`;
-        const selectElement = document.getElementById(selectId);
-
-        if (!selectElement) return;
-
-        // Находим и выбираем новую опцию
-        const optionToSelect = selectElement.querySelector(`option[value="${id}"]`);
-        if (optionToSelect) {
-            selectElement.value = id;
-
-            // Автоматически сохраняем настройку (только на десктопе)
-            if (window.innerWidth >= 768) {
-                saveSingleSetting(entityType, id);
+        fetch('/admin/users/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: username, password: password, role: role })
+        })
+        .then(response => response.json())
+        .then(data => {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+            if (data.success) {
+                location.reload();
+            } else {
+                showError(data.error || 'Ошибка');
             }
-        }
+        })
+        .catch(() => { submitBtn.innerHTML = originalText; submitBtn.disabled = false; showError('Ошибка'); });
+    });
+
+    // Справочники
+    function showAddModal(type) {
+        document.getElementById('referenceModalTitle').textContent = 'Добавить';
+        document.getElementById('referenceType').value = type;
+        document.getElementById('referenceId').value = '';
+        document.getElementById('referenceName').value = '';
+        new bootstrap.Modal(document.getElementById('referenceModal')).show();
     }
 
-    // Показать модальное окно для добавления (с поддержкой ролей авторов)
-    function showAddModal(referenceType) {
-        const modalTitle = document.getElementById('referenceModalTitle');
-        const form = document.getElementById('referenceForm');
-        const typeInput = document.getElementById('referenceType');
-        const idInput = document.getElementById('referenceId');
-        const nameInput = document.getElementById('referenceName');
-
-        // Названия справочников для заголовка
-        const titles = {
-            'programming_language': 'язык программирования',
-            'os_type': 'тип операционной системы',
-            'computer_type': 'тип ЭВМ',
-            'author_role': 'роль автора'
-        };
-
-        modalTitle.textContent = `Добавить ${titles[referenceType] || 'элемент'}`;
-        typeInput.value = referenceType;
-        idInput.value = '';
-        nameInput.value = '';
-
-        // Сброс валидации
-        form.classList.remove('was-validated');
-
-        const modal = new bootstrap.Modal(document.getElementById('referenceModal'));
-        modal.show();
+    function editReference(type, id, name) {
+        document.getElementById('referenceModalTitle').textContent = 'Редактировать';
+        document.getElementById('referenceType').value = type;
+        document.getElementById('referenceId').value = id;
+        document.getElementById('referenceName').value = name;
+        new bootstrap.Modal(document.getElementById('referenceModal')).show();
     }
 
-    // Показать модальное окно для редактирования
-    function editReference(referenceType, id, name) {
-        const modalTitle = document.getElementById('referenceModalTitle');
-        const form = document.getElementById('referenceForm');
-        const typeInput = document.getElementById('referenceType');
-        const idInput = document.getElementById('referenceId');
-        const nameInput = document.getElementById('referenceName');
-
-        // Названия справочников для заголовка
-        const titles = {
-            'programming_language': 'язык программирования',
-            'os_type': 'тип операционной системы',
-            'computer_type': 'тип ЭВМ',
-            'author_role': 'роль автора'
-        };
-
-        modalTitle.textContent = `Редактировать ${titles[referenceType] || 'элемент'}`;
-        typeInput.value = referenceType;
-        idInput.value = id;
-        nameInput.value = name;
-
-        // Сброс валидации
-        form.classList.remove('was-validated');
-
-        const modal = new bootstrap.Modal(document.getElementById('referenceModal'));
-        modal.show();
-    }
-
-    // Показать модальное окно подтверждения удаления
-    function deleteReference(referenceType, id) {
-        // Найти название элемента по ID (для отображения в модальном окне)
-        let tableId;
-
-        if (referenceType === 'author_role') {
-            tableId = 'authorRolesTable';
-        } else {
-            tableId = `${referenceType.replace('_', '')}Table`;
-        }
-
+    function deleteReference(type, id) {
+        let tableId = { author_role: 'authorRolesTable', programming_language: 'programmingLanguagesTable', os_type: 'osTypesTable', computer_type: 'computerTypesTable' }[type];
         const row = document.querySelector(`#${tableId} .table-row[data-id="${id}"]`);
-        const name = row ? row.querySelector('.table-cell:first-child').textContent : '';
-
-        document.getElementById('deleteReferenceType').value = referenceType;
+        const name = row?.querySelector('.table-cell:first-child')?.textContent || '';
+        document.getElementById('deleteReferenceType').value = type;
         document.getElementById('deleteReferenceId').value = id;
         document.getElementById('deleteItemName').textContent = name;
-
-        const modal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
-        modal.show();
+        new bootstrap.Modal(document.getElementById('deleteConfirmModal')).show();
     }
 
-    // Подтверждение удаления
     function confirmDelete() {
-        const referenceType = document.getElementById('deleteReferenceType').value;
+        const type = document.getElementById('deleteReferenceType').value;
         const id = document.getElementById('deleteReferenceId').value;
-
-        fetch(`/admin/settings/delete_reference`, {
+        fetch('/admin/settings/delete_reference', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                reference_type: referenceType,
-                id: parseInt(id)
-            })
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ reference_type: type, id: parseInt(id) })
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Удалить строку из таблицы
-                let tableId;
-                if (referenceType === 'author_role') {
-                    tableId = 'authorRolesTable';
-                } else {
-                    tableId = `${referenceType.replace('_', '')}Table`;
-                }
-
-                const row = document.querySelector(`#${tableId} .table-row[data-id="${id}"]`);
-                if (row) {
-                    row.remove();
-                }
-
-                // Проверить, если таблица пуста
-                const tableBody = document.getElementById(tableId);
-                const rows = tableBody.querySelectorAll('.table-row');
-                if (rows.length === 0) {
-                    tableBody.innerHTML = '<div class="empty-row">Нет данных</div>';
-                }
-
-                showToast(data.message, 'success');
+                location.reload();
             } else {
-                showToast(data.error, 'error');
+                showError(data.error);
+                bootstrap.Modal.getInstance(document.getElementById('deleteConfirmModal')).hide();
             }
-
-            // Закрыть модальное окно
-            const modal = bootstrap.Modal.getInstance(document.getElementById('deleteConfirmModal'));
-            modal.hide();
-        })
-        .catch(error => {
-            showToast('Ошибка при удалении', 'error');
-            console.error('Error:', error);
         });
     }
 
-    // Обработка формы справочника
-    document.getElementById('referenceForm').addEventListener('submit', function(e) {
+    document.getElementById('referenceForm')?.addEventListener('submit', function(e) {
         e.preventDefault();
+        const data = { reference_type: document.getElementById('referenceType').value, id: document.getElementById('referenceId').value || null, name: document.getElementById('referenceName').value.trim() };
+        const url = data.reference_type === 'author_role'
+            ? (data.id ? '/admin/settings/update_author_role' : '/admin/settings/create_author_role')
+            : (data.id ? '/admin/settings/update_reference' : '/admin/settings/create_reference');
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = 'Сохранение...';
+        submitBtn.disabled = true;
+        fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })
+        .then(response => response.json())
+        .then(data => {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+            if (data.success) {
+                location.reload();
+            } else {
+                showError(data.error);
+            }
+        })
+        .catch(() => { submitBtn.innerHTML = originalText; submitBtn.disabled = false; showError('Ошибка'); });
+    });
 
-        const formData = new FormData(this);
-        const data = {
-            reference_type: formData.get('reference_type'),
-            id: formData.get('id') ? parseInt(formData.get('id')) : null,
-            name: formData.get('name').trim()
-        };
-
-        let url;
-        if (data.reference_type === 'author_role') {
-            url = data.id ? '/admin/settings/update_author_role' : '/admin/settings/create_author_role';
-        } else {
-            url = data.id ? '/admin/settings/update_reference' : '/admin/settings/create_reference';
-        }
-
-        // Показываем индикатор загрузки
-        const submitButton = this.querySelector('button[type="submit"]');
-        const originalText = submitButton.innerHTML;
-        submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Сохранение...';
-        submitButton.disabled = true;
-
-        fetch(url, {
+    function createEntity(type, formId) {
+        const form = document.getElementById(formId);
+        const data = {};
+        new FormData(form).forEach((v, k) => data[k] = v.trim());
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = 'Создание...';
+        submitBtn.disabled = true;
+        fetch(form.dataset.endpoint, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         })
         .then(response => response.json())
         .then(data => {
-            // Восстанавливаем кнопку
-            submitButton.innerHTML = originalText;
-            submitButton.disabled = false;
-
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
             if (data.success) {
-                updateReferenceTable(data.reference_type || data.reference_type, data.reference || data.role);
-
-                showToast(data.message, 'success');
-
-                // Закрыть модальное окно
-                const modal = bootstrap.Modal.getInstance(document.getElementById('referenceModal'));
-                modal.hide();
-
-                // Очищаем форму
-                this.reset();
+                location.reload();
             } else {
-                showToast(data.error, 'error');
+                showError(data.error);
             }
         })
-        .catch(error => {
-            console.error('Error:', error);
-            submitButton.innerHTML = originalText;
-            submitButton.disabled = false;
-            showToast('Ошибка при сохранении', 'error');
-        });
-    });
-
-    // Обновление таблицы справочника
-    function updateReferenceTable(referenceType, referenceData) {
-        let tableId;
-
-        // Определяем ID таблицы в зависимости от типа
-        if (referenceType === 'author_role') {
-            tableId = 'authorRolesTable';
-        } else {
-            tableId = `${referenceType.replace('_', '')}Table`;
-        }
-
-        const tableBody = document.getElementById(tableId);
-
-        // Если таблица содержит только "Нет данных"
-        if (tableBody.querySelector('.empty-row')) {
-            tableBody.innerHTML = '';
-        }
-
-        // Найти существующую строку
-        const existingRow = tableBody.querySelector(`.table-row[data-id="${referenceData.id}"]`);
-
-        if (existingRow) {
-            // Обновить существующую строку
-            existingRow.querySelector('.table-cell:first-child').textContent = referenceData.name;
-        } else {
-            // Добавить новую строку
-            const newRow = document.createElement('div');
-            newRow.className = 'table-row';
-            newRow.setAttribute('data-id', referenceData.id);
-
-            newRow.innerHTML = `
-                <div class="table-cell">${referenceData.name}</div>
-                <div class="table-cell actions">
-                    <button type="button" class="btn btn-sm btn-outline-warning"
-                            onclick="editReference('${referenceType}', ${referenceData.id}, '${referenceData.name}')">
-                        <i class="bi bi-pencil"></i>
-                    </button>
-                    <button type="button" class="btn btn-sm btn-outline-danger"
-                            onclick="deleteReference('${referenceType}', ${referenceData.id})">
-                        <i class="bi bi-trash"></i>
-                    </button>
-                </div>
-            `;
-
-            tableBody.appendChild(newRow);
-        }
+        .catch(() => { submitBtn.innerHTML = originalText; submitBtn.disabled = false; showError('Ошибка'); });
     }
 
-    // Инициализация форм создания сущностей
+    document.getElementById('createPowerOfAttorneyForm')?.addEventListener('submit', function(e) { e.preventDefault(); createEntity('power_of_attorney', 'createPowerOfAttorneyForm'); });
+    document.getElementById('createSumForm')?.addEventListener('submit', function(e) { e.preventDefault(); createEntity('sum', 'createSumForm'); });
+    document.getElementById('createProvostForm')?.addEventListener('submit', function(e) { e.preventDefault(); createEntity('provost', 'createProvostForm'); });
+
     document.addEventListener('DOMContentLoaded', function() {
-        // Форма создания доверенного лица
-        const assigneeForm = document.getElementById('createAssigneeForm');
-        if (assigneeForm) {
-            assigneeForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                createEntity('assignee', 'createAssigneeForm');
-            });
-        }
-
-        // Форма создания доверенности
-        const powerOfAttorneyForm = document.getElementById('createPowerOfAttorneyForm');
-        if (powerOfAttorneyForm) {
-            powerOfAttorneyForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                createEntity('power_of_attorney', 'createPowerOfAttorneyForm');
-            });
-        }
-
-        // Форма создания суммы
-        const sumForm = document.getElementById('createSumForm');
-        if (sumForm) {
-            sumForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                createEntity('sum', 'createSumForm');
-            });
-        }
-
-        // Форма создания проректора
-        const provostForm = document.getElementById('createProvostForm');
-        if (provostForm) {
-            provostForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                createEntity('provost', 'createProvostForm');
-            });
-        }
+        initUserManagement();
     });
-
-    // Для мобильных устройств - увеличиваем тач-зоны
-    if ('ontouchstart' in window) {
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.btn, .form-control, .form-select').forEach(el => {
-                el.style.cursor = 'pointer';
-            });
-        });
-    }
 </script>
 {% endblock %}

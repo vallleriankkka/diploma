@@ -145,21 +145,17 @@ def settings():
         if current_settings_tuple:
             current_settings = {
                 'id': current_settings_tuple[0],
-                'assignee_id': current_settings_tuple[1],
-                'power_of_attorney_id': current_settings_tuple[2],
-                'sum_id': current_settings_tuple[3],
-                'provost_id': current_settings_tuple[4],
-                'assignee_name': current_settings_tuple[5],
-                'assignee_post': current_settings_tuple[6],
-                'poa_number': current_settings_tuple[7],
-                'poa_date': current_settings_tuple[8],
-                'sum_value': current_settings_tuple[9],
-                'provost_name': current_settings_tuple[10],
-                'provost_post': current_settings_tuple[11]
+                'power_of_attorney_id': current_settings_tuple[1],
+                'sum_id': current_settings_tuple[2],
+                'provost_id': current_settings_tuple[3],
+                'poa_number': current_settings_tuple[4],
+                'poa_date': current_settings_tuple[5],
+                'sum_value': current_settings_tuple[6],
+                'provost_name': current_settings_tuple[7],
+                'provost_post': current_settings_tuple[8]
             }
 
         # Загружаем опции для выпадающих списков
-        assignee_options = setting_dao.get_reference_options('assignee')
         power_of_attorney_options = setting_dao.get_reference_options('power_of_attorney')
         sum_options = setting_dao.get_reference_options('sum')
         provost_options = setting_dao.get_reference_options('provost')
@@ -172,16 +168,19 @@ def settings():
         # Загружаем роли авторов
         author_roles = application_dao.get_all_author_roles()
 
+        # ЗАГРУЖАЕМ СПИСОК ПОЛЬЗОВАТЕЛЕЙ
+        users = user_dao.get_all_users()
+
         return render_template('settings/index.html',
                                current_settings=current_settings,
-                               assignee_options=assignee_options,
                                power_of_attorney_options=power_of_attorney_options,
                                sum_options=sum_options,
                                provost_options=provost_options,
                                programming_languages=programming_languages,
                                os_types=os_types,
                                computer_types=computer_types,
-                               author_roles=author_roles)
+                               author_roles=author_roles,
+                               users=users)
     except Exception as e:
         flash(f'Ошибка загрузки настроек: {str(e)}', 'error')
         return redirect(url_for('index'))
@@ -192,25 +191,46 @@ def settings():
 @admin_required
 def save_settings():
     """Сохранение настроек"""
+    print("=== SAVE SETTINGS CALLED ===")
+    print("Request method:", request.method)
+    print("Content-Type:", request.headers.get('Content-Type'))
+    print("is_json:", request.is_json)
+
     try:
-        # Подготавливаем данные для сохранения
+        # Пробуем получить данные разными способами
+        if request.is_json:
+            data = request.get_json()
+            print("Got JSON data:", data)
+        else:
+            data = request.form.to_dict()
+            print("Got FORM data:", data)
+
         setting_data = {
-            'assignee_id': request.form.get('assignee_id') or None,
-            'power_of_attorney_id': request.form.get('power_of_attorney_id') or None,
-            'sum_id': request.form.get('sum_id') or None,
-            'provost_id': request.form.get('provost_id') or None
+            'power_of_attorney_id': data.get('power_of_attorney_id') or None,
+            'sum_id': data.get('sum_id') or None,
+            'provost_id': data.get('provost_id') or None
         }
+
+        print("Saving setting_data:", setting_data)
 
         # Сохраняем настройки
         setting_id = setting_dao.save(setting_data)
 
-        flash('Настройки успешно сохранены!', 'success')
-        return redirect(url_for('settings_main'))
+        print("Saved successfully, setting_id:", setting_id)
+
+        response = jsonify({
+            'success': True,
+            'message': 'Настройки успешно сохранены',
+            'setting_id': setting_id
+        })
+        print("Returning response:", response.get_data(as_text=True))
+        return response
 
     except Exception as e:
-        flash(f'Ошибка при сохранении настроек: {str(e)}', 'error')
-        return redirect(url_for('settings_main'))
-
+        import traceback
+        print("ERROR:", str(e))
+        traceback.print_exc()
+        return jsonify({'success': False, 'error': str(e)})
 
 @app.route('/admin/settings/update_single', methods=['POST'])
 @login_required
@@ -218,8 +238,9 @@ def save_settings():
 def update_single_setting():
     """Обновление одной настройки"""
     try:
-        setting_type = request.form.get('setting_type')
-        reference_id = request.form.get('reference_id')
+        data = request.get_json()
+        setting_type = data.get('setting_type')
+        reference_id = data.get('reference_id')
 
         if not setting_type:
             return jsonify({'success': False, 'error': 'Не указан тип настройки'})
@@ -229,7 +250,6 @@ def update_single_setting():
 
         # Сопоставляем тип настройки с полем в таблице
         field_mapping = {
-            'assignee': 'assignee_id',
             'power_of_attorney': 'power_of_attorney_id',
             'sum': 'sum_id',
             'provost': 'provost_id'
@@ -251,44 +271,99 @@ def update_single_setting():
         return jsonify({'success': False, 'error': str(e)})
 
 
-# ===== Роуты для создания новых записей в справочниках =====
+# ========== УПРАВЛЕНИЕ ПОЛЬЗОВАТЕЛЯМИ ==========
 
-@app.route('/admin/settings/create_assignee', methods=['POST'])
+@app.route('/admin/users/create', methods=['POST'])
 @login_required
 @admin_required
-def create_assignee():
-    """Создание нового доверенного лица"""
+def admin_create_user():
+    """Создание пользователя администратором"""
     try:
-        full_name = request.form.get('full_name', '').strip()
-        post = request.form.get('post', '').strip()
+        data = request.get_json()
+        username = data.get('username', '').strip()
+        password = data.get('password', '')
+        role = data.get('role', 'user')
 
-        if not full_name:
-            return jsonify({'success': False, 'error': 'ФИО не может быть пустым'})
+        if not username:
+            return jsonify({'success': False, 'error': 'Логин не может быть пустым'})
 
-        # Проверяем, не существует ли уже такое ФИО
-        if setting_dao.check_exists('assignee', 'full_name', full_name):
-            return jsonify({'success': False, 'error': 'Доверенное лицо с таким ФИО уже существует'})
+        if not password:
+            return jsonify({'success': False, 'error': 'Пароль не может быть пустым'})
 
-        # Создаем новую запись
-        assignee_id = setting_dao.create_assignee(full_name, post or None)
+        if len(password) < 4:
+            return jsonify({'success': False, 'error': 'Пароль должен содержать не менее 4 символов'})
 
-        # Обновляем текущие настройки
-        setting_dao.update_single('assignee_id', assignee_id)
+        # Создаем пользователя
+        success, result = user_dao.create_user_by_admin(username, password, role)
 
-        display_name = f"{full_name}" + (f" ({post})" if post else "")
-
-        return jsonify({
-            'success': True,
-            'message': 'Доверенное лицо успешно создано',
-            'id': assignee_id,
-            'name': full_name,
-            'display_name': display_name,
-            'post': post
-        })
+        if success:
+            return jsonify({
+                'success': True,
+                'message': 'Пользователь успешно создан',
+                'user': result
+            })
+        else:
+            return jsonify({'success': False, 'error': result.get('error', 'Ошибка при создании пользователя')})
 
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
 
+
+@app.route('/admin/users/update_role', methods=['POST'])
+@login_required
+@admin_required
+def admin_update_user_role():
+    """Обновление роли пользователя"""
+    try:
+        data = request.get_json()
+        user_id = data.get('user_id')
+        role = data.get('role')
+
+        if not user_id:
+            return jsonify({'success': False, 'error': 'Не указан ID пользователя'})
+
+        if role not in ['user', 'admin']:
+            return jsonify({'success': False, 'error': 'Неверная роль'})
+
+        success = user_dao.update_user_role(user_id, role)
+
+        if success:
+            return jsonify({'success': True, 'message': 'Роль успешно обновлена'})
+        else:
+            return jsonify({'success': False, 'error': 'Пользователь не найден'})
+
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+
+@app.route('/admin/users/delete', methods=['POST'])
+@login_required
+@admin_required
+def admin_delete_user():
+    """Удаление пользователя"""
+    try:
+        data = request.get_json()
+        user_id = data.get('user_id')
+
+        if not user_id:
+            return jsonify({'success': False, 'error': 'Не указан ID пользователя'})
+
+        # Нельзя удалить самого себя
+        if user_id == session['user_id']:
+            return jsonify({'success': False, 'error': 'Нельзя удалить самого себя'})
+
+        success, message = user_dao.delete_user(user_id)
+
+        if success:
+            return jsonify({'success': True, 'message': message})
+        else:
+            return jsonify({'success': False, 'error': message})
+
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+
+# ===== Роуты для создания новых записей в справочниках =====
 
 @app.route('/admin/settings/create_power_of_attorney', methods=['POST'])
 @login_required
@@ -296,8 +371,9 @@ def create_assignee():
 def create_power_of_attorney():
     """Создание новой доверенности"""
     try:
-        number = request.form.get('number', '').strip()
-        date_of_receipt = request.form.get('date_of_receipt', '')
+        data = request.get_json()
+        number = data.get('number', '').strip()
+        date_of_receipt = data.get('date_of_receipt', '')
 
         if not number:
             return jsonify({'success': False, 'error': 'Номер доверенности не может быть пустым'})
@@ -311,9 +387,6 @@ def create_power_of_attorney():
 
         # Создаем новую запись
         poa_id = setting_dao.create_power_of_attorney(number, date_of_receipt)
-
-        # Обновляем текущие настройки
-        setting_dao.update_single('power_of_attorney_id', poa_id)
 
         from datetime import datetime
         date_obj = datetime.strptime(date_of_receipt, '%Y-%m-%d')
@@ -338,7 +411,8 @@ def create_power_of_attorney():
 def create_sum():
     """Создание новой суммы"""
     try:
-        value_str = request.form.get('value', '').strip()
+        data = request.get_json()
+        value_str = data.get('value', '').strip()
 
         if not value_str:
             return jsonify({'success': False, 'error': 'Сумма не может быть пустой'})
@@ -356,9 +430,6 @@ def create_sum():
 
         # Создаем новую запись
         sum_id = setting_dao.create_sum(value)
-
-        # Обновляем текущие настройки
-        setting_dao.update_single('sum_id', sum_id)
 
         return jsonify({
             'success': True,
@@ -378,8 +449,9 @@ def create_sum():
 def create_provost():
     """Создание нового проректора"""
     try:
-        full_name = request.form.get('full_name', '').strip()
-        post = request.form.get('post', '').strip()
+        data = request.get_json()
+        full_name = data.get('full_name', '').strip()
+        post = data.get('post', '').strip()
 
         if not full_name:
             return jsonify({'success': False, 'error': 'ФИО не может быть пустым'})
@@ -390,9 +462,6 @@ def create_provost():
 
         # Создаем новую запись
         provost_id = setting_dao.create_provost(full_name, post or None)
-
-        # Обновляем текущие настройки
-        setting_dao.update_single('provost_id', provost_id)
 
         display_name = f"{full_name}" + (f" ({post})" if post else "")
 
@@ -427,11 +496,11 @@ def create_reference():
         if not name:
             return jsonify({'success': False, 'error': 'Название не может быть пустым'})
 
-        # Проверяем, не существует ли уже такое название
         table_mapping = {
             'programming_language': 'programming_languages',
             'os_type': 'os_types',
-            'computer_type': 'computer_types'
+            'computer_type': 'computer_types',
+            'author_role': 'expert_roles'
         }
 
         table_name = table_mapping.get(reference_type)
@@ -445,12 +514,19 @@ def create_reference():
                 return jsonify({'success': False, 'error': 'Такое название уже существует'})
 
         # Создаем новую запись
-        reference = product_dao.create_reference(reference_type, name)
+        if reference_type == 'author_role':
+            with application_dao.db.get_cursor() as cur:
+                cur.execute("INSERT INTO expert_roles (name) VALUES (%s) RETURNING id, name", (name,))
+                result = cur.fetchone()
+                reference = {'id': result[0], 'name': result[1]}
+        else:
+            reference = product_dao.create_reference(reference_type, name)
 
         return jsonify({
             'success': True,
             'message': 'Запись успешно создана',
-            'reference': reference
+            'reference': reference,
+            'reference_type': reference_type
         })
 
     except Exception as e:
@@ -477,11 +553,11 @@ def update_reference():
         if not name:
             return jsonify({'success': False, 'error': 'Название не может быть пустым'})
 
-        # Проверяем, не существует ли уже такое название (кроме текущей записи)
         table_mapping = {
             'programming_language': 'programming_languages',
             'os_type': 'os_types',
-            'computer_type': 'computer_types'
+            'computer_type': 'computer_types',
+            'author_role': 'expert_roles'
         }
 
         table_name = table_mapping.get(reference_type)
@@ -490,19 +566,24 @@ def update_reference():
 
         # Проверка существования другого элемента с таким же названием
         with product_dao.db.get_cursor() as cur:
-            cur.execute(f"SELECT COUNT(*) FROM {table_name} WHERE name = %s AND id != %s",
-                        (name, ref_id))
+            cur.execute(f"SELECT COUNT(*) FROM {table_name} WHERE name = %s AND id != %s", (name, ref_id))
             if cur.fetchone()[0] > 0:
                 return jsonify({'success': False, 'error': 'Такое название уже существует'})
 
         # Обновляем запись
-        success = product_dao.update_reference(reference_type, ref_id, name)
+        if reference_type == 'author_role':
+            with application_dao.db.get_cursor() as cur:
+                cur.execute("UPDATE expert_roles SET name = %s WHERE id = %s", (name, ref_id))
+                success = cur.rowcount > 0
+        else:
+            success = product_dao.update_reference(reference_type, ref_id, name)
 
         if success:
             return jsonify({
                 'success': True,
                 'message': 'Запись успешно обновлена',
-                'reference': {'id': ref_id, 'name': name}
+                'reference': {'id': ref_id, 'name': name},
+                'reference_type': reference_type
             })
         else:
             return jsonify({'success': False, 'error': 'Запись не найдена'})
@@ -527,61 +608,29 @@ def delete_reference():
         if not ref_id:
             return jsonify({'success': False, 'error': 'Не указан ID записи'})
 
-        # Удаляем запись
-        success = product_dao.delete_reference(reference_type, ref_id)
+        # Для ролей авторов проверяем, используется ли роль
+        if reference_type == 'author_role':
+            with application_dao.db.get_cursor() as cur:
+                cur.execute("SELECT COUNT(*) FROM application_authors WHERE expert_role_id = %s", (ref_id,))
+                if cur.fetchone()[0] > 0:
+                    return jsonify({
+                        'success': False,
+                        'error': 'Невозможно удалить роль, так как она используется в заявках'
+                    })
+                cur.execute("DELETE FROM expert_roles WHERE id = %s", (ref_id,))
+                success = cur.rowcount > 0
+        else:
+            success = product_dao.delete_reference(reference_type, ref_id)
 
         if success:
-            return jsonify({
-                'success': True,
-                'message': 'Запись успешно удалена'
-            })
+            return jsonify({'success': True, 'message': 'Запись успешно удалена'})
         else:
             return jsonify({'success': False, 'error': 'Запись не найдена'})
 
     except ValueError as e:
-        # Обрабатываем ошибку "используется в продуктах"
         return jsonify({'success': False, 'error': str(e)})
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
-
-
-@app.route('/admin/settings/create_author_role', methods=['POST'])
-@login_required
-@admin_required
-def create_author_role():
-    """Создание новой роли автора"""
-    try:
-        data = request.get_json()
-        name = data.get('name', '').strip()
-
-        if not name:
-            return jsonify({'success': False, 'error': 'Название роли не может быть пустым'})
-
-        # Проверяем, не существует ли уже такая роль
-        with application_dao.db.get_cursor() as cur:
-            cur.execute("SELECT COUNT(*) FROM author_roles WHERE name = %s", (name,))
-            if cur.fetchone()[0] > 0:
-                return jsonify({'success': False, 'error': 'Роль с таким названием уже существует'})
-
-        # Создаем новую запись
-        with application_dao.db.get_cursor() as cur:
-            cur.execute("""
-                    INSERT INTO author_roles (name) 
-                    VALUES (%s) 
-                    RETURNING id, name
-                """, (name,))
-            result = cur.fetchone()
-            role = {'id': result[0], 'name': result[1]}
-
-        return jsonify({
-            'success': True,
-            'message': 'Роль автора успешно создана',
-            'reference': role
-        })
-
-    except Exception as e:
-        return jsonify({'success': False, 'error': str(e)})
-
 
 # ========== АУТЕНТИФИКАЦИЯ ==========
 @app.route('/register', methods=['GET', 'POST'])
