@@ -287,12 +287,24 @@
         margin-top: 20px;
         text-align: center;
         font-size: 1rem;
+        background: none;
+        border-left: none;
+        border-right: none;
+        border-bottom: none;
     }
 
     @media (min-width: 768px) {
         .edit-application-page #totalPercent {
             text-align: left;
         }
+    }
+
+    /* Убираем рамки у общего процента */
+    .edit-application-page #totalPercent.border,
+    .edit-application-page #totalPercent.border-danger,
+    .edit-application-page #totalPercent.border-warning,
+    .edit-application-page #totalPercent.border-success {
+        border: none !important;
     }
 
     .edit-application-page .status-badge {
@@ -315,9 +327,236 @@
         border: 1px solid var(--color-secondary);
     }
 
-    /* Адаптивные стили */
+    /* Стили для модального окна (справочник авторов) */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(38, 48, 69, 0.8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+    }
 
-    /* Мобильные устройства (< 576px) */
+    .modal-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .modal-container {
+        background: white;
+        border-radius: 8px;
+        width: 90%;
+        max-width: 700px;
+        max-height: 80vh;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        animation: modalSlideIn 0.3s ease;
+    }
+
+    @keyframes modalSlideIn {
+        from {
+            transform: translateY(-50px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    .modal-header {
+        padding: 20px 25px;
+        border-bottom: 2px solid var(--color-secondary);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-header h3 {
+        margin: 0;
+        color: var(--color-primary);
+        font-size: 1.5rem;
+    }
+
+    .modal-close {
+        background: none;
+        border: none;
+        font-size: 28px;
+        cursor: pointer;
+        color: var(--color-primary);
+        transition: all 0.3s ease;
+        width: 35px;
+        height: 35px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+    }
+
+    .modal-close:hover {
+        background-color: rgba(185, 159, 110, 0.1);
+        color: var(--color-secondary);
+        transform: rotate(90deg);
+    }
+
+    .modal-search {
+        padding: 15px 25px;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .modal-search input {
+        width: 100%;
+        padding: 10px 15px;
+        border: 1px solid var(--color-secondary);
+        border-radius: 4px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        color: var(--color-primary);
+    }
+
+    .modal-search input:focus {
+        outline: none;
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 0.2rem rgba(185, 159, 110, 0.25);
+    }
+
+    .modal-search input::placeholder {
+        color: rgba(38, 48, 69, 0.6);
+    }
+
+    .modal-content {
+        flex: 1;
+        overflow-y: auto;
+        padding: 15px 25px;
+    }
+
+    .modal-content::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .modal-content::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+    }
+
+    .modal-content::-webkit-scrollbar-thumb {
+        background: var(--color-secondary);
+        border-radius: 4px;
+    }
+
+    .modal-content::-webkit-scrollbar-thumb:hover {
+        background: var(--color-primary);
+    }
+
+    .author-item {
+        padding: 12px 15px;
+        margin-bottom: 8px;
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .author-item:hover {
+        background-color: rgba(185, 159, 110, 0.1);
+        border-color: var(--color-secondary);
+        transform: translateX(5px);
+    }
+
+    .author-item.selected {
+        background-color: rgba(185, 159, 110, 0.2);
+        border-color: var(--color-secondary);
+        border-left: 3px solid var(--color-secondary);
+    }
+
+    .author-info {
+        flex: 1;
+    }
+
+    .author-name {
+        font-size: 1rem;
+        color: var(--color-primary);
+        font-weight: 500;
+    }
+
+    .author-birthdate {
+        font-size: 0.85rem;
+        color: var(--color-primary);
+        opacity: 0.7;
+        margin-top: 4px;
+    }
+
+    .author-select-hint {
+        font-size: 0.85rem;
+        color: var(--color-secondary);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .author-item:hover .author-select-hint {
+        opacity: 1;
+    }
+
+    .modal-footer {
+        padding: 15px 25px;
+        border-top: 1px solid #e0e0e0;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    .modal-footer .btn {
+        padding: 8px 20px;
+    }
+
+    .no-results {
+        text-align: center;
+        padding: 40px;
+        color: var(--color-primary);
+        opacity: 0.6;
+    }
+
+    /* Поле с выбранным автором */
+    .author-field-wrapper {
+        position: relative;
+    }
+
+    .author-selected-value {
+        cursor: pointer;
+    }
+
+    .author-selected-value.selected {
+        background-color: rgba(185, 159, 110, 0.15);
+        border-color: var(--color-secondary);
+        padding-right: 40px;
+    }
+
+    .dropdown-icon {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+        color: var(--color-secondary);
+        font-size: 12px;
+    }
+
+    .author-field-wrapper .form-control {
+        cursor: pointer;
+    }
+
+    /* Адаптивные стили */
     @media (max-width: 575.98px) {
         .edit-application-page .container {
             padding: 10px;
@@ -328,99 +567,38 @@
             margin-bottom: 1.5rem;
         }
 
-        .edit-application-page .alert-warning,
-        .edit-application-page .alert-info {
-            font-size: 0.85rem;
-            padding: 0.75rem;
-            margin: 1rem 0;
+        .modal-container {
+            width: 95%;
+            max-height: 90vh;
         }
 
-        .edit-application-page .card-header {
-            padding: 0.5rem 0;
-            margin-bottom: 1rem;
+        .modal-header h3 {
+            font-size: 1.2rem;
         }
 
-        .edit-application-page .card-title {
-            font-size: 1rem;
+        .author-item {
+            padding: 10px 12px;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 5px;
         }
 
-        .edit-application-page .row {
-            margin-left: -0.25rem;
-            margin-right: -0.25rem;
+        .author-select-hint {
+            font-size: 0.75rem;
         }
+    }
 
-        .edit-application-page .col-md-3,
-        .edit-application-page .col-md-2,
-        .edit-application-page .col-md-4,
-        .edit-application-page .col-md-6 {
-            padding-left: 0.25rem;
-            padding-right: 0.25rem;
-        }
-
+    @media (max-width: 575.98px) {
         .edit-application-page .author-row {
-            padding: 10px 0;
+            padding: 10px;
             margin-bottom: 1rem;
             border: 1px solid rgba(185, 159, 110, 0.2);
             border-radius: 8px;
             padding: 1rem;
         }
-
-        .edit-application-page .btn-sm {
-            padding: 0.5rem;
-            font-size: 0.85rem;
-            width: 100%;
-            max-width: 200px;
-            margin: 0.5rem auto;
-            display: block;
-        }
-
-        .edit-application-page .form-control,
-        .edit-application-page .form-select {
-            font-size: 0.95rem;
-            padding: 0.375rem 0;
-        }
-
-        .mt-4.pt-3 {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            align-items: stretch;
-            padding-top: 1rem !important;
-            margin-top: 1rem !important;
-        }
-
-        .mt-4.pt-3 .btn {
-            width: 100%;
-            margin: 0 !important;
-            padding: 0.75rem;
-            font-size: 1rem;
-            text-align: center;
-        }
-
-        .mt-4.pt-3 .float-end {
-            float: none !important;
-            order: -1;
-            margin-bottom: 0.5rem;
-        }
-
-        .edit-application-page .status-badge {
-            display: block;
-            margin: 0.5rem 0;
-            width: fit-content;
-            font-size: 0.8rem;
-        }
     }
 
-    /* Планшеты (от 576px до 768px) */
     @media (min-width: 576px) and (max-width: 767.98px) {
-        .edit-application-page .container {
-            padding: 20px;
-        }
-
-        .edit-application-page h1 {
-            font-size: 1.6rem;
-        }
-
         .edit-application-page .author-row {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -430,36 +608,8 @@
             border-radius: 8px;
             margin-bottom: 1rem;
         }
-
-        .edit-application-page .author-row > div {
-            margin-bottom: 0;
-        }
-
-        .edit-application-page .author-row > div:nth-last-child(1) {
-            grid-column: span 2;
-            margin-top: 0.5rem;
-        }
-
-        .mt-4.pt-3 {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.75rem;
-            align-items: center;
-        }
-
-        .mt-4.pt-3 .btn {
-            flex: 1;
-            min-width: 150px;
-            padding: 0.625rem 1rem;
-        }
-
-        .mt-4.pt-3 .float-end {
-            margin-left: auto;
-            order: 2;
-        }
     }
 
-    /* Десктоп (от 768px) */
     @media (min-width: 768px) {
         .edit-application-page .author-row > div:nth-child(1) { grid-column: span 3; }
         .edit-application-page .author-row > div:nth-child(2) { grid-column: span 2; }
@@ -472,188 +622,6 @@
             display: flex;
             align-items: flex-end;
         }
-
-        .mt-4.pt-3 {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-        }
-
-        .mt-4.pt-3 .btn {
-            min-width: 160px;
-        }
-
-        .mt-4.pt-3 .float-end {
-            margin-left: auto;
-        }
-    }
-
-    /* Улучшения для сенсорных устройств */
-    .btn,
-    .form-control,
-    .form-select {
-        min-height: 44px;
-        touch-action: manipulation;
-    }
-
-    .btn-sm {
-        min-height: 36px;
-    }
-
-    /* Адаптивные шрифты для мобильных */
-    @media (max-width: 767.98px) {
-        .edit-application-page .form-label {
-            font-size: 0.9rem;
-        }
-
-        .edit-application-page .form-control,
-        .edit-application-page .form-select {
-            font-size: 1rem;
-        }
-    }
-
-    /* Анимации */
-    .author-row {
-        animation: fadeIn 0.3s ease-out;
-    }
-
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    /* Адаптивное отображение процента */
-    #totalPercent {
-        font-size: 1.1rem;
-        padding: 0.75rem;
-        background-color: rgba(38, 48, 69, 0.1);
-        border-radius: 4px;
-        margin-top: 1rem;
-    }
-
-    @media (max-width: 575.98px) {
-        #totalPercent {
-            font-size: 1rem;
-            padding: 0.5rem;
-            text-align: center;
-        }
-    }
-
-    /* Улучшение для полей ввода процентов */
-    .percent-input {
-        text-align: center;
-        font-weight: 500;
-    }
-
-    @media (max-width: 767.98px) {
-        .percent-input {
-            font-size: 1.1rem;
-        }
-    }
-
-    /* Адаптивная кнопка "Отправить на рассмотрение" */
-    .btn-primary.float-end {
-        white-space: nowrap;
-        min-width: 200px;
-    }
-
-    @media (max-width: 767.98px) {
-        .btn-primary.float-end {
-            min-width: 100%;
-            white-space: normal;
-            text-align: center;
-            padding: 0.75rem;
-        }
-
-        .btn-primary.float-end i {
-            margin-right: 0.5rem;
-        }
-    }
-
-    /* Адаптивное предупреждение о статусе */
-    .alert-warning {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-
-    @media (min-width: 576px) {
-        .alert-warning {
-            flex-direction: row;
-            align-items: center;
-        }
-
-        .alert-warning i {
-            margin-right: 0.75rem;
-            font-size: 1.25rem;
-        }
-    }
-
-    /* Адаптивная кнопка удаления автора */
-    .author-row .btn-danger {
-        margin-top: 0.5rem;
-    }
-
-    @media (min-width: 768px) {
-        .author-row .btn-danger {
-            margin-top: 0;
-        }
-    }
-
-    /* Адаптивная кнопка добавления автора */
-    .add-author-btn {
-        display: flex;
-        justify-content: center;
-        margin-top: 1rem;
-    }
-
-    @media (min-width: 768px) {
-        .add-author-btn {
-            justify-content: flex-end;
-            margin-top: 0;
-        }
-    }
-
-    /* Адаптивное сообщение о комиссиях */
-    .alert-info .btn-sm {
-        width: auto;
-        display: inline-block;
-        margin-top: 0.5rem;
-    }
-
-    @media (max-width: 767.98px) {
-        .alert-info .btn-sm {
-            width: 100%;
-            text-align: center;
-        }
-    }
-
-    /* Стили для состояний формы */
-    .border-danger {
-        border-color: var(--color-primary) !important;
-    }
-
-    .border-warning {
-        border-color: rgba(185, 159, 110, 0.5) !important;
-    }
-
-    .border-success {
-        border-color: var(--color-secondary) !important;
-    }
-
-    .text-success {
-        color: var(--color-secondary) !important;
-    }
-
-    /* Стили для состояния ошибки валидации */
-    .is-invalid {
-        border-bottom: 2px solid var(--color-primary) !important;
     }
 </style>
 
@@ -710,7 +678,7 @@
         <div class="card mb-4">
             <div class="card-header d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
                 <h5 class="card-title mb-2 mb-md-0">Список авторов</h5>
-                {% if app_status in [1, 4] or session.role == 'admin' %}
+                {% if app_status in [1, 6] or session.role == 'admin' %}
                 <div class="add-author-btn">
                     <button type="button" class="btn btn-sm btn-secondary" onclick="addAuthorRow()">
                         Добавить автора
@@ -721,20 +689,20 @@
             <div class="card-body">
                 <div id="authors-container">
                     {% for author in application_authors %}
-                    <div class="author-row">
+                    <div class="author-row" data-author-index="{{ loop.index0 }}">
                         <div class="mb-3">
                             <label class="form-label required">Автор</label>
-                            <select class="form-select" name="author_ids[]"
-                                    {% if app_status not in [1, 6] and session.role !='admin' %}disabled{% endif %}
-                                    required>
-                                <option value="">Выберите автора</option>
-                                {% for auth in authors %}
-                                <option value="{{ auth[0] }}"
-                                        {% if auth[0]== author[2] %}selected{% endif %}>
-                                    {{ auth[1] }} {{ auth[2] }} {{ auth[3] or '' }}
-                                </option>
-                                {% endfor %}
-                            </select>
+                            <div class="author-field-wrapper">
+                                <input type="text" class="form-control author-selected-value"
+                                       id="authorDisplay_{{ loop.index0 }}"
+                                       value="{{ author[1] }}"
+                                       placeholder="Нажмите для выбора автора"
+                                       readonly style="cursor: pointer;"
+                                       {% if app_status not in [1, 6] and session.role !='admin' %}disabled{% endif %}>
+                                <input type="hidden" name="author_ids[]" id="authorId_{{ loop.index0 }}"
+                                       value="{{ author[2] }}" required>
+                                <span class="dropdown-icon">▼</span>
+                            </div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label required">Роль</label>
@@ -786,10 +754,8 @@
                         {% if application_authors|length > 1 and (app_status in [1, 6] or session.role == 'admin') %}
                         <div class="mb-3">
                             <label class="form-label">&nbsp;</label>
-                            {% set is_disabled = application_authors|length <= 1 %}
                             <button type="button" class="btn btn-sm btn-danger w-100"
-                                    onclick="removeAuthorRow(this)"
-                                    {% if is_disabled %}disabled{% endif %}>
+                                    onclick="removeAuthorRow(this)">
                                 <i class="bi bi-trash me-1"></i>Удалить
                             </button>
                         </div>
@@ -798,17 +764,16 @@
                     {% endfor %}
 
                     {% if not application_authors and (app_status in [1, 6] or session.role == 'admin') %}
-                    <!-- Пустая строка для добавления авторов -->
                     <div class="author-row">
                         <div class="mb-3">
                             <label class="form-label required">Автор</label>
-                            <select class="form-select" name="author_ids[]" required>
-                                <option value="">Выберите автора</option>
-                                {% for author in authors %}
-                                <option value="{{ author[0] }}">{{ author[1] }} {{ author[2] }} {{ author[3] or '' }}
-                                </option>
-                                {% endfor %}
-                            </select>
+                            <div class="author-field-wrapper">
+                                <input type="text" class="form-control author-selected-value"
+                                       id="authorDisplay_0" placeholder="Нажмите для выбора автора"
+                                       readonly style="cursor: pointer;">
+                                <input type="hidden" name="author_ids[]" id="authorId_0" required>
+                                <span class="dropdown-icon">▼</span>
+                            </div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label required">Роль</label>
@@ -914,8 +879,6 @@
 
         <!-- Кнопки действий -->
         <div class="mt-4 pt-3 border-top d-flex flex-wrap gap-2">
-
-
             {% if app_status in [1, 6] or session.role == 'admin' %}
             <button type="submit" class="btn btn-success order-2 order-md-1">
                 Обновить
@@ -929,421 +892,702 @@
     </form>
 </div>
 
+<!-- Модальное окно справочник авторов -->
+<div id="authorModal" class="modal-overlay">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h3>Справочник авторов</h3>
+            <button class="modal-close" id="closeModalBtn">&times;</button>
+        </div>
+        <div class="modal-search">
+            <input type="text" id="modalSearchInput" placeholder="🔍 Поиск автора (по фамилии, имени, отчеству)..."
+                   autocomplete="off">
+        </div>
+        <div class="modal-content" id="modalContent">
+            <div id="authorsList"></div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="cancelModalBtn">Отмена</button>
+            <button type="button" class="btn btn-success" id="confirmModalBtn">Выбрать</button>
+        </div>
+    </div>
+</div>
+
 <script>
-    // Константы для валидации
-const MAX_PERCENT = 100;
-const MAX_HOURS = 24000;
+    // Данные авторов из шаблона
+    const authorsData = [
+        {% for author in authors %}
+        {
+            id: {{ author[0] }},
+            lastName: "{{ author[1] }}",
+            firstName: "{{ author[2] }}",
+            middleName: "{{ author[3] or '' }}",
+            birthdate: "{{ author[4] or '' }}"
+        },
+        {% endfor %}
+    ];
 
-// Функция форматирования числа с разделителями
-function formatNumber(number) {
-    return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
-}
+    // Переменные для модального окна
+    let currentAuthorRowIndex = null;
+    let selectedAuthorId = null;
+    let selectedAuthorName = null;
+    let currentFilteredAuthors = [...authorsData];
 
-// Валидация процентов
-function validatePercent(input) {
-    // Удаляем все кроме цифр
-    input.value = input.value.replace(/\D/g, '');
+    // Получение элементов модального окна
+    const authorModal = document.getElementById('authorModal');
+    const modalSearchInput = document.getElementById('modalSearchInput');
+    const authorsListDiv = document.getElementById('authorsList');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const cancelModalBtn = document.getElementById('cancelModalBtn');
+    const confirmModalBtn = document.getElementById('confirmModalBtn');
 
-    // Убираем ведущие нули
-    if (input.value.length > 1 && input.value.startsWith('0')) {
-        input.value = input.value.replace(/^0+/, '');
-    }
+    const canEdit = {{ 'true' if (app_status in [1, 6] or session.role == 'admin') else 'false' }};
 
-    // Проверка на пустое значение
-    if (input.value === '') {
-        input.setCustomValidity('Введите процент участия');
-        updatePercentInfo(input);
-        return;
-    }
-
-    const percent = parseInt(input.value, 10);
-
-    // Проверка на корректное число
-    if (isNaN(percent)) {
-        input.setCustomValidity('Введите корректное число');
-        input.value = '';
-        updatePercentInfo(input);
-        return;
-    }
-
-    // Проверка максимального значения
-    if (percent > MAX_PERCENT) {
-        input.setCustomValidity(`Процент не может превышать ${MAX_PERCENT}%`);
-        input.value = MAX_PERCENT.toString();
-    } else if (percent < 0) {
-        input.setCustomValidity('Процент не может быть отрицательным');
-        input.value = '0';
-    } else {
-        input.setCustomValidity('');
-    }
-
-    updatePercentInfo(input);
-}
-
-// Обновление информации о проценте
-function updatePercentInfo(input) {
-    const infoDiv = input.closest('.mb-3')?.querySelector('.percent-info');
-    if (!infoDiv) return;
-
-    const value = input.value;
-    if (value === '') {
-        infoDiv.innerHTML = 'Только целые числа, максимум 100%';
-        return;
-    }
-
-    const percent = parseInt(value, 10);
-    if (isNaN(percent)) {
-        infoDiv.innerHTML = 'Только целые числа, максимум 100%';
-        return;
-    }
-
-    if (percent > MAX_PERCENT) {
-        infoDiv.innerHTML = `<span style="color: var(--color-primary);">${percent}% (превышает лимит ${MAX_PERCENT}%)</span>`;
-    } else {
-        infoDiv.innerHTML = `${percent}% (максимум: ${MAX_PERCENT}%)`;
-    }
-}
-
-// Валидация времени участия
-function validateTime(input) {
-    // Удаляем все кроме цифр
-    input.value = input.value.replace(/\D/g, '');
-
-    // Убираем ведущие нули
-    if (input.value.length > 1 && input.value.startsWith('0')) {
-        input.value = input.value.replace(/^0+/, '');
-    }
-
-    // Проверка на пустое значение
-    if (input.value === '') {
-        input.setCustomValidity('Введите время участия');
-        updateTimeInfo(input);
-        return;
-    }
-
-    const hours = parseInt(input.value, 10);
-
-    // Проверка на корректное число
-    if (isNaN(hours)) {
-        input.setCustomValidity('Введите корректное число');
-        input.value = '';
-        updateTimeInfo(input);
-        return;
-    }
-
-    // Проверка максимального значения
-    if (hours > MAX_HOURS) {
-        input.setCustomValidity(`Время не может превышать ${formatNumber(MAX_HOURS)} часов`);
-        input.value = MAX_HOURS.toString();
-    } else if (hours < 1) {
-        input.setCustomValidity('Время должно быть не менее 1 часа');
-        if (hours === 0) {
-            input.value = '1';
+    // Функция для получения ФИО автора
+    function getAuthorFullName(author) {
+        let fullName = author.lastName + ' ' + author.firstName;
+        if (author.middleName && author.middleName.trim()) {
+            fullName += ' ' + author.middleName;
         }
-    } else {
-        input.setCustomValidity('');
+        return fullName;
     }
 
-    updateTimeInfo(input);
-}
-
-// Обновление информации о времени
-function updateTimeInfo(input) {
-    const infoDiv = input.closest('.mb-3')?.querySelector('.time-info');
-    if (!infoDiv) return;
-
-    const value = input.value;
-    if (value === '') {
-        infoDiv.innerHTML = 'Только цифры, максимум 24 000 часов';
-        return;
-    }
-
-    const hours = parseInt(value, 10);
-    if (isNaN(hours)) {
-        infoDiv.innerHTML = 'Только цифры, максимум 24 000 часов';
-        return;
-    }
-
-    if (hours > MAX_HOURS) {
-        infoDiv.innerHTML = `<span style="color: var(--color-primary);">${formatNumber(hours)} часов (превышает лимит ${formatNumber(MAX_HOURS)})</span>`;
-    } else {
-        infoDiv.innerHTML = `${formatNumber(hours)} часов (максимум: ${formatNumber(MAX_HOURS)})`;
-    }
-}
-let authorRowCount = {{ application_authors|length if application_authors else 1 }};
-const canEdit = {{ 'true' if (app_status in [1, 6] or session.role == 'admin') else 'false' }};
-function addAuthorRow() {
-    if (!canEdit) return;
-
-    authorRowCount++;
-    const container = document.getElementById('authors-container');
-    const newRow = document.createElement('div');
-    newRow.className = 'author-row';
-    newRow.innerHTML = `
-        <div class="mb-3">
-            <label class="form-label required">Автор</label>
-            <select class="form-select" name="author_ids[]" required>
-                <option value="">Выберите автора</option>
-                {% for author in authors %}
-                <option value="{{ author[0] }}">{{ author[1] }} {{ author[2] }} {{ author[3] or '' }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="mb-3">
-            <label class="form-label required">Роль</label>
-            <select class="form-select" name="role_ids[]" required>
-                <option value="">Выберите роль</option>
-                {% for role in roles %}
-                <option value="{{ role[0] }}">{{ role[1] }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="mb-3">
-            <label class="form-label required">% участия</label>
-            <input type="text" class="form-control percent-input" name="percents[]"
-                   inputmode="numeric" pattern="\d*"
-                   placeholder="0" required>
-            <div class="form-text percent-info">Только целые числа, максимум 100%</div>
-        </div>
-        <div class="mb-3">
-            <label class="form-label required">Время участия (часы)</label>
-            <input type="text" class="form-control time-input" name="times[]"
-                   inputmode="numeric" pattern="\d*"
-                   placeholder="0" required>
-            <div class="form-text time-info">Только цифры, максимум 24 000 часов</div>
-        </div>
-        <div class="mb-3">
-            <label class="form-label required">Краткое описание вклада</label>
-            <input class="form-control" name="description[]" required>
-        </div>
-        <div class="mb-3">
-            <label class="form-label required">Наименование и номер оборудования</label>
-            <input class="form-control" name="equipment[]" required>
-        </div>
-        <div class="mb-3">
-            <label class="form-label">&nbsp;</label>
-            <button type="button" class="btn btn-sm btn-danger w-100" onclick="removeAuthorRow(this)">
-                Удалить
-            </button>
-        </div>
-    `;
-    container.appendChild(newRow);
-
-    // Добавляем обработчики для новых полей
-    const percentInput = newRow.querySelector('.percent-input');
-    const timeInput = newRow.querySelector('.time-input');
-
-    percentInput.addEventListener('input', function() {
-        validatePercent(this);
-        updateTotalPercent();
-    });
-
-    percentInput.addEventListener('blur', function() {
-        if (this.value === '') {
-            this.value = '0';
-            validatePercent(this);
+    // Функция для форматирования даты рождения
+    function formatBirthdate(birthdate) {
+        if (!birthdate || birthdate === '') return '';
+        const parts = birthdate.split('-');
+        if (parts.length === 3) {
+            return `Дата рождения: ${parts[2]}.${parts[1]}.${parts[0]}`;
         }
-        // Убеждаемся что значение целое
-        if (this.value.includes('.')) {
-            this.value = Math.round(parseFloat(this.value)).toString();
-            validatePercent(this);
-        }
-        updateTotalPercent();
-    });
-
-    // Запрещаем ввод точки
-    percentInput.addEventListener('keydown', function(e) {
-        if (e.key === '.') {
-            e.preventDefault();
-        }
-    });
-
-    timeInput.addEventListener('input', function() {
-        validateTime(this);
-    });
-
-    timeInput.addEventListener('blur', function() {
-        if (this.value === '') {
-            this.value = '1';
-            validateTime(this);
-        }
-    });
-
-    // Активируем кнопку удаления у первой строки
-    if (authorRowCount === 2) {
-        const firstDeleteBtn = container.querySelector('.author-row:first-child .btn-danger');
-        if (firstDeleteBtn) {
-            firstDeleteBtn.disabled = false;
-        }
+        return birthdate;
     }
 
-    // Инициализируем процент для новой строки
-    updateTotalPercent();
-
-    // Скролл к новой строке на мобильных
-    if (window.innerWidth < 768) {
-        newRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    // Функция для получения автора по ID
+    function getAuthorById(id) {
+        return authorsData.find(a => a.id == id);
     }
-}
 
-function removeAuthorRow(button) {
-    if (!canEdit) return;
-
-    const row = button.closest('.author-row');
-    row.style.opacity = '0';
-    row.style.transform = 'translateY(-10px)';
-    setTimeout(() => {
-        row.remove();
-        authorRowCount--;
-        updateTotalPercent();
-
-        // Если осталась одна строка, деактивируем кнопку удаления
-        if (authorRowCount === 1) {
-            const firstDeleteBtn = document.querySelector('.author-row .btn-danger');
-            if (firstDeleteBtn) {
-                firstDeleteBtn.disabled = true;
+    // Инициализация отображения ФИО для всех существующих авторов
+    function initializeAuthorNames() {
+        const authorIds = document.querySelectorAll('[name="author_ids[]"]');
+        authorIds.forEach((input, index) => {
+            const authorId = input.value;
+            if (authorId) {
+                const author = getAuthorById(authorId);
+                if (author) {
+                    const displayInput = document.getElementById(`authorDisplay_${index}`);
+                    if (displayInput) {
+                        const fullName = getAuthorFullName(author);
+                        displayInput.value = fullName;
+                        displayInput.classList.add('selected');
+                    }
+                }
             }
-        }
-    }, 300);
-}
-function updateTotalPercent() {
-    const percentInputs = document.querySelectorAll('.percent-input');
-    let total = 0;
-    percentInputs.forEach(input => {
-        total += parseInt(input.value, 10) || 0;
-    });
-
-    const totalElement = document.getElementById('totalPercent');
-    if (total > MAX_PERCENT) {
-        totalElement.innerHTML = `<span style="color: #263045">
-            <i class="bi bi-exclamation-triangle me-1"></i>Общий процент: ${total}% (превышает 100%)
-        </span>`;
-        totalElement.classList.add('border', 'border-danger');
-        totalElement.classList.remove('border-warning', 'border-success');
-    } else if (total < MAX_PERCENT) {
-        totalElement.innerHTML = `<span style="color: #263045">
-            <i class="bi bi-info-circle me-1"></i>Общий процент: ${total}% (осталось ${MAX_PERCENT - total}%)
-        </span>`;
-        totalElement.classList.remove('border', 'border-danger');
-        totalElement.classList.add('border', 'border-warning');
-    } else {
-        totalElement.innerHTML = `<span style="color: #263045">
-            <i class="bi bi-check-circle me-1"></i>Общий процент: ${total}%
-        </span>`;
-        totalElement.classList.remove('border', 'border-danger', 'border-warning');
-        totalElement.classList.add('border', 'border-success');
+        });
     }
-}
 
-// Адаптивная функция для установки шага ввода
-function adaptInputStep() {
-    const percentInputs = document.querySelectorAll('.percent-input');
-    percentInputs.forEach(input => {
-        if (window.innerWidth < 768) {
-            input.setAttribute('step', '1');
+    // Открытие модального окна для конкретной строки
+    function openAuthorModal(rowIndex) {
+        if (!canEdit) return;
+
+        currentAuthorRowIndex = rowIndex;
+
+        // Получаем текущее значение из скрытого поля
+        const hiddenInput = document.getElementById(`authorId_${rowIndex}`);
+        if (hiddenInput && hiddenInput.value) {
+            selectedAuthorId = hiddenInput.value;
+            const author = getAuthorById(selectedAuthorId);
+            selectedAuthorName = author ? getAuthorFullName(author) : null;
         } else {
-            input.setAttribute('step', '0.1');
+            selectedAuthorId = null;
+            selectedAuthorName = null;
         }
-    });
-}
-// Адаптивная инициализация
-document.addEventListener('DOMContentLoaded', function() {
-    // Устанавливаем обработчики для существующих полей процента
-    const percentInputs = document.querySelectorAll('.percent-input');
-    const timeInputs = document.querySelectorAll('.time-input');
 
-    percentInputs.forEach(input => {
-        // Если поле доступно для редактирования
-        if (!input.readOnly) {
-            input.addEventListener('input', function() {
-                validatePercent(this);
-                updateTotalPercent();
-            });
+        modalSearchInput.value = '';
+        currentFilteredAuthors = [...authorsData];
+        renderAuthorsList();
+        authorModal.classList.add('active');
 
-            input.addEventListener('blur', function() {
-                if (this.value === '') {
-                    this.value = '0';
-                    validatePercent(this);
-                }
-                // Убеждаемся что значение целое
-                if (this.value.includes('.')) {
-                    this.value = Math.round(parseFloat(this.value)).toString();
-                    validatePercent(this);
-                }
-                updateTotalPercent();
-            });
+        setTimeout(() => {
+            modalSearchInput.focus();
+        }, 100);
+    }
 
-            // Запрещаем ввод точки
-            input.addEventListener('keydown', function(e) {
-                if (e.key === '.') {
-                    e.preventDefault();
-                }
-            });
+    // Закрытие модального окна
+    function closeAuthorModal() {
+        authorModal.classList.remove('active');
+        currentAuthorRowIndex = null;
+        selectedAuthorId = null;
+        selectedAuthorName = null;
+    }
 
-            // Инициализация
-            if (input.value) {
-                validatePercent(input);
-            }
+    // Подтверждение выбора автора
+    function confirmAuthorSelection() {
+        if (selectedAuthorId && currentAuthorRowIndex !== null) {
+            const hiddenInput = document.getElementById(`authorId_${currentAuthorRowIndex}`);
+            const displayInput = document.getElementById(`authorDisplay_${currentAuthorRowIndex}`);
+
+            hiddenInput.value = selectedAuthorId;
+            displayInput.value = selectedAuthorName;
+            displayInput.classList.add('selected');
+
+            showNotification(`✓ Выбран автор: ${selectedAuthorName}`);
+            displayInput.style.borderColor = 'var(--color-secondary)';
+
+            closeAuthorModal();
+        } else {
+            alert('Пожалуйста, выберите автора из списка');
         }
-    });
+    }
 
-    timeInputs.forEach(input => {
-        if (!input.readOnly) {
-            input.addEventListener('input', function() {
-                validateTime(this);
-            });
+    // Отображение списка авторов
+    function renderAuthorsList() {
+        if (!authorsListDiv) return;
 
-            input.addEventListener('blur', function() {
-                if (this.value === '') {
-                    this.value = '1';
-                    validateTime(this);
-                }
-            });
-
-            // Инициализация
-            if (input.value) {
-                validateTime(input);
-            }
+        if (currentFilteredAuthors.length === 0) {
+            authorsListDiv.innerHTML = '<div class="no-results">😔 Авторы не найдены</div>';
+            return;
         }
-    });
 
-    // Инициализируем отображение общего процента
-    updateTotalPercent();
+        let html = '';
+        currentFilteredAuthors.forEach(author => {
+            const isSelected = selectedAuthorId && selectedAuthorId == author.id;
+            const selectedClass = isSelected ? 'selected' : '';
+            const fullName = getAuthorFullName(author);
+            const birthdateFormatted = formatBirthdate(author.birthdate);
 
-    // Обработчик отправки формы
-    const form = document.getElementById('applicationForm');
-    if (form && canEdit) {
-        form.addEventListener('submit', function(e) {
-            // Проверяем сумму процентов
-            const percentInputs = document.querySelectorAll('.percent-input');
-            let total = 0;
-            percentInputs.forEach(input => {
-                total += parseInt(input.value, 10) || 0;
-            });
-
-            if (Math.abs(total - MAX_PERCENT) > 0.1) {
-                e.preventDefault();
-
-                // Адаптивное сообщение об ошибке
-                const errorMsg = window.innerWidth < 768
-                    ? `Ошибка: сумма процентов должна быть ${MAX_PERCENT}%\nТекущая сумма: ${total}%`
-                    : `Сумма процентов участия должна быть ${MAX_PERCENT}%. Текущая сумма: ${total}%`;
-
-                alert(errorMsg);
-
-                return false;
-            }
-
-            return true;
+            html += `
+                <div class="author-item ${selectedClass}" data-id="${author.id}" data-name="${escapeHtml(fullName)}">
+                    <div class="author-info">
+                        <div class="author-name">${escapeHtml(fullName)}</div>
+                        ${birthdateFormatted ? `<div class="author-birthdate">${escapeHtml(birthdateFormatted)}</div>` : ''}
+                    </div>
+                    <span class="author-select-hint">⚡ Двойной клик для выбора</span>
+                </div>
+            `;
         });
-    } else if (form) {
-        // Если редактирование запрещено, блокируем отправку
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            alert('Редактирование заявки запрещено в текущем статусе.');
-            return false;
+
+        authorsListDiv.innerHTML = html;
+
+        document.querySelectorAll('.author-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                const id = this.getAttribute('data-id');
+                const name = this.getAttribute('data-name');
+
+                document.querySelectorAll('.author-item').forEach(el => {
+                    el.classList.remove('selected');
+                });
+
+                this.classList.add('selected');
+                selectedAuthorId = id;
+                selectedAuthorName = name;
+            });
+
+            item.addEventListener('dblclick', function(e) {
+                const id = this.getAttribute('data-id');
+                const name = this.getAttribute('data-name');
+                selectedAuthorId = id;
+                selectedAuthorName = name;
+                confirmAuthorSelection();
+            });
         });
     }
-});
+
+    // Поиск авторов
+    function searchAuthors() {
+        const searchTerm = modalSearchInput.value.toLowerCase().trim();
+
+        if (searchTerm === '') {
+            currentFilteredAuthors = [...authorsData];
+        } else {
+            currentFilteredAuthors = authorsData.filter(author => {
+                const fullName = getAuthorFullName(author).toLowerCase();
+                return fullName.includes(searchTerm);
+            });
+        }
+
+        renderAuthorsList();
+    }
+
+    // Вспомогательная функция для экранирования HTML
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // Показ уведомления
+    function showNotification(message) {
+        const notification = document.createElement('div');
+        notification.textContent = message;
+        notification.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--color-secondary);
+            color: var(--color-primary);
+            padding: 12px 24px;
+            border-radius: 4px;
+            z-index: 10000;
+            animation: slideIn 0.3s ease;
+            font-weight: bold;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        `;
+
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 300);
+        }, 2000);
+    }
+
+    // Добавляем CSS для анимации уведомлений
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+
+    // Обработчики событий модального окна
+    closeModalBtn.addEventListener('click', closeAuthorModal);
+    cancelModalBtn.addEventListener('click', closeAuthorModal);
+    confirmModalBtn.addEventListener('click', confirmAuthorSelection);
+    modalSearchInput.addEventListener('input', searchAuthors);
+
+    authorModal.addEventListener('click', function(e) {
+        if (e.target === authorModal) {
+            closeAuthorModal();
+        }
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && authorModal.classList.contains('active')) {
+            closeAuthorModal();
+        }
+    });
+
+    // Константы для валидации
+    const MAX_PERCENT = 100;
+    const MAX_HOURS = 24000;
+
+    // Функция форматирования числа с разделителями
+    function formatNumber(number) {
+        return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+    }
+
+    // Валидация процентов
+    function validatePercent(input) {
+        if (input.readOnly) return;
+
+        input.value = input.value.replace(/\D/g, '');
+
+        if (input.value.length > 1 && input.value.startsWith('0')) {
+            input.value = input.value.replace(/^0+/, '');
+        }
+
+        if (input.value === '') {
+            input.setCustomValidity('Введите процент участия');
+            updatePercentInfo(input);
+            return;
+        }
+
+        const percent = parseInt(input.value, 10);
+
+        if (isNaN(percent)) {
+            input.setCustomValidity('Введите корректное число');
+            input.value = '';
+            updatePercentInfo(input);
+            return;
+        }
+
+        if (percent > MAX_PERCENT) {
+            input.setCustomValidity(`Процент не может превышать ${MAX_PERCENT}%`);
+            input.value = MAX_PERCENT.toString();
+        } else if (percent < 0) {
+            input.setCustomValidity('Процент не может быть отрицательным');
+            input.value = '0';
+        } else {
+            input.setCustomValidity('');
+        }
+
+        updatePercentInfo(input);
+    }
+
+    function updatePercentInfo(input) {
+        const infoDiv = input.closest('.mb-3')?.querySelector('.percent-info');
+        if (!infoDiv) return;
+
+        const value = input.value;
+        if (value === '') {
+            infoDiv.innerHTML = 'Только целые числа, максимум 100%';
+            return;
+        }
+
+        const percent = parseInt(value, 10);
+        if (isNaN(percent)) {
+            infoDiv.innerHTML = 'Только целые числа, максимум 100%';
+            return;
+        }
+
+        if (percent > MAX_PERCENT) {
+            infoDiv.innerHTML = `<span style="color: var(--color-primary);">${percent}% (превышает лимит ${MAX_PERCENT}%)</span>`;
+        } else {
+            infoDiv.innerHTML = `${percent}% (максимум: ${MAX_PERCENT}%)`;
+        }
+    }
+
+    function validateTime(input) {
+        if (input.readOnly) return;
+
+        input.value = input.value.replace(/\D/g, '');
+
+        if (input.value.length > 1 && input.value.startsWith('0')) {
+            input.value = input.value.replace(/^0+/, '');
+        }
+
+        if (input.value === '') {
+            input.setCustomValidity('Введите время участия');
+            updateTimeInfo(input);
+            return;
+        }
+
+        const hours = parseInt(input.value, 10);
+
+        if (isNaN(hours)) {
+            input.setCustomValidity('Введите корректное число');
+            input.value = '';
+            updateTimeInfo(input);
+            return;
+        }
+
+        if (hours > MAX_HOURS) {
+            input.setCustomValidity(`Время не может превышать ${formatNumber(MAX_HOURS)} часов`);
+            input.value = MAX_HOURS.toString();
+        } else if (hours < 1) {
+            input.setCustomValidity('Время должно быть не менее 1 часа');
+            if (hours === 0) {
+                input.value = '1';
+            }
+        } else {
+            input.setCustomValidity('');
+        }
+
+        updateTimeInfo(input);
+    }
+
+    function updateTimeInfo(input) {
+        const infoDiv = input.closest('.mb-3')?.querySelector('.time-info');
+        if (!infoDiv) return;
+
+        const value = input.value;
+        if (value === '') {
+            infoDiv.innerHTML = 'Только цифры, максимум 24 000 часов';
+            return;
+        }
+
+        const hours = parseInt(value, 10);
+        if (isNaN(hours)) {
+            infoDiv.innerHTML = 'Только цифры, максимум 24 000 часов';
+            return;
+        }
+
+        if (hours > MAX_HOURS) {
+            infoDiv.innerHTML = `<span style="color: var(--color-primary);">${formatNumber(hours)} часов (превышает лимит ${formatNumber(MAX_HOURS)})</span>`;
+        } else {
+            infoDiv.innerHTML = `${formatNumber(hours)} часов (максимум: ${formatNumber(MAX_HOURS)})`;
+        }
+    }
+
+    let authorRowCount = {{ application_authors|length if application_authors else 1 }};
+
+    function addAuthorRow() {
+        if (!canEdit) return;
+
+        authorRowCount++;
+        const container = document.getElementById('authors-container');
+        const newRow = document.createElement('div');
+        newRow.className = 'author-row';
+        const rowIndex = authorRowCount - 1;
+        newRow.innerHTML = `
+            <div class="mb-3">
+                <label class="form-label required">Автор</label>
+                <div class="author-field-wrapper">
+                    <input type="text" class="form-control author-selected-value"
+                           id="authorDisplay_${rowIndex}" placeholder="Нажмите для выбора автора"
+                           readonly style="cursor: pointer;">
+                    <input type="hidden" name="author_ids[]" id="authorId_${rowIndex}" required>
+                    <span class="dropdown-icon">▼</span>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label required">Роль</label>
+                <select class="form-select" name="role_ids[]" required>
+                    <option value="">Выберите роль</option>
+                    {% for role in roles %}
+                    <option value="{{ role[0] }}">{{ role[1] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label required">% участия</label>
+                <input type="text" class="form-control percent-input" name="percents[]"
+                       inputmode="numeric" pattern="\d*"
+                       placeholder="0" required>
+                <div class="form-text percent-info">Только целые числа, максимум 100%</div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label required">Время участия (часы)</label>
+                <input type="text" class="form-control time-input" name="times[]"
+                       inputmode="numeric" pattern="\d*"
+                       placeholder="0" required>
+                <div class="form-text time-info">Только цифры, максимум 24 000 часов</div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label required">Краткое описание вклада</label>
+                <input class="form-control" name="description[]" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label required">Наименование и номер оборудования</label>
+                <input class="form-control" name="equipment[]" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">&nbsp;</label>
+                <button type="button" class="btn btn-sm btn-danger w-100" onclick="removeAuthorRow(this)">
+                    Удалить
+                </button>
+            </div>
+        `;
+        container.appendChild(newRow);
+
+        // Добавляем обработчик для поля автора
+        const authorDisplay = newRow.querySelector('.author-selected-value');
+        authorDisplay.addEventListener('click', () => openAuthorModal(rowIndex));
+
+        // Добавляем обработчики для полей процентов и времени
+        const percentInput = newRow.querySelector('.percent-input');
+        const timeInput = newRow.querySelector('.time-input');
+
+        percentInput.addEventListener('input', function() {
+            validatePercent(this);
+            updateTotalPercent();
+        });
+
+        percentInput.addEventListener('blur', function() {
+            if (this.value === '') {
+                this.value = '0';
+                validatePercent(this);
+            }
+            updateTotalPercent();
+        });
+
+        percentInput.addEventListener('keydown', function(e) {
+            if (e.key === '.') {
+                e.preventDefault();
+            }
+        });
+
+        timeInput.addEventListener('input', function() {
+            validateTime(this);
+        });
+
+        timeInput.addEventListener('blur', function() {
+            if (this.value === '') {
+                this.value = '1';
+                validateTime(this);
+            }
+        });
+
+        // Активируем кнопку удаления у первой строки
+        if (authorRowCount === 2) {
+            const firstDeleteBtn = container.querySelector('.author-row:first-child .btn-danger');
+            if (firstDeleteBtn) {
+                firstDeleteBtn.disabled = false;
+            }
+        }
+
+        updateTotalPercent();
+
+        if (window.innerWidth < 768) {
+            newRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    }
+
+    function removeAuthorRow(button) {
+        if (!canEdit) return;
+
+        const row = button.closest('.author-row');
+        row.style.opacity = '0';
+        row.style.transform = 'translateY(-10px)';
+        setTimeout(() => {
+            row.remove();
+            authorRowCount--;
+            updateTotalPercent();
+
+            if (authorRowCount === 1) {
+                const firstDeleteBtn = document.querySelector('.author-row .btn-danger');
+                if (firstDeleteBtn) {
+                    firstDeleteBtn.disabled = true;
+                }
+            }
+        }, 300);
+    }
+
+    function updateTotalPercent() {
+        const percentInputs = document.querySelectorAll('.percent-input');
+        let total = 0;
+        percentInputs.forEach(input => {
+            total += parseInt(input.value, 10) || 0;
+        });
+
+        const totalElement = document.getElementById('totalPercent');
+        totalElement.classList.remove('border', 'border-danger', 'border-warning', 'border-success');
+
+        if (total > MAX_PERCENT) {
+            totalElement.innerHTML = `<span>
+                <i class="bi bi-exclamation-triangle me-1"></i>Общий процент: ${total}% (превышает 100%)
+            </span>`;
+        } else if (total < MAX_PERCENT) {
+            totalElement.innerHTML = `<span>
+                <i class="bi bi-info-circle me-1"></i>Общий процент: ${total}% (осталось ${MAX_PERCENT - total}%)
+            </span>`;
+        } else {
+            totalElement.innerHTML = `<span>
+                <i class="bi bi-check-circle me-1"></i>Общий процент: ${total}%
+            </span>`;
+        }
+    }
+
+    // Адаптивная инициализация
+    document.addEventListener('DOMContentLoaded', function() {
+        // Инициализируем отображение ФИО для существующих авторов
+        initializeAuthorNames();
+
+        // Добавляем обработчики для существующих полей авторов
+        const authorRows = document.querySelectorAll('.author-row');
+        authorRows.forEach((row, index) => {
+            const authorDisplay = document.getElementById(`authorDisplay_${index}`);
+            if (authorDisplay && !authorDisplay.disabled) {
+                authorDisplay.addEventListener('click', () => openAuthorModal(index));
+            }
+        });
+
+        const percentInputs = document.querySelectorAll('.percent-input');
+        const timeInputs = document.querySelectorAll('.time-input');
+
+        percentInputs.forEach(input => {
+            if (!input.readOnly) {
+                input.addEventListener('input', function() {
+                    validatePercent(this);
+                    updateTotalPercent();
+                });
+
+                input.addEventListener('blur', function() {
+                    if (this.value === '') {
+                        this.value = '0';
+                        validatePercent(this);
+                    }
+                    updateTotalPercent();
+                });
+
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === '.') {
+                        e.preventDefault();
+                    }
+                });
+
+                if (input.value) {
+                    validatePercent(input);
+                }
+            }
+        });
+
+        timeInputs.forEach(input => {
+            if (!input.readOnly) {
+                input.addEventListener('input', function() {
+                    validateTime(this);
+                });
+
+                input.addEventListener('blur', function() {
+                    if (this.value === '') {
+                        this.value = '1';
+                        validateTime(this);
+                    }
+                });
+
+                if (input.value) {
+                    validateTime(input);
+                }
+            }
+        });
+
+        updateTotalPercent();
+
+        // Обработчик отправки формы
+        const form = document.getElementById('applicationForm');
+        if (form && canEdit) {
+            form.addEventListener('submit', function(e) {
+                // Проверяем, что все авторы выбраны
+                const authorIds = document.querySelectorAll('[name="author_ids[]"]');
+                let allAuthorsSelected = true;
+                authorIds.forEach(input => {
+                    if (!input.value) {
+                        allAuthorsSelected = false;
+                    }
+                });
+
+                if (!allAuthorsSelected) {
+                    e.preventDefault();
+                    alert('Пожалуйста, выберите всех авторов из справочника');
+                    return false;
+                }
+
+                // Проверяем сумму процентов
+                const percentInputs = document.querySelectorAll('.percent-input');
+                let total = 0;
+                percentInputs.forEach(input => {
+                    total += parseInt(input.value, 10) || 0;
+                });
+
+                if (Math.abs(total - MAX_PERCENT) > 0.1) {
+                    e.preventDefault();
+                    const errorMsg = window.innerWidth < 768
+                        ? `Ошибка: сумма процентов должна быть ${MAX_PERCENT}%\nТекущая сумма: ${total}%`
+                        : `Сумма процентов участия должна быть ${MAX_PERCENT}%. Текущая сумма: ${total}%`;
+                    alert(errorMsg);
+                    return false;
+                }
+
+                return true;
+            });
+        } else if (form) {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                alert('Редактирование заявки запрещено в текущем статусе.');
+                return false;
+            });
+        }
+    });
 </script>
 {% endblock %}
