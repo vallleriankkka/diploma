@@ -56,8 +56,12 @@
         background-color: transparent;
         color: var(--color-primary);
         border-color: var(--color-primary);
-        box-shadow: 0 0 0 0.2rem rgba(38, 48, 69, 0.25);
+        box-shadow: 0 0 0 0.2rem rgba(185, 159, 110, 0.25);
         outline: none;
+    }
+
+    .edit-product-page .form-control::placeholder {
+        color: rgba(38, 48, 69, 0.6);
     }
 
     /* Чекбоксы */
@@ -73,7 +77,7 @@
 
     .edit-product-page .form-check-input:focus {
         border-color: var(--color-primary);
-        box-shadow: 0 0 0 0.2rem rgba(38, 48, 69, 0.25);
+        box-shadow: 0 0 0 0.2rem rgba(185, 159, 110, 0.25);
     }
 
     /* Метки */
@@ -123,9 +127,224 @@
         margin-top: 20px;
     }
 
-    /* Адаптивные стили */
+    /* Стили для модального окна (справочника) */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(38, 48, 69, 0.8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+    }
 
-    /* Мобильные устройства (< 576px) */
+    .modal-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .modal-container {
+        background: white;
+        border-radius: 8px;
+        width: 90%;
+        max-width: 600px;
+        max-height: 80vh;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        animation: modalSlideIn 0.3s ease;
+    }
+
+    @keyframes modalSlideIn {
+        from {
+            transform: translateY(-50px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    .modal-header {
+        padding: 20px 25px;
+        border-bottom: 2px solid var(--color-secondary);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-header h3 {
+        margin: 0;
+        color: var(--color-primary);
+        font-size: 1.5rem;
+    }
+
+    .modal-close {
+        background: none;
+        border: none;
+        font-size: 28px;
+        cursor: pointer;
+        color: var(--color-primary);
+        transition: all 0.3s ease;
+        width: 35px;
+        height: 35px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+    }
+
+    .modal-close:hover {
+        background-color: rgba(185, 159, 110, 0.1);
+        color: var(--color-secondary);
+        transform: rotate(90deg);
+    }
+
+    .modal-search {
+        padding: 15px 25px;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .modal-search input {
+        width: 100%;
+        padding: 10px 15px;
+        border: 1px solid var(--color-secondary);
+        border-radius: 4px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        color: var(--color-primary);
+    }
+
+    .modal-search input:focus {
+        outline: none;
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 0.2rem rgba(185, 159, 110, 0.25);
+    }
+
+    .modal-search input::placeholder {
+        color: rgba(38, 48, 69, 0.6);
+    }
+
+    .modal-content {
+        flex: 1;
+        overflow-y: auto;
+        padding: 15px 25px;
+    }
+
+    .modal-content::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .modal-content::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+    }
+
+    .modal-content::-webkit-scrollbar-thumb {
+        background: var(--color-secondary);
+        border-radius: 4px;
+    }
+
+    .modal-content::-webkit-scrollbar-thumb:hover {
+        background: var(--color-primary);
+    }
+
+    .language-item {
+        padding: 12px 15px;
+        margin-bottom: 8px;
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .language-item:hover {
+        background-color: rgba(185, 159, 110, 0.1);
+        border-color: var(--color-secondary);
+        transform: translateX(5px);
+    }
+
+    .language-item.selected {
+        background-color: rgba(185, 159, 110, 0.2);
+        border-color: var(--color-secondary);
+        border-left: 3px solid var(--color-secondary);
+    }
+
+    .language-name {
+        font-size: 1rem;
+        color: var(--color-primary);
+    }
+
+    .language-select-hint {
+        font-size: 0.85rem;
+        color: var(--color-secondary);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .language-item:hover .language-select-hint {
+        opacity: 1;
+    }
+
+    .modal-footer {
+        padding: 15px 25px;
+        border-top: 1px solid #e0e0e0;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    .modal-footer .btn {
+        padding: 8px 20px;
+    }
+
+    .no-results {
+        text-align: center;
+        padding: 40px;
+        color: var(--color-primary);
+        opacity: 0.6;
+    }
+
+    /* Поле с выбранным языком */
+    .language-field-wrapper {
+        position: relative;
+    }
+
+    .language-selected-value {
+        cursor: pointer;
+    }
+
+    .language-selected-value.selected {
+        background-color: rgba(185, 159, 110, 0.15);
+        border-color: var(--color-secondary);
+        padding-right: 40px;
+    }
+
+    .dropdown-icon {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+        color: var(--color-secondary);
+        font-size: 12px;
+    }
+
+    .language-field-wrapper .form-control {
+        cursor: pointer;
+    }
+
+    /* Адаптивные стили */
     @media (max-width: 575.98px) {
         .edit-product-page .container {
             padding: 15px;
@@ -157,10 +376,6 @@
             margin-bottom: 15px;
         }
 
-        .edit-product-page .col-md-4:last-child {
-            margin-bottom: 0;
-        }
-
         .edit-product-page .btn {
             width: 100%;
             padding: 14px;
@@ -169,20 +384,24 @@
             margin-bottom: 10px;
         }
 
-        .edit-product-page .btn:last-child {
-            margin-bottom: 0;
-        }
-
         .edit-product-page textarea.form-control {
             min-height: 120px;
         }
 
-        .edit-product-page .mb-3 {
-            margin-bottom: 1.2rem !important;
+        .modal-container {
+            width: 95%;
+            max-height: 90vh;
+        }
+
+        .modal-header h3 {
+            font-size: 1.2rem;
+        }
+
+        .language-item {
+            padding: 10px 12px;
         }
     }
 
-    /* Планшеты (от 576px до 768px) */
     @media (min-width: 576px) and (max-width: 767.98px) {
         .edit-product-page .container {
             padding: 25px;
@@ -193,27 +412,11 @@
             font-size: 1.6rem;
         }
 
-        .edit-product-page .form-control,
-        .edit-product-page .form-select {
-            padding: 10px 12px;
-        }
-
         .edit-product-page .btn {
             padding: 10px 20px;
-            min-height: 44px;
-            font-size: 1rem;
-        }
-
-        .edit-product-page .col-md-4 {
-            margin-bottom: 15px;
-        }
-
-        .edit-product-page textarea.form-control {
-            min-height: 100px;
         }
     }
 
-    /* Десктоп (от 768px) */
     @media (min-width: 768px) {
         .edit-product-page .container {
             padding: 30px;
@@ -224,20 +427,6 @@
         .edit-product-page h1 {
             font-size: 1.75rem;
         }
-
-        .edit-product-page .form-control,
-        .edit-product-page .form-select {
-            padding: 10px 15px;
-        }
-
-        .edit-product-page .btn {
-            padding: 10px 25px;
-            min-height: 44px;
-        }
-
-        .edit-product-page textarea.form-control {
-            min-height: 120px;
-        }
     }
 
     /* Улучшения для сенсорных устройств */
@@ -246,40 +435,6 @@
     .edit-product-page .form-select,
     .edit-product-page .form-check-input {
         touch-action: manipulation;
-    }
-
-    /* Адаптивное выравнивание кнопок */
-    @media (max-width: 575.98px) {
-        .edit-product-page form > .btn {
-            display: block;
-            margin-left: 0 !important;
-            margin-right: 0 !important;
-        }
-    }
-
-    @media (min-width: 576px) {
-        .edit-product-page form > .btn {
-            display: inline-block;
-            margin-right: 10px;
-        }
-
-        .edit-product-page form > .btn:last-child {
-            margin-right: 0;
-        }
-    }
-
-    /* Адаптивный текст */
-    @media (max-width: 767.98px) {
-        .edit-product-page .form-label {
-            font-size: 0.95rem;
-        }
-    }
-
-    /* Анимации */
-    .edit-product-page .form-control,
-    .edit-product-page .form-select,
-    .edit-product-page .btn {
-        transition: all 0.3s ease;
     }
 </style>
 
@@ -315,14 +470,14 @@
             </div>
             <div class="col-12 col-md-4 mb-3">
                 <label class="form-label required">Язык программирования</label>
-                <select class="form-select" name="programming_language_id" required>
-                    <option value="">Выберите язык</option>
-                    {% for language in programming_languages %}
-                    <option value="{{ language[0] }}" {% if language[0]== product[6] %}selected{% endif %}>
-                        {{ language[1] }}
-                    </option>
-                    {% endfor %}
-                </select>
+                <div class="language-field-wrapper">
+                    <input type="text" class="form-control language-selected-value"
+                           id="languageDisplay" placeholder="Нажмите для выбора языка"
+                           readonly style="cursor: pointer;">
+                    <input type="hidden" name="programming_language_id" id="languageId" required>
+                    <span class="dropdown-icon">▼</span>
+                </div>
+                <div class="form-text">Нажмите на поле, чтобы открыть справочник языков</div>
             </div>
             <div class="col-12 col-md-4 mb-3">
                 <label class="form-label required">Операционная система</label>
@@ -350,7 +505,248 @@
         <a href="{{ url_for('products_list') }}" class="btn btn-secondary btn-outline-accent">Отмена</a>
     </form>
 </div>
+
+<!-- Модальное окно справочник языков -->
+<div id="languageModal" class="modal-overlay">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h3>Справочник языков программирования</h3>
+            <button class="modal-close" id="closeModalBtn">&times;</button>
+        </div>
+        <div class="modal-search">
+            <input type="text" id="modalSearchInput" placeholder="🔍 Поиск языка программирования..." autocomplete="off">
+        </div>
+        <div class="modal-content" id="modalContent">
+            <div id="languagesList"></div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary btn-outline-accent" id="cancelModalBtn">Отмена</button>
+            <button type="button" class="btn btn-warning btn-outline-accent" id="confirmModalBtn">Выбрать</button>
+        </div>
+    </div>
+</div>
+
 <script>
+    // Данные языков программирования из шаблона
+    const programmingLanguagesData = [
+        {% for language in programming_languages %}
+        { id: {{ language[0] }}, name: "{{ language[1] }}" },
+        {% endfor %}
+    ];
+
+    let selectedLanguageId = null;
+    let selectedLanguageName = null;
+    let currentFilteredLanguages = [...programmingLanguagesData];
+
+    // Получение элементов DOM
+    const languageModal = document.getElementById('languageModal');
+    const languageDisplay = document.getElementById('languageDisplay');
+    const languageIdInput = document.getElementById('languageId');
+    const modalSearchInput = document.getElementById('modalSearchInput');
+    const languagesListDiv = document.getElementById('languagesList');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const cancelModalBtn = document.getElementById('cancelModalBtn');
+    const confirmModalBtn = document.getElementById('confirmModalBtn');
+
+    // Текущее значение языка из product
+    const currentLanguageId = "{{ product[6] }}";
+    const currentLanguageName = "{% for lang in programming_languages %}{% if lang[0] == product[6] %}{{ lang[1] }}{% endif %}{% endfor %}";
+
+    // Открытие модального окна
+    function openModal() {
+        if (languageIdInput.value) {
+            selectedLanguageId = languageIdInput.value;
+            selectedLanguageName = languageDisplay.value;
+        } else {
+            selectedLanguageId = null;
+            selectedLanguageName = null;
+        }
+
+        modalSearchInput.value = '';
+        currentFilteredLanguages = [...programmingLanguagesData];
+        renderLanguagesList();
+        languageModal.classList.add('active');
+
+        setTimeout(() => {
+            modalSearchInput.focus();
+        }, 100);
+    }
+
+    // Закрытие модального окна
+    function closeModal() {
+        languageModal.classList.remove('active');
+        selectedLanguageId = null;
+        selectedLanguageName = null;
+    }
+
+    // Подтверждение выбора
+    function confirmSelection() {
+        if (selectedLanguageId) {
+            languageIdInput.value = selectedLanguageId;
+            languageDisplay.value = selectedLanguageName;
+            languageDisplay.classList.add('selected');
+            showNotification(`✓ Выбран язык: ${selectedLanguageName}`);
+            languageDisplay.style.borderColor = 'var(--color-secondary)';
+            closeModal();
+        } else {
+            alert('Пожалуйста, выберите язык программирования из списка');
+        }
+    }
+
+    // Отображение списка языков
+    function renderLanguagesList() {
+        if (!languagesListDiv) return;
+
+        if (currentFilteredLanguages.length === 0) {
+            languagesListDiv.innerHTML = '<div class="no-results">😔 Языки не найдены</div>';
+            return;
+        }
+
+        let html = '';
+        currentFilteredLanguages.forEach(lang => {
+            const isSelected = selectedLanguageId && selectedLanguageId == lang.id;
+            const selectedClass = isSelected ? 'selected' : '';
+            html += `
+                <div class="language-item ${selectedClass}" data-id="${lang.id}" data-name="${escapeHtml(lang.name)}">
+                    <span class="language-name">${escapeHtml(lang.name)}</span>
+                    <span class="language-select-hint">⚡ Двойной клик для выбора</span>
+                </div>
+            `;
+        });
+
+        languagesListDiv.innerHTML = html;
+
+        document.querySelectorAll('.language-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                const id = this.getAttribute('data-id');
+                const name = this.getAttribute('data-name');
+
+                document.querySelectorAll('.language-item').forEach(el => {
+                    el.classList.remove('selected');
+                });
+
+                this.classList.add('selected');
+                selectedLanguageId = id;
+                selectedLanguageName = name;
+            });
+
+            item.addEventListener('dblclick', function(e) {
+                const id = this.getAttribute('data-id');
+                const name = this.getAttribute('data-name');
+                selectedLanguageId = id;
+                selectedLanguageName = name;
+                confirmSelection();
+            });
+        });
+    }
+
+    // Поиск языков
+    function searchLanguages() {
+        const searchTerm = modalSearchInput.value.toLowerCase().trim();
+
+        if (searchTerm === '') {
+            currentFilteredLanguages = [...programmingLanguagesData];
+        } else {
+            currentFilteredLanguages = programmingLanguagesData.filter(lang =>
+                lang.name.toLowerCase().includes(searchTerm)
+            );
+        }
+
+        renderLanguagesList();
+    }
+
+    // Вспомогательная функция для экранирования HTML
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // Показ уведомления
+    function showNotification(message) {
+        const notification = document.createElement('div');
+        notification.textContent = message;
+        notification.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--color-secondary);
+            color: var(--color-primary);
+            padding: 12px 24px;
+            border-radius: 4px;
+            z-index: 10000;
+            animation: slideIn 0.3s ease;
+            font-weight: bold;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        `;
+
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 300);
+        }, 2000);
+    }
+
+    // Добавляем CSS для анимации уведомлений
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+
+    // Обработчики событий
+    languageDisplay.addEventListener('click', openModal);
+    closeModalBtn.addEventListener('click', closeModal);
+    cancelModalBtn.addEventListener('click', closeModal);
+    confirmModalBtn.addEventListener('click', confirmSelection);
+    modalSearchInput.addEventListener('input', searchLanguages);
+
+    // Закрытие по клику на оверлей
+    languageModal.addEventListener('click', function(e) {
+        if (e.target === languageModal) {
+            closeModal();
+        }
+    });
+
+    // Закрытие по Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && languageModal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    // Установка текущего значения языка из product
+    if (currentLanguageId && currentLanguageId != 'None') {
+        const selectedLang = programmingLanguagesData.find(lang => lang.id == currentLanguageId);
+        if (selectedLang) {
+            languageIdInput.value = selectedLang.id;
+            languageDisplay.value = selectedLang.name;
+            languageDisplay.classList.add('selected');
+        }
+    }
+
     // Константа для максимального объема (2 миллиарда)
     const MAX_VOLUME = 2000000000;
 
@@ -411,11 +807,11 @@
             // Проверка максимального значения
             if (volume > MAX_VOLUME) {
                 this.setCustomValidity(`Объем не может превышать ${MAX_VOLUME.toLocaleString()} МБ`);
-                this.value = MAX_VOLUME.toString(); // Автоматически устанавливаем максимальное значение
+                this.value = MAX_VOLUME.toString();
             } else if (volume < 1) {
                 this.setCustomValidity('Объем должен быть не менее 1 МБ');
                 if (volume === 0) {
-                    this.value = '1'; // Автоматически устанавливаем минимальное значение
+                    this.value = '1';
                 }
             } else {
                 this.setCustomValidity('');
@@ -428,18 +824,16 @@
         // Проверка при потере фокуса
         volumeInput.addEventListener('blur', function() {
             if (this.value === '') {
-                this.value = '1'; // Значение по умолчанию
+                this.value = '1';
             }
 
             let volume = parseInt(this.value, 10);
 
-            // Проверка на NaN
             if (isNaN(volume)) {
                 this.value = '1';
                 volume = 1;
             }
 
-            // Применяем ограничения
             if (volume > MAX_VOLUME) {
                 volume = MAX_VOLUME;
             }
@@ -447,32 +841,27 @@
                 volume = 1;
             }
 
-            // Убираем ведущие нули
             this.value = volume.toString();
             updateVolumeInfo(this.value);
         });
 
-        // Запрещаем ввод с клавиатуры нецифровых символов
+        // Запрещаем ввод нецифровых символов
         volumeInput.addEventListener('keydown', function(e) {
-            // Разрешаем: backspace, delete, tab, escape, enter, стрелки
             if (e.key === 'Backspace' || e.key === 'Delete' || e.key === 'Tab' ||
                 e.key === 'Escape' || e.key === 'Enter' || e.key === 'ArrowLeft' ||
                 e.key === 'ArrowRight' || e.key === 'Home' || e.key === 'End') {
-                return; // Разрешаем эти клавиши
+                return;
             }
 
-            // Разрешаем цифры
             if (e.key >= '0' && e.key <= '9') {
                 return;
             }
 
-            // Запрещаем все остальное
             e.preventDefault();
         });
 
         // Инициализация при загрузке
         if (volumeInput.value) {
-            // Форматируем существующее значение
             let volume = parseInt(volumeInput.value, 10);
             if (!isNaN(volume)) {
                 if (volume > MAX_VOLUME) volume = MAX_VOLUME;
@@ -487,6 +876,14 @@
     const form = document.getElementById('productForm');
     if (form) {
         form.addEventListener('submit', function(e) {
+            if (!languageIdInput.value) {
+                e.preventDefault();
+                alert('Пожалуйста, выберите язык программирования из справочника');
+                languageDisplay.style.borderColor = 'var(--color-primary)';
+                openModal();
+                return false;
+            }
+
             const requiredFields = this.querySelectorAll('[required]');
             let isValid = true;
             let firstInvalidField = null;
@@ -501,7 +898,6 @@
                 }
             });
 
-            // Специальная проверка для объема
             const volumeField = document.getElementById('volume');
             if (volumeField && volumeField.value) {
                 const volume = parseInt(volumeField.value, 10);
@@ -542,30 +938,24 @@
 
     // Адаптивная инициализация
     document.addEventListener('DOMContentLoaded', function() {
-        // Инициализация поля объема
-        const volumeInput = document.getElementById('volume');
         if (volumeInput && volumeInput.value) {
             volumeInput.dispatchEvent(new Event('blur'));
         }
 
-        // Адаптивное поведение для мобильных
         function adaptFormForMobile() {
             const isMobile = window.innerWidth < 576;
             const formControls = document.querySelectorAll('.edit-product-page .form-control, .edit-product-page .form-select');
 
             if (isMobile) {
-                // На мобильных добавляем увеличенные отступы
                 formControls.forEach(control => {
                     control.style.padding = '12px';
-                    control.style.fontSize = '16px'; // Предотвращает масштабирование на iOS
+                    control.style.fontSize = '16px';
                 });
 
-                // Увеличиваем размер текста в select
                 document.querySelectorAll('.edit-product-page select').forEach(select => {
                     select.style.fontSize = '16px';
                 });
             } else {
-                // На десктопе стандартные отступы
                 formControls.forEach(control => {
                     control.style.padding = '';
                     control.style.fontSize = '';
@@ -577,13 +967,9 @@
             }
         }
 
-        // Выполняем при загрузке
         adaptFormForMobile();
-
-        // Обновляем при изменении размера окна
         window.addEventListener('resize', adaptFormForMobile);
 
-        // Улучшение для сенсорных устройств
         document.querySelectorAll('.edit-product-page .btn').forEach(btn => {
             btn.style.touchAction = 'manipulation';
 
