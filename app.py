@@ -14,6 +14,8 @@ from io import BytesIO
 import os
 import zipfile
 import sys
+import json
+
 
 if sys.platform == "win32":
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='ignore')
@@ -1847,6 +1849,127 @@ def expert_create_page():
     # GET запрос - показать форму создания
     return render_template('experts/create.html')
 
+
+@app.route('/commission/<int:id>/edit', methods=['GET', 'POST'])
+@login_required
+def commission_edit(id):
+    """Редактирование комиссии"""
+    # Получаем комиссию
+    commission = commission_dao.get_by_id(id)
+    if not commission:
+        flash('Комиссия не найдена', 'error')
+        return redirect(url_for('commissions_list'))
+
+    # Проверяем доступ (commission[4] - user_id)
+    if session['role'] != 'admin' and commission[4] != session['user_id']:
+        flash('У вас нет доступа к этой комиссии', 'error')
+        return redirect(url_for('commissions_list'))
+
+    if request.method == 'POST':
+        try:
+            # Получаем данные из формы
+            name = request.form.get('name', '').strip()
+            description = request.form.get('description', '').strip()
+
+            if not name:
+                flash('Название комиссии обязательно для заполнения', 'error')
+                return redirect(url_for('commission_edit', id=id))
+
+            # 1. Обновляем основную информацию о комиссии
+            commission_dao.update(id, name, description)
+
+            # 2. Обрабатываем удаление экспертов
+            removed_experts_data = request.form.get('removed_experts_data', '[]')
+            removed_experts = json.loads(removed_experts_data)
+
+            for expert_id in removed_experts:
+                commission_dao.remove_expert_from_commission(id, expert_id)
+
+            # 3. Обрабатываем добавление существующих экспертов
+            selected_experts_data = request.form.get('selected_experts_data', '[]')
+            selected_experts = json.loads(selected_experts_data)
+
+            for expert in selected_experts:
+                commission_dao.add_expert_to_commission(
+                    id,
+                    expert['expert_id'],
+                    expert['role_id']
+                )
+
+            # 4. Обрабатываем создание новых экспертов
+            new_experts_data = request.form.get('new_experts_data', '[]')
+            new_experts = json.loads(new_experts_data)
+
+            for expert in new_experts:
+                # Создаем эксперта через expert_dao
+                expert_dict = {
+                    'surname': expert['surname'],
+                    'name': expert['name'],
+                    'patronymic': expert.get('patronymic', ''),
+                    'position': expert['position'],
+                    'user_id': session['user_id']
+                }
+                expert_id = expert_dao.create(expert_dict)
+
+                # Добавляем в комиссию
+                commission_dao.add_expert_to_commission(
+                    id,
+                    expert_id,
+                    expert['role_id']
+                )
+
+            flash('Комиссия успешно обновлена', 'success')
+            return redirect(url_for('commission_view', id=id))
+
+        except Exception as e:
+            flash(f'Ошибка при обновлении комиссии: {str(e)}', 'error')
+            return redirect(url_for('commission_edit', id=id))
+
+    # GET запрос - показываем форму редактирования
+    # Преобразуем комиссию в словарь для удобства
+    commission_dict = {
+        'id': commission[0],
+        'name': commission[1],
+        'description': commission[2],
+        'created_date': commission[3],
+        'user_id': commission[4],
+        'username': commission[5] if len(commission) > 5 else None,
+        'member_count': commission[6] if len(commission) > 6 else 0
+    }
+
+    # Используем существующий метод get_commission_experts_detailed
+    current_experts_raw = commission_dao.get_commission_experts_detailed(id)
+
+    # Преобразуем в нужный формат (список словарей)
+    current_experts = []
+    for expert in current_experts_raw:
+        current_experts.append({
+            'expert_id': expert[0],  # id
+            'surname': expert[1],  # surname
+            'name': expert[2],  # name
+            'patronymic': expert[3],  # patronymic
+            'position': expert[4],  # position
+            'role_name': expert[5],  # role_name
+            'user_id': expert[6] if len(expert) > 6 else None
+        })
+
+    # Используем существующий метод get_available_experts_for_commission
+    available_experts = commission_dao.get_available_experts_for_commission(id, session['user_id'])
+
+    # Получаем список ролей
+    roles_raw = commission_dao.get_commission_roles()
+    commission_roles = []
+    for role in roles_raw:
+        commission_roles.append({
+            'id': role[0],
+            'name': role[1]
+        })
+
+    return render_template('commissions/edit.html',
+                           commission=commission_dict,
+                           current_experts=current_experts,
+                           available_experts=available_experts,
+                           commission_roles=commission_roles)
 
 # ========== ГЕНЕРАЦИЯ ДОКУМЕНТОВ ==========
 @app.route('/application/<int:id>/generate_consent')

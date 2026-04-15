@@ -1,0 +1,783 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    :root {
+        --color-primary: #263045;
+        --color-secondary: #b99f6e;
+    }
+
+    /* Общие стили */
+    .edit-commission-page {
+        color: var(--color-primary);
+    }
+
+    /* Кнопки */
+    .edit-commission-page .btn-success,
+    .edit-commission-page .btn-primary,
+    .edit-commission-page .btn-secondary,
+    .edit-commission-page .btn-add-expert,
+    .edit-commission-page .btn-remove-expert {
+        color: var(--color-primary);
+        border: 1px solid var(--color-secondary);
+        background-color: transparent;
+        transition: all 0.3s ease;
+    }
+
+    .edit-commission-page .btn-success:hover,
+    .edit-commission-page .btn-primary:hover,
+    .edit-commission-page .btn-add-expert:hover {
+        background-color: var(--color-secondary);
+        color: var(--color-primary);
+        border-color: var(--color-secondary);
+    }
+
+    .edit-commission-page .btn-secondary,
+    .edit-commission-page .btn-remove-expert {
+        border-color: var(--color-primary);
+    }
+
+    .edit-commission-page .btn-secondary:hover,
+    .edit-commission-page .btn-remove-expert:hover {
+        background-color: var(--color-primary);
+        color: var(--color-secondary);
+        border-color: var(--color-primary);
+    }
+
+    .edit-commission-page .btn-danger {
+        color: var(--color-primary);
+        border: 1px solid var(--color-secondary);
+        background-color: transparent;
+    }
+
+    .edit-commission-page .btn-danger:hover {
+        background-color: var(--color-secondary);
+        color: var(--color-primary);
+        border-color: var(--color-secondary);
+    }
+
+    /* Поля формы */
+    .edit-commission-page .form-control {
+        background-color: transparent;
+        color: var(--color-primary);
+        border: none;
+        border-bottom: 1px solid var(--color-secondary);
+        border-radius: 0;
+        padding-left: 0;
+        padding-right: 0;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+
+    .edit-commission-page .form-control:focus {
+        background-color: transparent;
+        color: var(--color-primary);
+        border-bottom: 2px solid var(--color-primary);
+        box-shadow: none;
+        outline: none;
+    }
+
+    .edit-commission-page textarea.form-control {
+        border: 1px solid rgba(185, 159, 110, 0.3);
+        border-radius: 4px;
+        padding: 12px;
+        background-color: transparent;
+    }
+
+    .edit-commission-page textarea.form-control:focus {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 0.2rem rgba(38, 48, 69, 0.1);
+    }
+
+    .edit-commission-page .form-select {
+        background-color: transparent;
+        color: var(--color-primary);
+        border: none;
+        border-bottom: 1px solid var(--color-secondary);
+        border-radius: 0;
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .edit-commission-page .form-select:focus {
+        background-color: transparent;
+        color: var(--color-primary);
+        border-bottom: 2px solid var(--color-primary);
+        box-shadow: none;
+        outline: none;
+    }
+
+    /* Метки */
+    .edit-commission-page .form-label {
+        color: var(--color-primary);
+        margin-bottom: 8px;
+        display: block;
+        font-size: 0.95rem;
+    }
+
+    .edit-commission-page .form-label.required::after {
+        content: " *";
+        color: var(--color-secondary);
+    }
+
+    /* Заголовки */
+    .edit-commission-page h1 {
+        color: var(--color-primary);
+        margin-bottom: 30px;
+        font-size: 1.75rem;
+    }
+
+    /* Карточки */
+    .edit-commission-page .card {
+        border: none;
+        background-color: transparent;
+        margin-bottom: 1.5rem;
+    }
+
+    .edit-commission-page .card-body {
+        padding: 0;
+    }
+
+    /* Уведомления */
+    .edit-commission-page .alert-warning,
+    .edit-commission-page .alert-info {
+        background-color: transparent;
+        border: 1px solid var(--color-secondary);
+        color: var(--color-primary);
+        padding: 12px;
+        border-radius: 4px;
+    }
+
+    /* Чекбоксы */
+    .edit-commission-page .form-check-input {
+        border: 1px solid var(--color-secondary);
+        background-color: transparent;
+    }
+
+    .edit-commission-page .form-check-input:checked {
+        background-color: var(--color-secondary);
+        border-color: var(--color-secondary);
+    }
+
+    .edit-commission-page .form-check-input:focus {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 0.2rem rgba(38, 48, 69, 0.25);
+    }
+
+    .edit-commission-page .form-check-label {
+        color: var(--color-primary);
+        cursor: pointer;
+    }
+
+    /* Стили для вкладок */
+    .edit-commission-page .nav-tabs {
+        border-bottom: 1px solid rgba(185, 159, 110, 0.3);
+    }
+
+    .edit-commission-page .nav-tabs .nav-link {
+        color: var(--color-primary) !important;
+        border: 1px solid transparent;
+        border-radius: 4px 4px 0 0;
+        margin-bottom: -1px;
+    }
+
+    .edit-commission-page .nav-tabs .nav-link:hover {
+        border-color: rgba(185, 159, 110, 0.3);
+        color: var(--color-primary) !important;
+        background-color: rgba(38, 48, 69, 0.05);
+    }
+
+    .edit-commission-page .nav-tabs .nav-link.active {
+        color: var(--color-primary) !important;
+        background-color: transparent;
+        border: 1px solid rgba(185, 159, 110, 0.3);
+        border-bottom-color: transparent;
+    }
+
+    .edit-commission-page .tab-pane {
+        padding: 20px 0;
+    }
+
+    /* Стили для экспертов */
+    .edit-commission-page .expert-card,
+    .edit-commission-page .existing-expert-item,
+    .edit-commission-page .selected-expert-item,
+    .edit-commission-page .current-expert-item {
+        border: 1px solid rgba(185, 159, 110, 0.2);
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 15px;
+        background-color: transparent;
+        transition: all 0.3s ease;
+    }
+
+    .edit-commission-page .expert-header {
+        background-color: rgba(38, 48, 69, 0.05);
+        border-radius: 6px;
+        padding: 10px 15px;
+        margin-bottom: 15px;
+        border-left: 4px solid var(--color-secondary);
+    }
+
+    .edit-commission-page .expert-info {
+        font-size: 0.9rem;
+        color: var(--color-primary);
+        opacity: 0.9;
+    }
+
+    /* Стиль для удаляемых экспертов */
+    .edit-commission-page .current-expert-item.to-remove {
+        opacity: 0.5;
+        background-color: rgba(185, 159, 110, 0.1);
+        text-decoration: line-through;
+    }
+
+    /* Бейджи */
+    .edit-commission-page .badge {
+        background-color: var(--color-secondary);
+        color: var(--color-primary);
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-size: 0.85rem;
+    }
+
+    /* Контейнер */
+    .edit-commission-page .container {
+        background-color: transparent;
+        padding: 20px;
+        max-width: 1000px;
+    }
+
+    /* Адаптивные стили */
+    @media (max-width: 575.98px) {
+        .edit-commission-page .container {
+            padding: 15px;
+        }
+        .edit-commission-page h1 {
+            font-size: 1.5rem;
+            text-align: center;
+        }
+        .edit-commission-page .btn {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        .edit-commission-page .nav-tabs {
+            flex-direction: column;
+        }
+        .edit-commission-page .nav-tabs .nav-link {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+    }
+
+    @media (min-width: 768px) {
+        .edit-commission-page .container {
+            padding: 30px;
+        }
+    }
+
+    /* Скроллбар */
+    .edit-commission-page #existing-experts-container::-webkit-scrollbar,
+    .edit-commission-page #new-experts-container::-webkit-scrollbar,
+    .edit-commission-page #selected-experts-list::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .edit-commission-page #existing-experts-container::-webkit-scrollbar-track,
+    .edit-commission-page #new-experts-container::-webkit-scrollbar-track,
+    .edit-commission-page #selected-experts-list::-webkit-scrollbar-track {
+        background: rgba(185, 159, 110, 0.1);
+        border-radius: 3px;
+    }
+
+    .edit-commission-page #existing-experts-container::-webkit-scrollbar-thumb,
+    .edit-commission-page #new-experts-container::-webkit-scrollbar-thumb,
+    .edit-commission-page #selected-experts-list::-webkit-scrollbar-thumb {
+        background: var(--color-secondary);
+        border-radius: 3px;
+    }
+</style>
+
+<div class="container edit-commission-page">
+    <h1>Редактирование комиссии</h1>
+
+    <form method="POST" action="{{ url_for('commission_edit', id=commission.id) }}" id="commissionForm">
+        <!-- Информация о комиссии -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label required">Название комиссии *</label>
+                    <input type="text" class="form-control" name="name" required
+                           placeholder="Введите название комиссии" value="{{ commission.name or '' }}">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Описание комиссии</label>
+                    <textarea class="form-control" name="description" rows="3"
+                              placeholder="Описание комиссии (необязательно)">{{ commission.description or '' }}</textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Текущие эксперты комиссии -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5>Текущие эксперты комиссии</h5>
+                <div class="alert alert-info mb-3">
+                    В комиссии должен быть хотя бы один председатель.
+                </div>
+
+                <div id="current-experts-container">
+                    {% for expert in current_experts %}
+                    <div class="expert-card current-expert-item" id="current_expert_{{ expert.expert_id }}">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <strong>{{ expert.surname }} {{ expert.name }} {{ expert.patronymic or '' }}</strong>
+                                <div class="expert-info">{{ expert.position }}</div>
+                                <div class="expert-info mt-1">
+                                    <span class="badge">{{ expert.role_name }}</span>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-danger"
+                                    onclick="markExpertForRemoval({{ expert.expert_id }})">
+                                Удалить
+                            </button>
+                        </div>
+                        <input type="hidden" name="current_expert_{{ expert.expert_id }}" value="keep"
+                               class="expert-status">
+                    </div>
+                    {% endfor %}
+                </div>
+                {% if not current_experts %}
+                <div class="alert alert-warning">В комиссии пока нет экспертов.</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Добавление экспертов -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5>Добавить экспертов в комиссию</h5>
+
+                <ul class="nav nav-tabs" id="expertTabs" role="tablist">
+                    <li class="nav-item">
+                        <button class="nav-link active" id="existing-tab" data-bs-toggle="tab"
+                                data-bs-target="#existing-experts" type="button">
+                            Существующие эксперты
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="new-tab" data-bs-toggle="tab" data-bs-target="#new-experts"
+                                type="button">
+                            Создать новых
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="selected-tab" data-bs-toggle="tab"
+                                data-bs-target="#selected-experts" type="button">
+                            Выбранные эксперты
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="tab-content mt-3">
+                    <!-- Вкладка существующих экспертов -->
+                    <div class="tab-pane fade show active" id="existing-experts">
+                        <div class="alert alert-warning mb-3">
+                            Выберите экспертов и укажите их роль в комиссии.
+                        </div>
+
+                        {% if available_experts %}
+                        <div id="existing-experts-container">
+                            {% for expert in available_experts %}
+                            <div class="existing-expert-item" id="expert_{{ expert[0] }}">
+                                <div class="form-check">
+                                    <input class="form-check-input expert-checkbox"
+                                           type="checkbox"
+                                           id="select_expert_{{ expert[0] }}"
+                                           value="{{ expert[0] }}"
+                                           data-expert-id="{{ expert[0] }}"
+                                           data-surname="{{ expert[1] }}"
+                                           data-name="{{ expert[2] }}"
+                                           data-patronymic="{{ expert[3] or '' }}"
+                                           data-position="{{ expert[4] }}">
+                                    <label class="form-check-label" for="select_expert_{{ expert[0] }}">
+                                        <strong>{{ expert[1] }} {{ expert[2] }} {{ expert[3] or '' }}</strong>
+                                        <div class="expert-info">{{ expert[4] }}</div>
+                                    </label>
+                                </div>
+                                <div class="mt-2 role-selector" id="role_selector_{{ expert[0] }}"
+                                     style="display: none;">
+                                    <label class="form-label small">Роль в комиссии</label>
+                                    <select class="form-select form-select-sm existing-expert-role"
+                                            data-expert-id="{{ expert[0] }}">
+                                        <option value="">Выберите роль</option>
+                                        {% for role in commission_roles %}
+                                        <option value="{{ role.id }}">{{ role.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="mt-3" id="selected-existing-roles" style="display: none;"></div>
+                        {% else %}
+                        <div class="alert alert-warning">Нет доступных экспертов для добавления.</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Вкладка создания новых экспертов -->
+                    <div class="tab-pane fade" id="new-experts">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6>Новые эксперты:</h6>
+                            <button type="button" class="btn btn-sm btn-add-expert" onclick="addNewExpert()">
+                                + Добавить эксперта
+                            </button>
+                        </div>
+                        <div id="new-experts-container">
+                            <div class="alert alert-info" id="noNewExpertsAlert">
+                                Нажмите "Добавить эксперта" для создания новых экспертов.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Вкладка выбранных экспертов -->
+                    <div class="tab-pane fade" id="selected-experts">
+                        <div id="selected-experts-list">
+                            <div class="alert alert-info">Выберите экспертов на других вкладках.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <input type="hidden" id="selectedExpertsData" name="selected_experts_data">
+                <input type="hidden" id="newExpertsData" name="new_experts_data">
+                <input type="hidden" id="removedExpertsData" name="removed_experts_data">
+
+                <div class="alert alert-warning mt-3" id="chairmanWarning" style="display: none;">
+                    В комиссии должен быть хотя бы один председатель!
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end mt-4">
+            <button type="submit" class="btn btn-success me-2">Сохранить изменения</button>
+            <a href="{{ url_for('commission_view', id=commission.id) }}" class="btn btn-secondary">Отмена</a>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Передаем данные из Flask в JavaScript
+    const commissionRolesData = {{ commission_roles|tojson|safe }};
+    let newExpertCounter = 0;
+    let expertsToRemove = [];
+
+    // Функция для добавления нового эксперта
+    function addNewExpert() {
+        newExpertCounter++;
+
+        const container = document.getElementById('new-experts-container');
+        const noNewExpertsAlert = document.getElementById('noNewExpertsAlert');
+        if (noNewExpertsAlert) noNewExpertsAlert.style.display = 'none';
+
+        const newExpertId = `new_expert_${newExpertCounter}`;
+
+        // Строим HTML для выбора ролей
+        let rolesHtml = '<option value="">Выберите роль</option>';
+        for (let i = 0; i < commissionRolesData.length; i++) {
+            const role = commissionRolesData[i];
+            rolesHtml += `<option value="${role.id}">${role.name}</option>`;
+        }
+
+        const expertHtml = `
+            <div class="expert-card" id="${newExpertId}">
+                <div class="expert-header d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">Новый эксперт ${newExpertCounter}</h6>
+                    <button type="button" class="btn btn-sm btn-remove-expert" onclick="removeNewExpert('${newExpertId}')">Удалить</button>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label required">Фамилия *</label>
+                        <input type="text" class="form-control new-expert-field" data-field="surname" required placeholder="Иванов">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label required">Имя *</label>
+                        <input type="text" class="form-control new-expert-field" data-field="name" required placeholder="Иван">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Отчество</label>
+                        <input type="text" class="form-control new-expert-field" data-field="patronymic" placeholder="Иванович">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label required">Должность *</label>
+                        <input type="text" class="form-control new-expert-field" data-field="position" required placeholder="Профессор кафедры">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label required">Роль в комиссии *</label>
+                        <select class="form-select new-expert-field" data-field="role" required>
+                            ${rolesHtml}
+                        </select>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        container.insertAdjacentHTML('beforeend', expertHtml);
+        updateSelectedExpertsList();
+        updateChairmanWarning();
+
+        // Добавляем обработчики
+        const newCard = document.getElementById(newExpertId);
+        newCard.querySelectorAll('.new-expert-field').forEach(field => {
+            field.addEventListener('change', () => {
+                updateSelectedExpertsList();
+                updateChairmanWarning();
+            });
+            field.addEventListener('input', () => {
+                updateSelectedExpertsList();
+                updateChairmanWarning();
+            });
+        });
+    }
+
+    function removeNewExpert(expertId) {
+        const element = document.getElementById(expertId);
+        if (element) {
+            element.remove();
+            updateSelectedExpertsList();
+            updateChairmanWarning();
+            const container = document.getElementById('new-experts-container');
+            if (container.children.length === 0) {
+                const noNewExpertsAlert = document.getElementById('noNewExpertsAlert');
+                if (noNewExpertsAlert) noNewExpertsAlert.style.display = 'block';
+            }
+        }
+    }
+
+    function markExpertForRemoval(expertId) {
+        const expertElement = document.getElementById(`current_expert_${expertId}`);
+        const statusInput = document.querySelector(`input[name="current_expert_${expertId}"]`);
+        const button = expertElement.querySelector('.btn-danger');
+
+        if (expertElement.classList.contains('to-remove')) {
+            expertElement.classList.remove('to-remove');
+            statusInput.value = 'keep';
+            expertsToRemove = expertsToRemove.filter(id => id !== expertId);
+            button.textContent = 'Удалить';
+        } else {
+            expertElement.classList.add('to-remove');
+            statusInput.value = 'remove';
+            expertsToRemove.push(expertId);
+            button.textContent = 'Восстановить';
+        }
+        updateChairmanWarning();
+    }
+
+    function updateSelectedExpertsList() {
+        const container = document.getElementById('selected-experts-list');
+        let html = '';
+
+        // Создаем карту ролей
+        const rolesMap = {};
+        for (let i = 0; i < commissionRolesData.length; i++) {
+            rolesMap[commissionRolesData[i].id] = commissionRolesData[i].name;
+        }
+
+        // Существующие эксперты
+        const selectedCheckboxes = document.querySelectorAll('.expert-checkbox:checked');
+        selectedCheckboxes.forEach(cb => {
+            const expertId = cb.dataset.expertId;
+            const roleSelect = document.querySelector(`.existing-expert-role[data-expert-id="${expertId}"]`);
+            const roleId = roleSelect ? roleSelect.value : '';
+            const roleName = roleId && rolesMap[roleId] ? rolesMap[roleId] : 'Роль не выбрана';
+
+            if (roleId) {
+                const fullName = `${cb.dataset.surname} ${cb.dataset.name} ${cb.dataset.patronymic || ''}`.trim();
+                html += `
+                    <div class="selected-expert-item">
+                        <strong>${escapeHtml(fullName)}</strong>
+                        <div class="expert-info">${escapeHtml(cb.dataset.position)}</div>
+                        <div class="expert-info"><small>Роль: ${escapeHtml(roleName)}</small></div>
+                    </div>
+                `;
+            }
+        });
+
+        // Новые эксперты
+        const newExpertCards = document.querySelectorAll('[id^="new_expert_"]');
+        newExpertCards.forEach(card => {
+            const surname = card.querySelector('[data-field="surname"]')?.value || '';
+            const name = card.querySelector('[data-field="name"]')?.value || '';
+            const patronymic = card.querySelector('[data-field="patronymic"]')?.value || '';
+            const position = card.querySelector('[data-field="position"]')?.value || '';
+            const roleSelect = card.querySelector('[data-field="role"]');
+            const roleId = roleSelect ? roleSelect.value : '';
+            const roleName = roleId && rolesMap[roleId] ? rolesMap[roleId] : 'Роль не выбрана';
+
+            if (surname && name && position && roleId) {
+                const fullName = `${surname} ${name} ${patronymic}`.trim();
+                html += `
+                    <div class="selected-expert-item">
+                        <strong>${escapeHtml(fullName)}</strong>
+                        <div class="expert-info">${escapeHtml(position)}</div>
+                        <div class="expert-info"><small>Роль: ${escapeHtml(roleName)}</small></div>
+                    </div>
+                `;
+            }
+        });
+
+        if (html === '') {
+            html = '<div class="alert alert-info">Выберите экспертов на других вкладках.</div>';
+        }
+        container.innerHTML = html;
+    }
+
+    function updateChairmanWarning() {
+        const warning = document.getElementById('chairmanWarning');
+        let hasChairman = false;
+
+        // Текущие эксперты
+        document.querySelectorAll('.current-expert-item:not(.to-remove) .badge').forEach(badge => {
+            if (badge.textContent.toLowerCase().includes('председатель')) hasChairman = true;
+        });
+
+        // Выбранные существующие
+        document.querySelectorAll('.expert-checkbox:checked').forEach(cb => {
+            const roleSelect = document.querySelector(`.existing-expert-role[data-expert-id="${cb.dataset.expertId}"]`);
+            if (roleSelect && roleSelect.value) {
+                const option = roleSelect.options[roleSelect.selectedIndex];
+                if (option && option.text.toLowerCase().includes('председатель')) hasChairman = true;
+            }
+        });
+
+        // Новые эксперты
+        document.querySelectorAll('[id^="new_expert_"]').forEach(card => {
+            const roleSelect = card.querySelector('[data-field="role"]');
+            if (roleSelect && roleSelect.value) {
+                const option = roleSelect.options[roleSelect.selectedIndex];
+                if (option && option.text.toLowerCase().includes('председатель')) hasChairman = true;
+            }
+        });
+
+        warning.style.display = hasChairman ? 'none' : 'block';
+        return hasChairman;
+    }
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // Обработчики событий
+    document.addEventListener('DOMContentLoaded', function() {
+        // Чекбоксы существующих экспертов
+        document.addEventListener('change', function(e) {
+            if (e.target.classList.contains('expert-checkbox')) {
+                const expertId = e.target.dataset.expertId;
+                const roleSelector = document.getElementById(`role_selector_${expertId}`);
+                if (e.target.checked) {
+                    roleSelector.style.display = 'block';
+                } else {
+                    roleSelector.style.display = 'none';
+                    const roleSelect = document.querySelector(`.existing-expert-role[data-expert-id="${expertId}"]`);
+                    if (roleSelect) roleSelect.value = '';
+                }
+                updateSelectedExpertsList();
+                updateChairmanWarning();
+            }
+            if (e.target.classList.contains('existing-expert-role')) {
+                updateSelectedExpertsList();
+                updateChairmanWarning();
+            }
+        });
+    });
+
+    // Отправка формы
+    document.getElementById('commissionForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const nameField = document.querySelector('input[name="name"]');
+        if (!nameField.value.trim()) {
+            alert('Введите название комиссии!');
+            nameField.focus();
+            return;
+        }
+
+        if (!updateChairmanWarning()) {
+            alert('В комиссии должен быть хотя бы один председатель!');
+            return;
+        }
+
+        // Проверка выбранных существующих экспертов
+        let missingRoles = [];
+        document.querySelectorAll('.expert-checkbox:checked').forEach(cb => {
+            const roleSelect = document.querySelector(`.existing-expert-role[data-expert-id="${cb.dataset.expertId}"]`);
+            if (!roleSelect || !roleSelect.value) {
+                missingRoles.push(`${cb.dataset.surname} ${cb.dataset.name}`);
+            }
+        });
+
+        if (missingRoles.length > 0) {
+            alert(`Укажите роль для экспертов:\n${missingRoles.join('\n')}`);
+            return;
+        }
+
+        // Проверка новых экспертов
+        let newErrors = [];
+        document.querySelectorAll('[id^="new_expert_"]').forEach((card, idx) => {
+            const surname = card.querySelector('[data-field="surname"]')?.value.trim();
+            const name = card.querySelector('[data-field="name"]')?.value.trim();
+            const position = card.querySelector('[data-field="position"]')?.value.trim();
+            const roleSelect = card.querySelector('[data-field="role"]');
+            if (!surname) newErrors.push(`Новый эксперт ${idx+1}: фамилия`);
+            if (!name) newErrors.push(`Новый эксперт ${idx+1}: имя`);
+            if (!position) newErrors.push(`Новый эксперт ${idx+1}: должность`);
+            if (!roleSelect?.value) newErrors.push(`Новый эксперт ${idx+1}: роль`);
+        });
+
+        if (newErrors.length > 0) {
+            alert(`Заполните поля:\n${newErrors.join('\n')}`);
+            return;
+        }
+
+        // Собираем данные
+        const selectedExperts = [];
+        document.querySelectorAll('.expert-checkbox:checked').forEach(cb => {
+            const roleSelect = document.querySelector(`.existing-expert-role[data-expert-id="${cb.dataset.expertId}"]`);
+            if (roleSelect && roleSelect.value) {
+                selectedExperts.push({
+                    expert_id: parseInt(cb.dataset.expertId),
+                    role_id: parseInt(roleSelect.value)
+                });
+            }
+        });
+        document.getElementById('selectedExpertsData').value = JSON.stringify(selectedExperts);
+
+        const newExperts = [];
+        document.querySelectorAll('[id^="new_expert_"]').forEach(card => {
+            const surname = card.querySelector('[data-field="surname"]')?.value.trim();
+            const name = card.querySelector('[data-field="name"]')?.value.trim();
+            const patronymic = card.querySelector('[data-field="patronymic"]')?.value.trim();
+            const position = card.querySelector('[data-field="position"]')?.value.trim();
+            const roleSelect = card.querySelector('[data-field="role"]');
+            if (surname && name && position && roleSelect?.value) {
+                newExperts.push({
+                    surname: surname,
+                    name: name,
+                    patronymic: patronymic || null,
+                    position: position,
+                    role_id: parseInt(roleSelect.value)
+                });
+            }
+        });
+        document.getElementById('newExpertsData').value = JSON.stringify(newExperts);
+        document.getElementById('removedExpertsData').value = JSON.stringify(expertsToRemove);
+
+        this.submit();
+    });
+</script>
+{% endblock %}

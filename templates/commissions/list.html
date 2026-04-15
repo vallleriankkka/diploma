@@ -336,15 +336,19 @@
                     <td data-label="Описание">{{ commission[2] or '—' }}</td>
                     <td data-label="Дата создания">{{ commission[3]|safe_strftime('%d.%m.%Y %H:%M') }}</td>
                     <td data-label="Действия" class="table-actions">
-                        <a href="{{ url_for('commission_view', id=commission[0]) }}"
-                           class="btn btn-sm btn-outline-accent">Просмотр</a>
-                        <form action="{{ url_for('commission_delete', id=commission[0]) }}"
-                              method="POST" class="d-inline">
-                            <button type="submit" class="btn btn-sm btn-outline-accent"
-                                    onclick="return confirm('Удалить комиссию?')">
-                                Удалить
-                            </button>
-                        </form>
+                        <div class="d-flex flex-wrap gap-2">
+                            <a href="{{ url_for('commission_view', id=commission[0]) }}"
+                               class="btn btn-sm btn-outline-accent">Просмотр</a>
+                            <a href="{{ url_for('commission_edit', id=commission[0]) }}"
+                               class="btn btn-sm btn-outline-accent">Редактировать</a>
+                            <form action="{{ url_for('commission_delete', id=commission[0]) }}"
+                                  method="POST" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-outline-accent"
+                                        onclick="return confirm('Удалить комиссию?')">
+                                    Удалить
+                                </button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
                 {% endfor %}
