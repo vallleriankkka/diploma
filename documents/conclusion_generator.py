@@ -115,8 +115,9 @@ class ConclusionGenerator:
             print("No settings data provided")
 
         settings_info = self._extract_settings_data(settings_data) if settings_data else {}
-        print(f"Rector/Rector's representative: '{settings_info.get('rector', '')}'")
         print(f"Provost (prorector): '{settings_info.get('provost', '')}'")
+        print(f"Provost position: '{settings_info.get('provost_position', '')}'")
+        print(f"POSTA (должность в именительном): '{settings_info.get('posta', '')}'")
 
         # 6. Get current date
         current_date = datetime.now().strftime('%d.%m.%Y')
@@ -160,7 +161,7 @@ class ConclusionGenerator:
             'MEMBERS': members,
 
             # Старые поля для совместимости
-            '{{CHAIRMAN}}': commission_info.get('chairman', ''),  # Полная информация о председателе
+            '{{CHAIRMAN}}': commission_info.get('chairman', ''),
             '{CHAIRMAN}': commission_info.get('chairman', ''),
             'CHAIRMAN': commission_info.get('chairman', ''),
 
@@ -198,10 +199,19 @@ class ConclusionGenerator:
             '{RECTOR}': settings_info.get('rector', ''),
             'RECTOR': settings_info.get('rector', ''),
 
-            # Provost - проректор (только фамилия и инициалы)
+            # Provost - проректор (только фамилия и инициалы) - ИМЕНИТЕЛЬНЫЙ ПАДЕЖ
             '{{PROVOST}}': settings_info.get('provost', ''),
             '{PROVOST}': settings_info.get('provost', ''),
             'PROVOST': settings_info.get('provost', ''),
+
+            # POSTA - должность проректора в именительном падеже
+            '{{POSTA}}': settings_info.get('posta', ''),
+            '{POSTA}': settings_info.get('posta', ''),
+            'POSTA': settings_info.get('posta', ''),
+
+            # Должность проректора (для совместимости)
+            '{{PROVOST_POSITION}}': settings_info.get('provost_position', ''),
+            '{PROVOST_POSITION}': settings_info.get('provost_position', ''),
 
             # Доверенность
             '{{POA_NUMBER}}': settings_info.get('poa_number', ''),
@@ -233,6 +243,8 @@ class ConclusionGenerator:
         print(f"MEMBERS (все члены комиссии с ролями): '{members}'")
         print(f"EXPERT1 (ФИО экспертов): '{expert1}'")
         print(f"EXPERT2 (эксперты с должностями): '{expert2}'")
+        print(f"PROVOST (проректор ФИО): '{settings_info.get('provost', '')}'")
+        print(f"POSTA (должность проректора): '{settings_info.get('posta', '')}'")
 
         print("\nDEBUG: Applying replacements to document...")
 
@@ -255,7 +267,6 @@ class ConclusionGenerator:
         # Ищем председателя среди всех членов комиссии
         for member in commission_info['all_members']:
             if 'председатель' in member.get('role_name', '').lower():
-                # Возвращаем только ФИО
                 return member.get('full_name', '')
         return ''
 
@@ -264,10 +275,8 @@ class ConclusionGenerator:
         if not commission_info.get('all_members'):
             return ''
 
-        # Ищем председателя среди всех членов комиссии
         for member in commission_info['all_members']:
             if 'председатель' in member.get('role_name', '').lower():
-                # Возвращаем полную информацию
                 return member.get('formatted_line', '')
         return ''
 
@@ -276,7 +285,6 @@ class ConclusionGenerator:
         if not commission_info.get('experts'):
             return ''
 
-        # Собираем только ФИО обычных экспертов (без председателя)
         expert_names = []
         for expert in commission_info['experts']:
             if expert.get('full_name'):
@@ -285,7 +293,6 @@ class ConclusionGenerator:
         if not expert_names:
             return ''
 
-        # Форматируем список
         if len(expert_names) == 1:
             return expert_names[0]
         else:
@@ -296,7 +303,6 @@ class ConclusionGenerator:
         if not commission_info.get('all_members'):
             return ''
 
-        # Форматируем всех членов комиссии с ролями
         members_lines = []
         for member in commission_info['all_members']:
             role = member.get('role_name', '')
@@ -317,7 +323,6 @@ class ConclusionGenerator:
             print("WARNING: Invalid application data in _extract_product_name")
             return ''
 
-        # Проверяем в порядке приоритета
         indices_to_try = [8, 7, 1]
 
         print(f"DEBUG _extract_product_name: Checking indices {indices_to_try}")
@@ -329,7 +334,6 @@ class ConclusionGenerator:
                 if name and name.lower() != 'admin' and not name.isdigit():
                     return name
 
-        # Если не нашли нормальное название, возвращаем первое непустое
         for idx in indices_to_try:
             if len(application) > idx and application[idx]:
                 return str(application[idx]).strip()
@@ -339,7 +343,6 @@ class ConclusionGenerator:
 
     def _extract_authors_data(self, application):
         """Extract authors data from application (для совместимости)"""
-        # Пустая реализация для совместимости
         return {
             'full_names_list': [],
             'authors_list_formatted': '',
@@ -370,7 +373,6 @@ class ConclusionGenerator:
                 name = ''
                 patronymic = ''
 
-                # Вариант 1: индексы 7,8,9 (как в выводе)
                 if len(author) >= 10:
                     surname = str(author[7]).strip() if author[7] else ''
                     name = str(author[8]).strip() if author[8] else ''
@@ -379,7 +381,6 @@ class ConclusionGenerator:
                     if surname and name:
                         print(f"    Extracted from [7,8,9]: {surname} {name} {patronymic}")
 
-                # Вариант 2: индексы 1,2,3 (альтернативная структура)
                 if (not surname or not name) and len(author) >= 4:
                     test_surname = str(author[1]).strip() if author[1] else ''
                     test_name = str(author[2]).strip() if author[2] else ''
@@ -404,18 +405,15 @@ class ConclusionGenerator:
             else:
                 print(f"    ✗ Unsupported author type: {type(author)}")
 
-        # Форматируем список авторов
         if result['full_names_list']:
             print(f"\n  Processing {len(result['full_names_list'])} authors:")
 
-            # Именительный падеж
             if len(result['full_names_list']) == 1:
                 result['authors_list_formatted'] = result['full_names_list'][0]
             else:
                 authors_str = ', '.join(result['full_names_list'][:-1])
                 result['authors_list_formatted'] = f"{authors_str} и {result['full_names_list'][-1]}"
 
-            # Родительный падеж
             genitive_list = []
             for author_name in result['full_names_list']:
                 parts = author_name.strip().split()
@@ -484,7 +482,7 @@ class ConclusionGenerator:
         return result
 
     def _extract_commission_data(self, commission_data):
-        """Extract commission experts data - ИСПРАВЛЕНО для новой структуры данных"""
+        """Extract commission experts data"""
         print(f"\nDEBUG _extract_commission_data: Processing commission data")
         print(f"  Type: {type(commission_data)}")
         print(f"  Length: {len(commission_data) if commission_data else 0}")
@@ -499,30 +497,27 @@ class ConclusionGenerator:
 
         result = {
             'chairman': '',
-            'experts': [],  # Только обычные эксперты (без председателя)
-            'all_members': [],  # Все члены комиссии
+            'experts': [],
+            'all_members': [],
             'expert_1': '',
             'expert_2': '',
             'expert_3': '',
-            'experts_formatted': '',  # Обычные эксперты через запятую
-            'experts_formatted_multiline': '',  # Многострочный формат с подписями
-            'expert_1_formatted': '',  # Обычные эксперты с подписями
-            'expert_2_formatted': '',  # Все члены комиссии с подписями
-            'expert_2_detailed': '',  # Все члены комиссии с ролями
+            'experts_formatted': '',
+            'experts_formatted_multiline': '',
+            'expert_1_formatted': '',
+            'expert_2_formatted': '',
+            'expert_2_detailed': '',
             'expert_3_formatted': '',
             'all_experts_formatted': '',
-            'all_commission_members': ''  # Все участники с ролями
+            'all_commission_members': ''
         }
 
         if not commission_data:
             print("  No commission data provided")
             return result
 
-        print(f"  Commission data type: {type(commission_data)}, length: {len(commission_data)}")
-
         experts_list = commission_data if isinstance(commission_data, list) else []
 
-        # Разделяем экспертов по ролям
         chairman_list = []
         regular_experts = []
         all_members = []
@@ -536,12 +531,10 @@ class ConclusionGenerator:
                 if len(expert) >= 10:
                     surname_idx, name_idx, patronymic_idx, position_idx, role_idx = None, None, None, None, None
 
-                    # Вариант 1: Новая структура (как в выводе)
                     if isinstance(expert[5], str) and isinstance(expert[6], str):
                         surname_idx, name_idx, patronymic_idx, position_idx, role_idx = 5, 6, 7, 8, 9
                         print(f"    Using new structure [5,6,7,8,9]")
 
-                    # Вариант 2: Старая структура
                     elif len(expert) > 5 and isinstance(expert[1], str) and isinstance(expert[2], str):
                         surname_idx, name_idx, patronymic_idx, position_idx, role_idx = 1, 2, 3, 4, 5
                         print(f"    Using old structure [1,2,3,4,5]")
@@ -559,14 +552,12 @@ class ConclusionGenerator:
 
                         full_name = f"{surname} {name} {patronymic}".strip()
 
-                        # Инициалы
                         initials = ''
                         if name:
                             initials += name[0].upper() + '.'
                         if patronymic:
                             initials += patronymic[0].upper() + '.'
 
-                        # Подпись
                         signature = f"{initials} {surname}".strip() if surname else ''
 
                         expert_info = {
@@ -600,7 +591,6 @@ class ConclusionGenerator:
             else:
                 print(f"    Not a tuple, type: {type(expert)}")
 
-        # Заполняем данные председателя
         if chairman_list:
             chairman = chairman_list[0]
             result['chairman'] = chairman['formatted_line']
@@ -608,12 +598,10 @@ class ConclusionGenerator:
         else:
             print("\n  No chairman found")
 
-        # Заполняем данные обычных экспертов
         if regular_experts:
             result['experts'] = regular_experts
             print(f"  Found {len(regular_experts)} regular experts")
 
-            # Обычные эксперты через запятую
             formatted_list = [exp['formatted_line'] for exp in regular_experts]
             if len(formatted_list) == 1:
                 result['experts_formatted'] = formatted_list[0]
@@ -621,7 +609,6 @@ class ConclusionGenerator:
                 experts_str = ', '.join(formatted_list[:-1])
                 result['experts_formatted'] = f"{experts_str} и {formatted_list[-1]}"
 
-            # Многострочный формат с подписями для обычных экспертов
             multiline_parts = []
             for i, expert in enumerate(regular_experts):
                 multiline_parts.append(expert['formatted_line'])
@@ -633,11 +620,9 @@ class ConclusionGenerator:
             result['experts_formatted_multiline'] = '\n'.join(multiline_parts)
             result['expert_1_formatted'] = result['experts_formatted_multiline']
 
-        # Все члены комиссии с ролями
         if all_members:
             result['all_members'] = all_members
 
-            # Форматируем всех членов комиссии с ролями (для EXPERT2)
             all_members_parts = []
             for i, member in enumerate(all_members):
                 all_members_parts.append(member['with_role'])
@@ -645,7 +630,6 @@ class ConclusionGenerator:
             result['expert_2_detailed'] = '\n'.join(all_members_parts)
             result['all_commission_members'] = result['expert_2_detailed']
 
-            # Все члены комиссии с подписями
             all_multiline = []
             for i, member in enumerate(all_members):
                 all_multiline.append(member['formatted_line'])
@@ -656,7 +640,6 @@ class ConclusionGenerator:
 
             result['expert_2_formatted'] = '\n'.join(all_multiline)
 
-        # Все эксперты вместе (для совместимости)
         all_experts = []
         if result['chairman']:
             all_experts.append(f"председатель - {result['chairman']}")
@@ -670,39 +653,22 @@ class ConclusionGenerator:
         print(f"    Regular experts: {len(regular_experts)}")
         print(f"    All members: {len(all_members)}")
 
-        # Выводим подробную информацию о результатах
-        print(f"\n  Detailed results:")
-        for key, value in result.items():
-            if value:
-                if isinstance(value, list):
-                    print(f"    {key}: list with {len(value)} items")
-                    for i, item in enumerate(value):
-                        if isinstance(item, dict):
-                            print(f"      Item {i}: {item.get('full_name', 'N/A')} ({item.get('role_name', 'N/A')})")
-                        else:
-                            print(f"      Item {i}: {item}")
-                elif isinstance(value, str) and '\n' in value:
-                    print(f"    {key}: (multi-line string, {len(value.splitlines())} lines)")
-                    lines = value.splitlines()
-                    for j in range(min(3, len(lines))):
-                        print(f"      Line {j}: {lines[j]}")
-                else:
-                    print(f"    {key}: {value}")
-
         return result
 
     def _extract_settings_data(self, settings_data):
-        """Extract settings data - ИСПРАВЛЕНО: для проректора оставляем только фамилию и инициалы"""
+        """Extract settings data - проректор и должность в ИМЕНИТЕЛЬНОМ падеже"""
         print(f"\nDEBUG _extract_settings_data: Processing settings")
 
         result = {
-            'rector': '',  # Ректор для подписи (А.В. Башкиров)
-            'rector_full': '',  # Полное ФИО ректора
-            'provost': '',  # Проректор (только фамилия и инициалы)
-            'assignee': '',  # Доверенное лицо
-            'poa_number': '',  # Номер доверенности
-            'poa_date': '',  # Дата доверенности
-            'sum_value': ''  # Сумма
+            'rector': '',
+            'rector_full': '',
+            'provost': '',  # Проректор (только фамилия и инициалы) - именительный падеж
+            'provost_position': '',  # Должность проректора - именительный падеж
+            'posta': '',  # Должность проректора для плейсхолдера POSTA - именительный падеж
+            'assignee': '',
+            'poa_number': '',
+            'poa_date': '',
+            'sum_value': ''
         }
 
         if not settings_data:
@@ -712,40 +678,54 @@ class ConclusionGenerator:
         print(f"  Settings data type: {type(settings_data)}, length: {len(settings_data)}")
 
         if isinstance(settings_data, tuple):
-            # Полное ФИО ректора
+            # Полное ФИО ректора (индекс 5)
             if len(settings_data) > 5 and settings_data[5]:
                 full_rector_name = str(settings_data[5]).strip()
                 result['rector_full'] = full_rector_name
                 print(f"    Found full rector name at index 5: '{full_rector_name}'")
 
-                # Преобразуем полное ФИО в фамилию и инициалы
                 result['rector'] = self._convert_to_initials(full_rector_name)
                 print(f"    Converted to initials: '{result['rector']}'")
 
-            # Номер доверенности
+            # Должность проректора (индекс 8) - ИМЕНИТЕЛЬНЫЙ ПАДЕЖ
+            if len(settings_data) > 8 and settings_data[8]:
+                provost_position = str(settings_data[8]).strip()
+                result['provost_position'] = provost_position
+                result['posta'] = provost_position  # Для плейсхолдера POSTA
+                print(f"    Found provost position at index 8: '{provost_position}'")
+                print(f"    POSTA (nominative): '{result['posta']}'")
+
+            # Имя проректора (индекс 7) - ИМЕНИТЕЛЬНЫЙ ПАДЕЖ
+            if len(settings_data) > 7 and settings_data[7]:
+                provost_name = str(settings_data[7]).strip()
+                # Преобразуем в фамилию и инициалы
+                result['provost'] = self._convert_to_initials(provost_name)
+                print(f"    Found provost name at index 7: '{provost_name}'")
+                print(f"    Converted to initials: '{result['provost']}'")
+
+            # Номер доверенности (индекс 6)
             if len(settings_data) > 6 and settings_data[6]:
                 result['poa_number'] = str(settings_data[6]).strip()
                 print(f"    Found POA number at index 6: '{result['poa_number']}'")
 
-            # Дата доверенности
+            # Дата доверенности (индекс 7) - если есть отдельное поле
             if len(settings_data) > 7 and settings_data[7]:
-                result['poa_date'] = self._format_date(settings_data[7])
-                print(f"    Found POA date at index 7: '{settings_data[7]}' -> '{result['poa_date']}'")
+                # Проверяем, что это не строка с именем
+                if not isinstance(settings_data[7], str) or len(str(settings_data[7])) > 20:
+                    result['poa_date'] = self._format_date(settings_data[7])
+                    print(f"    Found POA date: '{settings_data[7]}' -> '{result['poa_date']}'")
 
-            # Сумма
-            if len(settings_data) > 8 and settings_data[8]:
-                result['sum_value'] = str(settings_data[8])
-                print(f"    Found sum at index 8: '{result['sum_value']}'")
+            # Сумма (индекс 9)
+            if len(settings_data) > 9 and settings_data[9]:
+                result['sum_value'] = str(settings_data[9])
+                print(f"    Found sum at index 9: '{result['sum_value']}'")
 
-            # Для проректора (provost) используем ту же логику - только фамилия и инициалы
-            if result['rector']:
-                result['provost'] = result['rector']
-
-        print(f"  Extracted rector (initials): '{result['rector']}'")
-        print(f"  Rector full name: '{result['rector_full']}'")
-        print(f"  Provost (same as rector): '{result['provost']}'")
-        print(f"  Power of attorney: {result['poa_number']} от {result['poa_date']}")
-        print(f"  Sum: {result['sum_value']}")
+        print(f"\n  Extracted settings:")
+        print(f"    Provost (initials): '{result['provost']}'")
+        print(f"    Provost position: '{result['provost_position']}'")
+        print(f"    POSTA: '{result['posta']}'")
+        print(f"    Power of attorney: {result['poa_number']} от {result['poa_date']}")
+        print(f"    Sum: {result['sum_value']}")
 
         return result
 
@@ -754,52 +734,40 @@ class ConclusionGenerator:
         if not full_name:
             return ''
 
-        # Убираем лишние пробелы
         full_name = ' '.join(full_name.strip().split())
-
-        # Разбиваем на части
         parts = full_name.split()
 
         if len(parts) >= 3:
-            # Если есть фамилия, имя и отчество
             surname = parts[0]
             name = parts[1]
             patronymic = parts[2]
 
-            # Берем первую букву имени и первую букву отчества
             name_init = name[0].upper() + '.' if name else ''
             patronymic_init = patronymic[0].upper() + '.' if patronymic else ''
 
             return f"{surname} {name_init}{patronymic_init}"
         elif len(parts) == 2:
-            # Если только фамилия и имя
             surname = parts[0]
             name = parts[1]
             name_init = name[0].upper() + '.' if name else ''
             return f"{surname} {name_init}"
         elif len(parts) == 1:
-            # Если только фамилия
             return parts[0]
         else:
             return full_name
 
     def _set_single_line_spacing(self, paragraph):
         """Установка одинарного междустрочного интервала"""
-        # Устанавливаем одинарный интервал
         paragraph_format = paragraph.paragraph_format
         paragraph_format.line_spacing_rule = WD_LINE_SPACING.SINGLE
-        paragraph_format.line_spacing = 1.0  # Одинарный интервал
-
-        # Можно также настроить интервалы перед и после параграфа
+        paragraph_format.line_spacing = 1.0
         paragraph_format.space_before = Pt(0)
         paragraph_format.space_after = Pt(0)
 
     def _process_expert_fields(self, doc, commission_info):
         """Специальная обработка полей для экспертов и председателя"""
-        # Получаем список экспертов (обычных, без председателя)
         experts = commission_info.get('experts', [])
 
-        # Получаем председателя
         chairman = None
         if commission_info.get('all_members'):
             for member in commission_info['all_members']:
@@ -807,14 +775,11 @@ class ConclusionGenerator:
                     chairman = member
                     break
 
-        # Обработка для MEMCHAIR (председателя)
         self._process_memchair_field(doc, chairman)
 
-        # Обработка для EXPERT (обычные эксперты)
         if experts:
             self._process_expert_field(doc, experts)
 
-        # Дополнительно: обработка COMMISSION_MEMBERS если нужно
         self._process_commission_members_field(doc, commission_info)
 
     def _process_memchair_field(self, doc, chairman):
@@ -822,155 +787,110 @@ class ConclusionGenerator:
         if not chairman:
             return
 
-        # Подготовка данных для председателя
         full_name = chairman.get('full_name', '')
 
         if not full_name:
             return
 
-        # Добавляем пробелы перед ФИО для отступа
         name_with_spaces = f"      {full_name}"
 
-        # Ищем поля MEMCHAIR в параграфах
         for paragraph in doc.paragraphs:
             if '{{MEMCHAIR}}' in paragraph.text or '{MEMCHAIR}' in paragraph.text or 'MEMCHAIR' in paragraph.text:
-                # Заменяем плейсхолдер на оформление председателя
-                old_text = paragraph.text
-
-                # Очищаем параграф
                 paragraph.clear()
-
-                # Устанавливаем одинарный междустрочный интервал
                 self._set_single_line_spacing(paragraph)
 
-                # 1. Добавляем ФИО председателя с пробелами (подчеркнуто)
                 if full_name:
                     name_run = paragraph.add_run(f"{name_with_spaces}")
-                    name_run.underline = True  # Подчеркиваем ФИО
+                    name_run.underline = True
                     name_run.font.name = 'Times New Roman'
-                    name_run.font.size = Pt(11)  # 11 шрифт
+                    name_run.font.size = Pt(11)
 
-                # 2. Переход на новую строку
                 paragraph.add_run("\n")
 
-                # 3. Добавляем отступ и текст подписи
-                indent = " " * 50  # Больше пробелов для выравнивания по правому краю
+                indent = " " * 50
                 signature_run = paragraph.add_run(f"{indent}(подпись, инициалы и фамилия)")
                 signature_run.font.name = 'Times New Roman'
-                signature_run.font.size = Pt(9)  # 9 шрифт
+                signature_run.font.size = Pt(9)
 
-        # Ищем в таблицах
         for table in doc.tables:
             for row in table.rows:
                 for cell in row.cells:
                     for paragraph in cell.paragraphs:
                         if '{{MEMCHAIR}}' in paragraph.text or '{MEMCHAIR}' in paragraph.text or 'MEMCHAIR' in paragraph.text:
-                            # Заменяем плейсхолдер на оформление председателя
-                            old_text = paragraph.text
-
-                            # Очищаем параграф
                             paragraph.clear()
-
-                            # Устанавливаем одинарный междустрочный интервал
                             self._set_single_line_spacing(paragraph)
 
-                            # 1. Добавляем ФИО председателя с пробелами (подчеркнуто)
                             if full_name:
                                 name_run = paragraph.add_run(f"{name_with_spaces}")
                                 name_run.underline = True
                                 name_run.font.name = 'Times New Roman'
                                 name_run.font.size = Pt(11)
 
-                            # 2. Переход на новую строку
                             paragraph.add_run("\n")
 
-                            # 3. Добавляем отступ и текст подписи
                             indent = " " * 50
                             signature_run = paragraph.add_run(f"{indent}(подпись, инициалы и фамилия)")
                             signature_run.font.name = 'Times New Roman'
                             signature_run.font.size = Pt(9)
 
     def _process_expert_field(self, doc, experts):
-        """Обработка поля EXPERT (обычные эксперты) с Times New Roman"""
-        # Ищем поля EXPERT в документе
+        """Обработка поля EXPERT (обычные эксперты)"""
         for paragraph in doc.paragraphs:
             if '{{EXPERT}}' in paragraph.text or '{EXPERT}' in paragraph.text or 'EXPERT' in paragraph.text:
-                # Заменяем плейсхолдер на оформление экспертов
-                old_text = paragraph.text
-
-                # Очищаем параграф полностью
                 paragraph.clear()
-
-                # Устанавливаем одинарный междустрочный интервал
                 self._set_single_line_spacing(paragraph)
 
-                # Добавляем экспертов с форматированием
                 for i, expert in enumerate(experts):
                     full_name = expert.get('full_name', '')
 
                     if not full_name:
                         continue
 
-                    # Добавляем пробелы перед ФИО для отступа
                     name_with_spaces = f"                               {full_name}"
 
-                    # 1. Строка с ФИО эксперта с пробелами (подчеркнутая)
                     name_run = paragraph.add_run(f"{name_with_spaces}")
                     name_run.underline = True
                     name_run.font.name = 'Times New Roman'
-                    name_run.font.size = Pt(11)  # 11 шрифт для первой строки
+                    name_run.font.size = Pt(11)
 
-                    # 2. Переход на новую строку
                     paragraph.add_run("\n")
 
-                    # 3. Добавляем отступ и текст подписи
                     signature_run = paragraph.add_run(f"     (подпись, инициалы и фамилия)")
                     signature_run.font.name = 'Times New Roman'
-                    signature_run.font.size = Pt(9)  # 9 шрифт для второй строки
+                    signature_run.font.size = Pt(9)
 
-                    # 4. Добавляем пустую строку между экспертами, если это не последний
                     if i < len(experts) - 1:
                         paragraph.add_run("\n")
                         paragraph.add_run("\n")
 
-        # Обработка в таблицах
         for table in doc.tables:
             for row in table.rows:
                 for cell in row.cells:
                     for paragraph in cell.paragraphs:
                         if '{{EXPERT}}' in paragraph.text or '{EXPERT}' in paragraph.text or 'EXPERT' in paragraph.text:
-                            # Очищаем параграф
                             paragraph.clear()
-
-                            # Устанавливаем одинарный междустрочный интервал
                             self._set_single_line_spacing(paragraph)
 
-                            # Добавляем экспертов
                             for i, expert in enumerate(experts):
                                 full_name = expert.get('full_name', '')
 
                                 if not full_name:
                                     continue
 
-                                # Добавляем пробелы перед ФИО для отступа
                                 name_with_spaces = f"      {full_name}"
 
-                                # 1. ФИО эксперта с пробелами (подчеркнуто)
                                 name_run = paragraph.add_run(f"{name_with_spaces}")
                                 name_run.underline = True
                                 name_run.font.name = 'Times New Roman'
                                 name_run.font.size = Pt(11)
 
-                                # 2. Новая строка
                                 paragraph.add_run("\n")
 
-                                # 3. Отступ и текст подписи
                                 indent = " " * 50
                                 signature_run = paragraph.add_run(f"{indent}(подпись, инициалы и фамилия)")
                                 signature_run.font.name = 'Times New Roman'
                                 signature_run.font.size = Pt(9)
 
-                                # 4. Пробел между экспертами
                                 if i < len(experts) - 1:
                                     paragraph.add_run("\n")
 
@@ -981,19 +901,11 @@ class ConclusionGenerator:
         if not all_members:
             return
 
-        # Ищем поля COMMISSION_MEMBERS в документе
         for paragraph in doc.paragraphs:
             if '{{COMMISSION_MEMBERS}}' in paragraph.text or 'COMMISSION' in paragraph.text or 'COMMISSION_MEMBERS' in paragraph.text:
-                # Заменяем плейсхолдер на оформление всех членов комиссии
-                old_text = paragraph.text
-
-                # Очищаем параграф
                 paragraph.clear()
-
-                # Устанавливаем одинарный междустрочный интервал
                 self._set_single_line_spacing(paragraph)
 
-                # Добавляем всех членов комиссии
                 for i, member in enumerate(all_members):
                     full_name = member.get('full_name', '')
                     role_name = member.get('role_name', '')
@@ -1001,47 +913,36 @@ class ConclusionGenerator:
                     if not full_name:
                         continue
 
-                    # Добавляем пробелы перед ФИО для отступа
                     name_with_spaces = f"      {full_name}"
 
-                    # Добавляем роль, если есть (кроме "эксперт")
                     if role_name and role_name.lower() != 'эксперт':
                         role_run = paragraph.add_run(f"{role_name} - ")
                         role_run.font.name = 'Times New Roman'
                         role_run.font.size = Pt(11)
 
-                    # 1. ФИО члена комиссии с пробелами (подчеркнуто)
                     name_run = paragraph.add_run(f"{name_with_spaces}")
                     name_run.underline = True
                     name_run.font.name = 'Times New Roman'
                     name_run.font.size = Pt(11)
 
-                    # 2. Новая строка
                     paragraph.add_run("\n")
 
-                    # 3. Отступ и текст подписи
                     indent = " " * 50
                     signature_run = paragraph.add_run(f"{indent}(подпись, инициалы и фамилия)")
                     signature_run.font.name = 'Times New Roman'
                     signature_run.font.size = Pt(9)
 
-                    # 4. Пробел между членами комиссии
                     if i < len(all_members) - 1:
                         paragraph.add_run("\n")
 
-        # Аналогично для таблиц
         for table in doc.tables:
             for row in table.rows:
                 for cell in row.cells:
                     for paragraph in cell.paragraphs:
                         if '{{COMMISSION_MEMBERS}}' in paragraph.text or 'COMMISSION' in paragraph.text or 'COMMISSION_MEMBERS' in paragraph.text:
-                            # Очищаем параграф
                             paragraph.clear()
-
-                            # Устанавливаем одинарный междустрочный интервал
                             self._set_single_line_spacing(paragraph)
 
-                            # Добавляем всех членов комиссии
                             for i, member in enumerate(all_members):
                                 full_name = member.get('full_name', '')
                                 role_name = member.get('role_name', '')
@@ -1049,7 +950,6 @@ class ConclusionGenerator:
                                 if not full_name:
                                     continue
 
-                                # Добавляем пробелы перед ФИО для отступа
                                 name_with_spaces = f"      {full_name}"
 
                                 if role_name and role_name.lower() != 'эксперт':
