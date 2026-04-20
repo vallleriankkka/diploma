@@ -67,9 +67,9 @@ class ConsentGenerator:
         print(f"DEBUG: FILL TEMPLATE FOR AUTHOR #{author_index}")
         print('=' * 50)
 
-        # 1. Проректор - имя и должность
+        # 1. Проректор - имя и должность (БЕЗ ЗНАЧЕНИЙ ПО УМОЛЧАНИЮ)
         provost_name = self._extract_provost_name(settings_data)
-        provost_post = self._extract_provost_post(settings_data)  # НОВЫЙ МЕТОД
+        provost_post = self._extract_provost_post(settings_data)
 
         print(f"DEBUG: Extracted provost name: '{provost_name}'")
         print(f"DEBUG: Extracted provost post: '{provost_post}'")
@@ -171,7 +171,7 @@ class ConsentGenerator:
             '{AUTHOR_DESCRIPTION}': author_data.get('description', 'Вклад не описан'),
             'AUTHOR_DESCRIPTION': author_data.get('description', 'Вклад не описан'),
 
-            # Проректор - ИМЯ
+            # Проректор - ИМЯ (БЕЗ ЗНАЧЕНИЯ ПО УМОЛЧАНИЮ)
             '{{PROVOST_NAME}}': provost_name,
             '{PROVOST_NAME}': provost_name,
             'PROVOST_NAME': provost_name,
@@ -192,7 +192,7 @@ class ConsentGenerator:
             '{PRO_RECTOR_NAME}': provost_name,
             'PRO_RECTOR_NAME': provost_name,
 
-            # Должность проректора - ДОБАВЛЕНО
+            # Должность проректора (БЕЗ ЗНАЧЕНИЯ ПО УМОЛЧАНИЮ)
             '{{PROVOST_POST}}': provost_post,
             '{PROVOST_POST}': provost_post,
             'PROVOST_POST': provost_post,
@@ -334,53 +334,115 @@ class ConsentGenerator:
         return result
 
     def _extract_provost_post(self, settings_data):
-        """Извлечение должности проректора из настроек"""
+        """Извлечение должности проректора из настроек (БЕЗ ЗНАЧЕНИЯ ПО УМОЛЧАНИЮ)"""
         if not settings_data or not isinstance(settings_data, tuple):
             print("DEBUG: No settings data or not tuple for provost post")
-            return 'Проректор по науке и инновациям'  # Значение по умолчанию
+            return ''  # Возвращаем пустую строку, а не значение по умолчанию
 
         print(f"DEBUG: Settings data tuple length for provost post: {len(settings_data)}")
 
-        # Проверяем возможные индексы для должности проректора
-        check_indices = [6, 11, 8]  # Из ваших данных: [6] 'Проректор по науке и инновациям '
+        # Выводим все элементы для отладки
+        for i, item in enumerate(settings_data):
+            if isinstance(item, str) and item.strip():
+                print(f"DEBUG: settings_data[{i}] = '{item}'")
+
+        # Проверяем индексы для должности проректора
+        # По вашим данным: [6] 'Проректор по науке и инновациям '
+        check_indices = [6, 8, 11, 12, 13, 14]
 
         for i in check_indices:
             if len(settings_data) > i:
                 item = settings_data[i]
                 if isinstance(item, str) and item.strip():
                     post = item.strip()
-                    print(f"DEBUG: Using provost post from index {i}: '{post}'")
-                    return post
+                    # Проверяем, что это действительно должность, а не имя
+                    if any(keyword in post.lower() for keyword in
+                           ['проректор', 'ректор', 'директор', 'начальник', 'заведующий']):
+                        print(f"DEBUG: Found provost post at index {i}: '{post}'")
+                        return post
+                    # Если нет ключевых слов, но это не похоже на имя (нет пробелов или короткое)
+                    elif len(post) > 10 and ' ' not in post:
+                        print(f"DEBUG: Found potential provost post at index {i}: '{post}'")
+                        return post
 
-        print("DEBUG: No provost post found in settings, using default")
-        return 'Проректор по науке и инновациям'  # Значение по умолчанию
+        print("DEBUG: No provost post found in settings")
+        return ''  # Возвращаем пустую строку
 
-    # Остальные методы остаются без изменений
     def _extract_provost_name(self, settings_data):
-        """Извлечение имени проректора из настроек"""
+        """Извлечение имени проректора из настроек (БЕЗ ЗНАЧЕНИЯ ПО УМОЛЧАНИЮ)"""
         if not settings_data or not isinstance(settings_data, tuple):
             print("DEBUG: No settings data or not tuple")
-            return 'И.И. Иванов'  # Значение по умолчанию
+            return ''  # Возвращаем пустую строку, а не значение по умолчанию
 
         print(f"DEBUG: Settings data tuple length: {len(settings_data)}")
-        print(f"DEBUG: Settings data preview: {settings_data[:5]}...")  # Первые 5 элементов
+
+        # Выводим все элементы для отладки
+        for i, item in enumerate(settings_data):
+            if isinstance(item, str) and item.strip():
+                print(f"DEBUG: settings_data[{i}] = '{item}'")
 
         # Ищем имя проректора на разных позициях
-        provost_name = ''
-
-        # Если не нашли, проверяем конкретные индексы для ИМЕНИ
-        check_indices = [10, 5, 9]  # Из ваших данных: [10] 'А.В. Башкиров', [5] 'Башкиров Алексей Викторович'
+        # По вашим данным: [10] 'А.В. Башкиров', [5] 'Башкиров Алексей Викторович'
+        check_indices = [10, 5, 7, 9, 11, 12]
 
         for i in check_indices:
             if len(settings_data) > i:
                 item = settings_data[i]
                 if isinstance(item, str) and item.strip():
-                    provost_name = item.strip()
-                    print(f"DEBUG: Using provost name from index {i}: '{provost_name}'")
-                    return provost_name
+                    name = item.strip()
+                    # Проверяем, что это имя (содержит буквы, не слишком длинное)
+                    if len(name) < 50 and any(c.isalpha() for c in name):
+                        # Проверяем, что это не должность
+                        if not any(keyword in name.lower() for keyword in
+                                   ['проректор', 'ректор', 'директор', 'начальник', 'заведующий', 'отдел', 'кафедр']):
+                            print(f"DEBUG: Using provost name from index {i}: '{name}'")
+                            # Преобразуем полное имя в формат "Фамилия И.О." если нужно
+                            return self._convert_to_initials_if_needed(name)
 
         print("DEBUG: No provost name found in settings")
-        return 'И.И. Иванов'  # Значение по умолчанию
+        return ''  # Возвращаем пустую строку
+
+    def _convert_to_initials_if_needed(self, name):
+        """Преобразует полное имя в формат 'Фамилия И.О.' если нужно"""
+        if not name:
+            return ''
+
+        # Если уже в формате "И.О. Фамилия" или "Фамилия И.О."
+        parts = name.strip().split()
+
+        # Если 3 части и есть точки - возможно уже в нужном формате
+        if len(parts) == 3:
+            # Проверяем, есть ли точки в первых двух частях
+            if ('.' in parts[0] and '.' in parts[1]) or ('.' in parts[1] and '.' in parts[2]):
+                # Формат "И.О. Фамилия" -> меняем на "Фамилия И.О."
+                if '.' in parts[0] and '.' in parts[1]:
+                    return f"{parts[2]} {parts[0]}{parts[1]}"
+                # Формат "Фамилия И.О."
+                elif '.' in parts[1] and '.' in parts[2]:
+                    return name
+
+        # Если 3 части без точек - "Фамилия Имя Отчество"
+        if len(parts) == 3 and '.' not in name:
+            surname = parts[0]
+            name_init = parts[1][0].upper() + '.' if parts[1] else ''
+            patronymic_init = parts[2][0].upper() + '.' if parts[2] else ''
+            return f"{surname} {name_init}{patronymic_init}"
+
+        # Если 2 части - "Фамилия Имя"
+        if len(parts) == 2:
+            surname = parts[0]
+            name_init = parts[1][0].upper() + '.' if parts[1] else ''
+            return f"{surname} {name_init}"
+
+        # Если уже в формате "А.В. Башкиров"
+        if len(parts) == 3 and '.' in parts[0] and '.' in parts[1]:
+            return f"{parts[2]} {parts[0]}{parts[1]}"
+
+        # Если уже в формате "Башкиров А.В."
+        if len(parts) == 2 and '.' in parts[1]:
+            return name
+
+        return name
 
     def _extract_application_data(self, application):
         """Извлечение данных из заявки"""
@@ -389,12 +451,14 @@ class ConsentGenerator:
 
         result = {'product_name': ''}
 
-        # Название продукта - индекс 7
-        if len(application) > 8 and application[8] and isinstance(application[7], str):
+        # Название продукта - индекс 7 или 8
+        if len(application) > 8 and application[8] and isinstance(application[8], str):
             result['product_name'] = str(application[8]).strip()
+            print(f"DEBUG: Found product name at index 8: '{result['product_name']}'")
+        elif len(application) > 7 and application[7] and isinstance(application[7], str):
+            result['product_name'] = str(application[7]).strip()
             print(f"DEBUG: Found product name at index 7: '{result['product_name']}'")
         elif len(application) > 1 and application[1] and isinstance(application[1], str):
-            # Или название заявки - индекс 1
             result['product_name'] = str(application[1]).strip()
             print(f"DEBUG: Found application title at index 1: '{result['product_name']}'")
 
@@ -471,7 +535,7 @@ class ConsentGenerator:
                 4: 'апрель',
                 5: 'май',
                 6: 'июнь',
-                7: 'июля',
+                7: 'июль',
                 8: 'август',
                 9: 'сентябрь',
                 10: 'октябрь',
