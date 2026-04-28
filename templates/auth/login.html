@@ -50,6 +50,12 @@
         margin-bottom: 0.5rem;
     }
 
+    /* Контейнер для поля пароля с кнопкой */
+    .password-field {
+        position: relative;
+        width: 100%;
+    }
+
     .form-control {
         background-color: transparent;
         border: 1px solid var(--color-secondary);
@@ -71,6 +77,35 @@
 
     .form-control::placeholder {
         color: rgba(38, 48, 69, 0.6);
+    }
+
+    /* Стили для кнопки просмотра пароля */
+    .toggle-password {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--color-primary);
+        opacity: 0.7;
+        transition: opacity 0.3s ease;
+        font-size: 1.2rem;
+        line-height: 1;
+    }
+
+    .toggle-password:hover {
+        opacity: 1;
+    }
+
+    .toggle-password:focus {
+        outline: none;
+        opacity: 1;
     }
 
     /* Кнопки */
@@ -157,6 +192,11 @@
             padding: 14px;
             font-size: 16px;
             min-height: 48px;
+        }
+
+        .toggle-password {
+            right: 10px;
+            font-size: 1.1rem;
         }
 
         .form-label {
@@ -276,7 +316,8 @@
 
     /* Улучшения для сенсорных устройств */
     .btn-primary,
-    .form-control {
+    .form-control,
+    .toggle-password {
         touch-action: manipulation;
     }
 
@@ -350,10 +391,15 @@
 
                             <div class="mb-4">
                                 <label for="password" class="form-label">Пароль *</label>
-                                <input type="password" class="form-control" id="password" name="password"
-                                       placeholder="Введите пароль"
-                                       required
-                                       autocomplete="current-password">
+                                <div class="password-field">
+                                    <input type="password" class="form-control" id="password" name="password"
+                                           placeholder="Введите пароль"
+                                           required
+                                           autocomplete="current-password">
+                                    <button type="button" class="toggle-password" aria-label="Показать/скрыть пароль">
+                                        <span class="password-toggle-icon">Показать️</span>
+                                    </button>
+                                </div>
                             </div>
 
                             <button type="submit" class="btn btn-primary w-100 py-2">Войти</button>
@@ -371,6 +417,26 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // === Функционал показа/скрытия пароля ===
+        const passwordField = document.getElementById('password');
+        const toggleButton = document.querySelector('.toggle-password');
+        const toggleIcon = document.querySelector('.password-toggle-icon');
+
+        if (passwordField && toggleButton) {
+            toggleButton.addEventListener('click', function() {
+                // Определяем текущий тип поля
+                const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordField.setAttribute('type', type);
+
+                // Меняем иконку в зависимости от состояния
+                if (type === 'text') {
+                    toggleIcon.textContent = 'Скрыть';
+                } else {
+                    toggleIcon.textContent = 'Показать';
+                }
+            });
+        }
+
         // Адаптивная инициализация
         function adaptLoginForm() {
             const isMobile = window.innerWidth < 576;
@@ -461,6 +527,7 @@
         }
 
         // Улучшение доступности
+        const formControls = document.querySelectorAll('.form-control');
         formControls.forEach(control => {
             control.addEventListener('focus', function() {
                 this.style.borderWidth = '2px';
