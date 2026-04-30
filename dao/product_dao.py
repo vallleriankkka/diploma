@@ -46,8 +46,97 @@ class ProductDAO:
             """, (product_id,))
             return cur.fetchone()
 
+    def check_compatibility(self, os_id: int, computer_type_id: int) -> bool:
+        """Проверка совместимости ОС и типа ЭВМ"""
+        with self.db.get_cursor() as cur:
+            cur.execute("""
+                SELECT COUNT(*) 
+                FROM os_computer_type_compatibility 
+                WHERE os_type_id = %s AND computer_type_id = %s
+            """, (os_id, computer_type_id))
+            count = cur.fetchone()[0]
+            return count > 0
+
+    def get_compatible_computer_types(self, os_id: int) -> List[dict]:
+        """Получение всех типов ЭВМ, совместимых с данной ОС"""
+        with self.db.get_cursor() as cur:
+            cur.execute("""
+                SELECT ct.id, ct.name
+                FROM computer_types ct
+                JOIN os_computer_type_compatibility octc ON ct.id = octc.computer_type_id
+                WHERE octc.os_type_id = %s
+                ORDER BY ct.name
+            """, (os_id,))
+            return [{'id': row[0], 'name': row[1]} for row in cur.fetchall()]
+
+    def get_compatible_os_types(self, computer_type_id: int) -> List[dict]:
+        """Получение всех ОС, совместимых с данным типом ЭВМ"""
+        with self.db.get_cursor() as cur:
+            cur.execute("""
+                SELECT ot.id, ot.name
+                FROM os_types ot
+                JOIN os_computer_type_compatibility octc ON ot.id = octc.os_type_id
+                WHERE octc.computer_type_id = %s
+                ORDER BY ot.name
+            """, (computer_type_id,))
+            return [{'id': row[0], 'name': row[1]} for row in cur.fetchall()]
+
+    def add_compatibility(self, os_id: int, computer_type_id: int) -> bool:
+        """Добавление совместимости между ОС и типом ЭВМ"""
+        try:
+            with self.db.get_cursor() as cur:
+                cur.execute("""
+                    INSERT INTO os_computer_type_compatibility (os_type_id, computer_type_id)
+                    VALUES (%s, %s)
+                    ON CONFLICT (os_type_id, computer_type_id) DO NOTHING
+                """, (os_id, computer_type_id))
+                return cur.rowcount > 0
+        except Exception:
+            return False
+
+    def remove_compatibility(self, os_id: int, computer_type_id: int) -> bool:
+        """Удаление совместимости между ОС и типом ЭВМ"""
+        with self.db.get_cursor() as cur:
+            cur.execute("""
+                DELETE FROM os_computer_type_compatibility 
+                WHERE os_type_id = %s AND computer_type_id = %s
+            """, (os_id, computer_type_id))
+            return cur.rowcount > 0
+
+    def get_all_compatibilities(self) -> List[dict]:
+        """Получение всех связей совместимости"""
+        with self.db.get_cursor() as cur:
+            cur.execute("""
+                SELECT 
+                    ot.id as os_id,
+                    ot.name as os_name,
+                    ct.id as computer_type_id,
+                    ct.name as computer_type_name
+                FROM os_computer_type_compatibility octc
+                JOIN os_types ot ON octc.os_type_id = ot.id
+                JOIN computer_types ct ON octc.computer_type_id = ct.id
+                ORDER BY ot.name, ct.name
+            """)
+            return [
+                {
+                    'os_id': row[0],
+                    'os_name': row[1],
+                    'computer_type_id': row[2],
+                    'computer_type_name': row[3]
+                }
+                for row in cur.fetchall()
+            ]
+
     def create(self, product_data: dict) -> int:
-        """Создание нового продукта"""
+        """Создание нового продукта с проверкой совместимости"""
+        # Проверяем совместимость, если указаны оба параметра
+        if product_data.get('operating_system_id') and product_data.get('computer_type_id'):
+            if not self.check_compatibility(
+                    product_data['operating_system_id'],
+                    product_data['computer_type_id']
+            ):
+                raise ValueError("Операционная система не совместима с выбранным типом ЭВМ")
+
         with self.db.get_cursor() as cur:
             cur.execute("""
                 INSERT INTO product (name, description, computer_type_id, programming_language_id, 
@@ -66,7 +155,15 @@ class ProductDAO:
             return cur.fetchone()[0]
 
     def update(self, product_id: int, product_data: dict) -> bool:
-        """Обновление продукта"""
+        """Обновление продукта с проверкой совместимости"""
+        # Проверяем совместимость, если указаны оба параметра
+        if product_data.get('operating_system_id') and product_data.get('computer_type_id'):
+            if not self.check_compatibility(
+                    product_data['operating_system_id'],
+                    product_data['computer_type_id']
+            ):
+                raise ValueError("Операционная система не совместима с выбранным типом ЭВМ")
+
         with self.db.get_cursor() as cur:
             cur.execute("""
                 UPDATE product SET name=%s, description=%s, computer_type_id=%s, 
@@ -96,7 +193,6 @@ class ProductDAO:
             result = cur.fetchone()
             return result[0] if result else None
 
-    # В классе ProductDAO добавьте метод:
     def get_product_authors(self, product_id):
         """Получение авторов продукта"""
         with self.db.get_cursor() as cur:
@@ -150,7 +246,7 @@ class ProductDAO:
                 """)
             return [{'id': row[0], 'name': row[1]} for row in cur.fetchall()]
 
-    def create_reference(self, reference_type: str, name: str) -> int:
+    def create_reference(self, reference_type: str, name: str) -> dict:
         """Создание новой записи в справочнике"""
         table_mapping = {
             'programming_language': 'programming_languages',
