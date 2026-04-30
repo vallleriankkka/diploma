@@ -453,6 +453,18 @@
         display: none;
     }
 
+    .field-error {
+        color: #dc3545;
+        font-size: 0.8rem;
+        margin-top: 5px;
+        display: none;
+    }
+
+    .form-control.is-invalid,
+    .form-select.is-invalid {
+        border-color: #dc3545;
+    }
+
     @media (max-width: 767.98px) {
         .users-table {
             overflow-x: auto;
@@ -797,15 +809,21 @@
 <div class="modal fade" id="createPowerOfAttorneyModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header"><h5 class="modal-title">Создать доверенность</h5>
+            <div class="modal-header">
+                <h5 class="modal-title">Создать доверенность</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <form id="createPowerOfAttorneyForm" data-endpoint="/admin/settings/create_power_of_attorney">
-                    <div class="mb-3"><label class="form-label">Номер</label><input type="text" class="form-control"
-                                                                                    name="number" required></div>
-                    <div class="mb-3"><label class="form-label">Дата</label><input type="date" class="form-control"
-                                                                                   name="date_of_receipt" required>
+                    <div class="mb-3">
+                        <label class="form-label">Номер</label>
+                        <input type="text" class="form-control" name="number" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Дата</label>
+                        <input type="date" class="form-control" name="date_of_receipt" required>
+                        <small class="form-text text-muted">Допустимый диапазон: с 1956 по 2035 год</small>
+                        <div class="field-error" id="dateError"></div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
@@ -820,14 +838,20 @@
 <div class="modal fade" id="createSumModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header"><h5 class="modal-title">Создать сумму</h5>
+            <div class="modal-header">
+                <h5 class="modal-title">Создать сумму</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <form id="createSumForm" data-endpoint="/admin/settings/create_sum">
-                    <div class="mb-3"><label class="form-label">Сумма (руб.)</label><input type="number" step="0.01"
-                                                                                           class="form-control"
-                                                                                           name="value" required></div>
+                    <div class="mb-3">
+                        <label class="form-label">Сумма (руб.)</label>
+                        <input type="text" class="form-control" name="value" required
+                               placeholder="Введите число (например: 1000.50)">
+                        <small class="form-text text-muted">Допустимый диапазон: от 0 до 2 000 000 000 рублей.
+                            Используйте только цифры и десятичную точку.</small>
+                        <div class="field-error" id="sumError"></div>
+                    </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
                         <button type="submit" class="btn btn-primary">Создать</button>
@@ -841,15 +865,20 @@
 <div class="modal fade" id="createProvostModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header"><h5 class="modal-title">Создать проректора</h5>
+            <div class="modal-header">
+                <h5 class="modal-title">Создать проректора</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <form id="createProvostForm" data-endpoint="/admin/settings/create_provost">
-                    <div class="mb-3"><label class="form-label">ФИО</label><input type="text" class="form-control"
-                                                                                  name="full_name" required></div>
-                    <div class="mb-3"><label class="form-label">Должность</label><input type="text" class="form-control"
-                                                                                        name="post"></div>
+                    <div class="mb-3">
+                        <label class="form-label">ФИО</label>
+                        <input type="text" class="form-control" name="full_name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Должность</label>
+                        <input type="text" class="form-control" name="post">
+                    </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
                         <button type="submit" class="btn btn-primary">Создать</button>
@@ -863,20 +892,28 @@
 <div class="modal fade" id="createUserModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header"><h5 class="modal-title">Создать пользователя</h5>
+            <div class="modal-header">
+                <h5 class="modal-title">Создать пользователя</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <form id="createUserForm">
-                    <div class="mb-3"><label class="form-label">Логин</label><input type="text" class="form-control"
-                                                                                    id="userLogin" required></div>
-                    <div class="mb-3"><label class="form-label">Пароль</label><input type="password"
-                                                                                     class="form-control"
-                                                                                     id="userPassword" required></div>
-                    <div class="mb-3"><label class="form-label">Роль</label><select class="form-select" id="userRole">
-                        <option value="user">Пользователь</option>
-                        <option value="admin">Администратор</option>
-                    </select></div>
+                    <div class="mb-3">
+                        <label class="form-label">Логин</label>
+                        <input type="text" class="form-control" id="userLogin" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Пароль</label>
+                        <input type="password" class="form-control" id="userPassword" required>
+                        <small class="form-text text-muted">Минимальная длина: 4 символа</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Роль</label>
+                        <select class="form-select" id="userRole">
+                            <option value="user">Пользователь</option>
+                            <option value="admin">Администратор</option>
+                        </select>
+                    </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
                         <button type="submit" class="btn btn-primary">Создать</button>
@@ -890,16 +927,18 @@
 <div class="modal fade" id="referenceModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header"><h5 class="modal-title" id="referenceModalTitle">Добавить</h5>
+            <div class="modal-header">
+                <h5 class="modal-title" id="referenceModalTitle">Добавить</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <form id="referenceForm">
                     <input type="hidden" id="referenceType" name="reference_type">
                     <input type="hidden" id="referenceId" name="id">
-                    <div class="mb-3"><label class="form-label">Название</label><input type="text" class="form-control"
-                                                                                       id="referenceName" name="name"
-                                                                                       required></div>
+                    <div class="mb-3">
+                        <label class="form-label">Название</label>
+                        <input type="text" class="form-control" id="referenceName" name="name" required>
+                    </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
                         <button type="submit" class="btn btn-primary">Сохранить</button>
@@ -913,12 +952,16 @@
 <div class="modal fade" id="deleteConfirmModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header"><h5 class="modal-title">Подтверждение</h5>
+            <div class="modal-header">
+                <h5 class="modal-title">Подтверждение</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body"><p>Вы уверены?</p>
-                <p class="text-muted" id="deleteItemName"></p><input type="hidden" id="deleteReferenceType"><input
-                        type="hidden" id="deleteReferenceId"></div>
+            <div class="modal-body">
+                <p>Вы уверены, что хотите удалить?</p>
+                <p class="text-muted" id="deleteItemName"></p>
+                <input type="hidden" id="deleteReferenceType">
+                <input type="hidden" id="deleteReferenceId">
+            </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
                 <button type="button" class="btn btn-danger" onclick="confirmDelete()">Удалить</button>
@@ -939,67 +982,188 @@
             errorDiv.style.display = 'none';
         }, 5000);
     }
-function saveAllSettings() {
-    const form = document.getElementById('settingsForm');
-    const formData = new FormData(form);
-    const data = {
-        power_of_attorney_id: formData.get('power_of_attorney_id') || null,
-        sum_id: formData.get('sum_id') || null,
-        provost_id: formData.get('provost_id') || null
-    };
 
-    console.log('1. Данные для отправки:', data);
+    function hideFieldError(fieldId) {
+        const errorDiv = document.getElementById(fieldId);
+        if (errorDiv) {
+            errorDiv.style.display = 'none';
+            errorDiv.textContent = '';
+        }
+        const input = document.querySelector(`#${fieldId.replace('Error', '')}`);
+        if (input) {
+            input.classList.remove('is-invalid');
+        }
+    }
 
-    const saveButton = document.querySelector('#settingsForm .btn-primary');
-    const originalText = saveButton.innerHTML;
-    saveButton.innerHTML = 'Сохранение...';
-    saveButton.disabled = true;
+    function showFieldError(fieldId, message) {
+        const errorDiv = document.getElementById(fieldId);
+        if (errorDiv) {
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+        const input = document.querySelector(`#${fieldId.replace('Error', '')}`);
+        if (input) {
+            input.classList.add('is-invalid');
+        }
+    }
 
-    fetch('/admin/settings/save', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        },
-        body: JSON.stringify(data)
-    })
-    .then(response => {
-        console.log('2. Статус ответа:', response.status);
-        console.log('3. Заголовки ответа:', response.headers);
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    // Валидация для формы создания доверенности
+    function validatePowerOfAttorneyForm() {
+        const dateInput = document.querySelector('#createPowerOfAttorneyForm input[name="date_of_receipt"]');
+        let isValid = true;
+
+        hideFieldError('dateError');
+
+        if (dateInput && dateInput.value) {
+            const selectedDate = new Date(dateInput.value);
+            const minDate = new Date('1956-01-01');
+            const maxDate = new Date('2035-12-31');
+
+            if (selectedDate < minDate) {
+                showFieldError('dateError', 'Дата не может быть ранее 1956 года');
+                isValid = false;
+            } else if (selectedDate > maxDate) {
+                showFieldError('dateError', 'Дата не может быть позднее 2035 года');
+                isValid = false;
+            }
+        } else if (!dateInput.value) {
+            showFieldError('dateError', 'Введите дату');
+            isValid = false;
         }
-        return response.text();  // Сначала получим как текст
-    })
-    .then(text => {
-        console.log('4. Ответ от сервера (текст):', text);
-        try {
-            const data = JSON.parse(text);
-            console.log('5. Распарсенный JSON:', data);
-            return data;
-        } catch (e) {
-            console.error('6. Ошибка парсинга JSON:', e);
-            throw new Error('Сервер вернул не JSON: ' + text.substring(0, 200));
+
+        return isValid;
+    }
+
+    // Валидация для формы создания суммы
+    function validateSumForm() {
+    const sumInput = document.querySelector('#createSumForm input[name="value"]');
+    let isValid = true;
+
+    hideFieldError('sumError');
+
+    if (sumInput && sumInput.value) {
+        // Убираем пробелы
+        let cleanValue = sumInput.value.trim().replace(/\s/g, '');
+
+        // Проверка на пустую строку
+        if (cleanValue === '') {
+            showFieldError('sumError', 'Введите сумму');
+            isValid = false;
         }
-    })
-    .then(data => {
-        console.log('7. Успешный ответ:', data);
-        saveButton.innerHTML = originalText;
-        saveButton.disabled = false;
-        if (data.success) {
-            alert('Настройки сохранены');
-            window.location.reload();
-        } else {
-            showError(data.error || 'Ошибка при сохранении');
+        // Проверка на допустимые символы (только цифры, точка и запятая)
+        else if (!/^[\d.,]+$/.test(cleanValue)) {
+            showFieldError('sumError', 'Сумма должна содержать только цифры и десятичный разделитель');
+            isValid = false;
         }
-    })
-    .catch(error => {
-        console.error('8. Ошибка полностью:', error);
-        saveButton.innerHTML = originalText;
-        saveButton.disabled = false;
-        showError('Ошибка при сохранении: ' + error.message);
-    });
+        else {
+            // Заменяем запятую на точку
+            cleanValue = cleanValue.replace(',', '.');
+
+            // Проверка на количество знаков после запятой (максимум 2)
+            if (cleanValue.includes('.')) {
+                const decimalPlaces = cleanValue.split('.')[1].length;
+                if (decimalPlaces > 2) {
+                    showFieldError('sumError', 'Сумма может содержать не более 2 знаков после запятой (копейки)');
+                    isValid = false;
+                }
+            }
+
+            if (isValid) {
+                const sumValue = parseFloat(cleanValue);
+
+                // Проверка на корректное число
+                if (isNaN(sumValue)) {
+                    showFieldError('sumError', 'Введите корректное число');
+                    isValid = false;
+                }
+                // Проверка на отрицательное значение
+                else if (sumValue < 0) {
+                    showFieldError('sumError', 'Сумма не может быть отрицательной');
+                    isValid = false;
+                }
+                // Проверка на максимальное значение
+                else if (sumValue > 2000000000) {
+                    showFieldError('sumError', 'Сумма не может превышать 2 000 000 000 рублей');
+                    isValid = false;
+                }
+                // Дополнительная проверка: если после округления до 2 знаков значение меняется
+                else {
+                    const roundedValue = Math.round(sumValue * 100) / 100;
+                    if (Math.abs(sumValue - roundedValue) > 0.0001) {
+                        showFieldError('sumError', 'Сумма может содержать не более 2 знаков после запятой (копейки)');
+                        isValid = false;
+                    }
+                }
+            }
+        }
+    } else {
+        showFieldError('sumError', 'Введите сумму');
+        isValid = false;
+    }
+
+    return isValid;
 }
+
+    function saveAllSettings() {
+        const form = document.getElementById('settingsForm');
+        const formData = new FormData(form);
+        const data = {
+            power_of_attorney_id: formData.get('power_of_attorney_id') || null,
+            sum_id: formData.get('sum_id') || null,
+            provost_id: formData.get('provost_id') || null
+        };
+
+        console.log('1. Данные для отправки:', data);
+
+        const saveButton = document.querySelector('#settingsForm .btn-primary');
+        const originalText = saveButton.innerHTML;
+        saveButton.innerHTML = 'Сохранение...';
+        saveButton.disabled = true;
+
+        fetch('/admin/settings/save', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => {
+            console.log('2. Статус ответа:', response.status);
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            return response.text();
+        })
+        .then(text => {
+            console.log('4. Ответ от сервера (текст):', text);
+            try {
+                const data = JSON.parse(text);
+                console.log('5. Распарсенный JSON:', data);
+                return data;
+            } catch (e) {
+                console.error('6. Ошибка парсинга JSON:', e);
+                throw new Error('Сервер вернул не JSON: ' + text.substring(0, 200));
+            }
+        })
+        .then(data => {
+            console.log('7. Успешный ответ:', data);
+            saveButton.innerHTML = originalText;
+            saveButton.disabled = false;
+            if (data.success) {
+                alert('Настройки сохранены');
+                window.location.reload();
+            } else {
+                showError(data.error || 'Ошибка при сохранении');
+            }
+        })
+        .catch(error => {
+            console.error('8. Ошибка полностью:', error);
+            saveButton.innerHTML = originalText;
+            saveButton.disabled = false;
+            showError('Ошибка при сохранении: ' + error.message);
+        });
+    }
 
     // Управление пользователями
     function initUserManagement() {
@@ -1144,13 +1308,36 @@ function saveAllSettings() {
     });
 
     function createEntity(type, formId) {
+        // Добавляем валидацию перед отправкой
+        if (type === 'power_of_attorney') {
+            if (!validatePowerOfAttorneyForm()) {
+                return;
+            }
+        } else if (type === 'sum') {
+            if (!validateSumForm()) {
+                return;
+            }
+        }
+
         const form = document.getElementById(formId);
         const data = {};
         new FormData(form).forEach((v, k) => data[k] = v.trim());
+
+        // Дополнительная валидация для суммы на стороне клиента
+        if (type === 'sum' && data.value) {
+            let cleanValue = data.value.replace(/\s/g, '').replace(',', '.');
+            if (!/^\d*\.?\d*$/.test(cleanValue)) {
+                showFieldError('sumError', 'Сумма должна содержать только цифры и десятичный разделитель');
+                return;
+            }
+            data.value = cleanValue;
+        }
+
         const submitBtn = form.querySelector('button[type="submit"]');
         const originalText = submitBtn.innerHTML;
         submitBtn.innerHTML = 'Создание...';
         submitBtn.disabled = true;
+
         fetch(form.dataset.endpoint, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -1163,18 +1350,71 @@ function saveAllSettings() {
             if (data.success) {
                 location.reload();
             } else {
-                showError(data.error);
+                showError(data.error || 'Ошибка при создании');
             }
         })
-        .catch(() => { submitBtn.innerHTML = originalText; submitBtn.disabled = false; showError('Ошибка'); });
+        .catch(() => {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+            showError('Ошибка соединения с сервером');
+        });
     }
 
-    document.getElementById('createPowerOfAttorneyForm')?.addEventListener('submit', function(e) { e.preventDefault(); createEntity('power_of_attorney', 'createPowerOfAttorneyForm'); });
-    document.getElementById('createSumForm')?.addEventListener('submit', function(e) { e.preventDefault(); createEntity('sum', 'createSumForm'); });
-    document.getElementById('createProvostForm')?.addEventListener('submit', function(e) { e.preventDefault(); createEntity('provost', 'createProvostForm'); });
+    document.getElementById('createPowerOfAttorneyForm')?.addEventListener('submit', function(e) {
+        e.preventDefault();
+        if (validatePowerOfAttorneyForm()) {
+            createEntity('power_of_attorney', 'createPowerOfAttorneyForm');
+        }
+    });
+
+    document.getElementById('createSumForm')?.addEventListener('submit', function(e) {
+        e.preventDefault();
+        if (validateSumForm()) {
+            createEntity('sum', 'createSumForm');
+        }
+    });
+
+    document.getElementById('createProvostForm')?.addEventListener('submit', function(e) {
+        e.preventDefault();
+        createEntity('provost', 'createProvostForm');
+    });
 
     document.addEventListener('DOMContentLoaded', function() {
         initUserManagement();
+
+        // Добавляем валидацию при вводе для поля суммы
+        const sumInput = document.querySelector('#createSumForm input[name="value"]');
+        if (sumInput) {
+            sumInput.addEventListener('input', function(e) {
+                // Разрешаем только цифры, точку, запятую и backspace
+                let cleaned = this.value.replace(/[^\d.,]/g, '');
+                // Предотвращаем множественные разделители
+                const dotCount = (cleaned.match(/\./g) || []).length;
+                const commaCount = (cleaned.match(/,/g) || []).length;
+                if (dotCount > 1 || commaCount > 1) {
+                    cleaned = cleaned.substring(0, cleaned.length - 1);
+                }
+                this.value = cleaned;
+                hideFieldError('sumError');
+            });
+
+            sumInput.addEventListener('blur', function(e) {
+                if (this.value) {
+                    validateSumForm();
+                }
+            });
+        }
+
+        // Добавляем валидацию для даты
+        const dateInput = document.querySelector('#createPowerOfAttorneyForm input[name="date_of_receipt"]');
+        if (dateInput) {
+            dateInput.setAttribute('min', '1956-01-01');
+            dateInput.setAttribute('max', '2035-12-31');
+
+            dateInput.addEventListener('change', function() {
+                validatePowerOfAttorneyForm();
+            });
+        }
     });
 </script>
 {% endblock %}
