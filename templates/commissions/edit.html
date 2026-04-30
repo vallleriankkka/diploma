@@ -148,6 +148,14 @@
         border-radius: 4px;
     }
 
+    .edit-commission-page .alert-danger {
+        background-color: transparent;
+        border: 1px solid #dc3545;
+        color: #dc3545;
+        padding: 12px;
+        border-radius: 4px;
+    }
+
     /* Чекбоксы */
     .edit-commission-page .form-check-input {
         border: 1px solid var(--color-secondary);
@@ -268,6 +276,10 @@
             width: 100%;
             margin-bottom: 5px;
         }
+        .edit-commission-page .col-md-3,
+        .edit-commission-page .col-md-6 {
+            margin-bottom: 15px;
+        }
     }
 
     @media (min-width: 768px) {
@@ -324,22 +336,23 @@
             <div class="card-body">
                 <h5>Текущие эксперты комиссии</h5>
                 <div class="alert alert-info mb-3">
-                    В комиссии должен быть хотя бы один председатель.
+                    ⚠️ <strong>Важно:</strong> В комиссии может быть <strong>только один председатель</strong>!
                 </div>
 
                 <div id="current-experts-container">
                     {% for expert in current_experts %}
-                    <div class="expert-card current-expert-item" id="current_expert_{{ expert.expert_id }}">
+                    <div class="expert-card current-expert-item" id="current_expert_{{ expert.expert_id }}"
+                         data-role-name="{{ expert.role_name }}">
                         <div class="d-flex justify-content-between align-items-start">
                             <div class="flex-grow-1">
                                 <strong>{{ expert.surname }} {{ expert.name }} {{ expert.patronymic or '' }}</strong>
                                 <div class="expert-info">{{ expert.position }}</div>
                                 <div class="expert-info mt-1">
-                                    <span class="badge">{{ expert.role_name }}</span>
+                                    <span class="badge role-badge">{{ expert.role_name }}</span>
                                 </div>
                             </div>
                             <button type="button" class="btn btn-sm btn-danger"
-                                    onclick="markExpertForRemoval({{ expert.expert_id }})">
+                                    onclick="markExpertForRemoval({{ expert.expert_id }}, '{{ expert.role_name }}')">
                                 Удалить
                             </button>
                         </div>
@@ -454,13 +467,16 @@
                 <input type="hidden" id="removedExpertsData" name="removed_experts_data">
 
                 <div class="alert alert-warning mt-3" id="chairmanWarning" style="display: none;">
-                    В комиссии должен быть хотя бы один председатель!
+                    ⚠️ В комиссии должен быть хотя бы один председатель!
+                </div>
+                <div class="alert alert-danger mt-3" id="chairmanExcessWarning" style="display: none;">
+                    ❌ В комиссии может быть только один председатель! Удалите лишних председателей.
                 </div>
             </div>
         </div>
 
         <div class="d-flex justify-content-end mt-4">
-            <button type="submit" class="btn btn-success me-2">Сохранить изменения</button>
+            <button type="submit" class="btn btn-success me-2" id="submitBtn">Сохранить изменения</button>
             <a href="{{ url_for('commission_view', id=commission.id) }}" class="btn btn-secondary">Отмена</a>
         </div>
     </form>
@@ -471,6 +487,99 @@
     const commissionRolesData = {{ commission_roles|tojson|safe }};
     let newExpertCounter = 0;
     let expertsToRemove = [];
+
+    // Функция для подсчета количества председателей
+    function getChairmanCount() {
+        let chairmanCount = 0;
+
+        // Проверяем текущих экспертов (не удаленных)
+        document.querySelectorAll('.current-expert-item:not(.to-remove) .role-badge').forEach(badge => {
+            if (badge.textContent.toLowerCase().includes('председатель')) {
+                chairmanCount++;
+            }
+        });
+
+        // Проверяем выбранных существующих экспертов
+        document.querySelectorAll('.expert-checkbox:checked').forEach(cb => {
+            const expertId = cb.dataset.expertId;
+            const roleSelect = document.querySelector(`.existing-expert-role[data-expert-id="${expertId}"]`);
+            if (roleSelect && roleSelect.value) {
+                const selectedRole = roleSelect.options[roleSelect.selectedIndex];
+                if (selectedRole && selectedRole.text.toLowerCase().includes('председатель')) {
+                    chairmanCount++;
+                }
+            }
+        });
+
+        // Проверяем новых экспертов
+        document.querySelectorAll('[id^="new_expert_"]').forEach(card => {
+            const roleSelect = card.querySelector('[data-field="role"]');
+            if (roleSelect && roleSelect.value) {
+                const selectedRole = roleSelect.options[roleSelect.selectedIndex];
+                if (selectedRole && selectedRole.text.toLowerCase().includes('председатель')) {
+                    chairmanCount++;
+                }
+            }
+        });
+
+        return chairmanCount;
+    }
+
+    // Функция для блокировки выбора второго председателя в селектах
+    function updateChairmanSelects() {
+        const chairmanCount = getChairmanCount();
+
+        // Для выбранных существующих экспертов
+        document.querySelectorAll('.existing-expert-role').forEach(select => {
+            const options = select.querySelectorAll('option');
+            options.forEach(option => {
+                if (option.text.toLowerCase().includes('председатель')) {
+                    if (chairmanCount >= 1 && select.value !== option.value) {
+                        option.disabled = true;
+                    } else {
+                        option.disabled = false;
+                    }
+                }
+            });
+        });
+
+        // Для новых экспертов
+        document.querySelectorAll('[data-field="role"]').forEach(select => {
+            const options = select.querySelectorAll('option');
+            options.forEach(option => {
+                if (option.text.toLowerCase().includes('председатель')) {
+                    if (chairmanCount >= 1 && select.value !== option.value) {
+                        option.disabled = true;
+                    } else {
+                        option.disabled = false;
+                    }
+                }
+            });
+        });
+    }
+
+    // Обновление предупреждений о председателе
+    function updateChairmanWarning() {
+        const warning = document.getElementById('chairmanWarning');
+        const excessWarning = document.getElementById('chairmanExcessWarning');
+        const chairmanCount = getChairmanCount();
+
+        if (chairmanCount === 0) {
+            warning.style.display = 'block';
+            excessWarning.style.display = 'none';
+        } else if (chairmanCount > 1) {
+            warning.style.display = 'none';
+            excessWarning.style.display = 'block';
+        } else {
+            warning.style.display = 'none';
+            excessWarning.style.display = 'none';
+        }
+
+        // Обновляем доступность опций в селектах
+        updateChairmanSelects();
+
+        return chairmanCount === 1;
+    }
 
     // Функция для добавления нового эксперта
     function addNewExpert() {
@@ -525,8 +634,6 @@
         `;
 
         container.insertAdjacentHTML('beforeend', expertHtml);
-        updateSelectedExpertsList();
-        updateChairmanWarning();
 
         // Добавляем обработчики
         const newCard = document.getElementById(newExpertId);
@@ -540,6 +647,9 @@
                 updateChairmanWarning();
             });
         });
+
+        updateSelectedExpertsList();
+        updateChairmanWarning();
     }
 
     function removeNewExpert(expertId) {
@@ -556,7 +666,7 @@
         }
     }
 
-    function markExpertForRemoval(expertId) {
+    function markExpertForRemoval(expertId, roleName) {
         const expertElement = document.getElementById(`current_expert_${expertId}`);
         const statusInput = document.querySelector(`input[name="current_expert_${expertId}"]`);
         const button = expertElement.querySelector('.btn-danger');
@@ -634,37 +744,6 @@
         container.innerHTML = html;
     }
 
-    function updateChairmanWarning() {
-        const warning = document.getElementById('chairmanWarning');
-        let hasChairman = false;
-
-        // Текущие эксперты
-        document.querySelectorAll('.current-expert-item:not(.to-remove) .badge').forEach(badge => {
-            if (badge.textContent.toLowerCase().includes('председатель')) hasChairman = true;
-        });
-
-        // Выбранные существующие
-        document.querySelectorAll('.expert-checkbox:checked').forEach(cb => {
-            const roleSelect = document.querySelector(`.existing-expert-role[data-expert-id="${cb.dataset.expertId}"]`);
-            if (roleSelect && roleSelect.value) {
-                const option = roleSelect.options[roleSelect.selectedIndex];
-                if (option && option.text.toLowerCase().includes('председатель')) hasChairman = true;
-            }
-        });
-
-        // Новые эксперты
-        document.querySelectorAll('[id^="new_expert_"]').forEach(card => {
-            const roleSelect = card.querySelector('[data-field="role"]');
-            if (roleSelect && roleSelect.value) {
-                const option = roleSelect.options[roleSelect.selectedIndex];
-                if (option && option.text.toLowerCase().includes('председатель')) hasChairman = true;
-            }
-        });
-
-        warning.style.display = hasChairman ? 'none' : 'block';
-        return hasChairman;
-    }
-
     function escapeHtml(text) {
         if (!text) return '';
         const div = document.createElement('div');
@@ -694,6 +773,9 @@
                 updateChairmanWarning();
             }
         });
+
+        // Первоначальная проверка председателей
+        updateChairmanWarning();
     });
 
     // Отправка формы
@@ -707,8 +789,14 @@
             return;
         }
 
-        if (!updateChairmanWarning()) {
+        // Проверка наличия ровно одного председателя
+        const chairmanCount = getChairmanCount();
+        if (chairmanCount === 0) {
             alert('В комиссии должен быть хотя бы один председатель!');
+            return;
+        }
+        if (chairmanCount > 1) {
+            alert('В комиссии может быть только один председатель! Удалите лишних председателей.');
             return;
         }
 

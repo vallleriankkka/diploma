@@ -160,6 +160,14 @@
         border-radius: 4px;
     }
 
+    .create-commission-page .alert-danger {
+        background-color: transparent;
+        border: 1px solid #dc3545;
+        color: #dc3545;
+        padding: 12px;
+        border-radius: 4px;
+    }
+
     /* Чекбоксы */
     .create-commission-page .form-check-input {
         border: 1px solid var(--color-secondary);
@@ -463,11 +471,6 @@
     .create-commission-page .form-control:invalid {
         border-color: var(--color-primary);
     }
-
-    /* Предупреждение о председателе */
-    #chairmanWarning {
-        border-color: var(--color-primary);
-    }
 </style>
 
 <div class="container create-commission-page">
@@ -495,10 +498,7 @@
         <div class="card mb-4">
             <div class="card-body">
                 <h5>Эксперты комиссии</h5>
-                <div class="alert alert-info mb-3">
-                    В комиссии должен быть хотя бы один председатель.
-                    Вы можете выбрать существующих экспертов или создать новых.
-                </div>
+
 
                 <!-- Табы для выбора способа добавления экспертов -->
                 <ul class="nav nav-tabs" id="expertTabs" role="tablist">
@@ -597,7 +597,7 @@
 
                 <!-- Предупреждение о председателе -->
                 <div class="alert alert-warning mt-3" id="chairmanWarning" style="display: none;">
-                    В комиссии должен быть хотя бы один председатель!
+                    ⚠️ В комиссии должен быть один председатель!
                 </div>
             </div>
         </div>
@@ -615,56 +615,97 @@
 </div>
 
 <script>
-    // Адаптивная инициализация
-    function adaptFormForMobile() {
-        const isMobile = window.innerWidth < 576;
-        const formControls = document.querySelectorAll('.form-control, .form-select');
-
-        if (isMobile) {
-            // На мобильных улучшаем UX
-            formControls.forEach(control => {
-                control.style.fontSize = '16px';
-                control.style.minHeight = '48px';
-                control.style.padding = '14px 0';
-            });
-
-            // Адаптивные вкладки
-            const navLinks = document.querySelectorAll('.nav-link');
-            navLinks.forEach(link => {
-                link.style.padding = '12px';
-                link.style.fontSize = '0.9rem';
-            });
-
-            // Адаптивные кнопки
-            const buttons = document.querySelectorAll('.btn');
-            buttons.forEach(btn => {
-                btn.style.minHeight = '52px';
-                btn.style.padding = '14px';
-            });
-        } else {
-            // На десктопе стандартные стили
-            formControls.forEach(control => {
-                control.style.fontSize = '';
-                control.style.minHeight = '';
-                control.style.padding = '';
-            });
-
-            const navLinks = document.querySelectorAll('.nav-link');
-            navLinks.forEach(link => {
-                link.style.padding = '';
-                link.style.fontSize = '';
-            });
-
-            const buttons = document.querySelectorAll('.btn');
-            buttons.forEach(btn => {
-                btn.style.minHeight = '';
-                btn.style.padding = '';
-            });
-        }
-    }
-
     let newExpertCounter = 0;
     const commissionRoles = {{ commission_roles|tojson|safe }};
+
+    // Функция для подсчета количества председателей
+    function getChairmanCount() {
+        let chairmanCount = 0;
+
+        // Проверяем существующих экспертов
+        const selectedCheckboxes = document.querySelectorAll('.expert-checkbox:checked');
+        selectedCheckboxes.forEach(cb => {
+            const expertId = cb.dataset.expertId;
+            const roleSelect = document.querySelector(`.existing-expert-role[data-expert-id="${expertId}"]`);
+            if (roleSelect && roleSelect.value === '1') { // ID председателя
+                chairmanCount++;
+            }
+        });
+
+        // Проверяем новых экспертов
+        const newExpertCards = document.querySelectorAll('[id^="new_expert_"]');
+        newExpertCards.forEach(card => {
+            const roleSelect = card.querySelector('[data-field="role"]');
+            if (roleSelect && roleSelect.value === '1') { // ID председателя
+                chairmanCount++;
+            }
+        });
+
+        return chairmanCount;
+    }
+
+    // Обновление предупреждения о председателе
+    function updateChairmanWarning() {
+        const chairmanWarning = document.getElementById('chairmanWarning');
+        const chairmanCount = getChairmanCount();
+
+        if (chairmanCount === 0) {
+            chairmanWarning.style.display = 'block';
+            chairmanWarning.textContent = '⚠️ В комиссии должен быть хотя бы один председатель!';
+            chairmanWarning.className = 'alert alert-warning mt-3';
+        } else if (chairmanCount > 1) {
+            chairmanWarning.style.display = 'block';
+            chairmanWarning.textContent = '❌ В комиссии может быть только один председатель! Удалите лишних председателей.';
+            chairmanWarning.className = 'alert alert-danger mt-3';
+        } else {
+            chairmanWarning.style.display = 'none';
+        }
+
+        // Блокируем выбор второго председателя
+        updateChairmanSelects();
+
+        return chairmanCount === 1;
+    }
+
+    // Блокировка выбора второго председателя в селектах
+    function updateChairmanSelects() {
+        const chairmanCount = getChairmanCount();
+
+        // Для существующих экспертов
+        const existingRoleSelects = document.querySelectorAll('.existing-expert-role');
+        existingRoleSelects.forEach(select => {
+            const options = select.querySelectorAll('option');
+            options.forEach(option => {
+                if (option.value === '1') {
+                    // Если уже есть председатель и этот select не выбран как председатель
+                    if (chairmanCount >= 1 && select.value !== '1') {
+                        option.disabled = true;
+                    } else {
+                        option.disabled = false;
+                    }
+                } else {
+                    option.disabled = false;
+                }
+            });
+        });
+
+        // Для новых экспертов
+        const newRoleSelects = document.querySelectorAll('[data-field="role"]');
+        newRoleSelects.forEach(select => {
+            const options = select.querySelectorAll('option');
+            options.forEach(option => {
+                if (option.value === '1') {
+                    if (chairmanCount >= 1 && select.value !== '1') {
+                        option.disabled = true;
+                    } else {
+                        option.disabled = false;
+                    }
+                } else {
+                    option.disabled = false;
+                }
+            });
+        });
+    }
 
     // Функция для добавления нового эксперта
     function addNewExpert() {
@@ -727,8 +768,29 @@
         `;
 
         container.insertAdjacentHTML('beforeend', expertHtml);
+
+        // Добавляем обработчик для нового селекта роли
+        const newSelect = document.querySelector(`#${newExpertId} [data-field="role"]`);
+        if (newSelect) {
+            newSelect.addEventListener('change', function() {
+                updateChairmanWarning();
+                updateSelectedExpertsList();
+                updateSubmitButton();
+            });
+        }
+
+        // Добавляем обработчики для полей ввода
+        const newInputs = document.querySelectorAll(`#${newExpertId} .new-expert-field`);
+        newInputs.forEach(input => {
+            input.addEventListener('input', function() {
+                updateSelectedExpertsList();
+                updateSubmitButton();
+            });
+        });
+
         updateSubmitButton();
         updateSelectedExpertsList();
+        updateChairmanWarning();
         adaptFormForMobile();
     }
 
@@ -751,63 +813,6 @@
         }
     }
 
-    // Инициализация
-    document.addEventListener('DOMContentLoaded', function() {
-        // Адаптивная инициализация
-        adaptFormForMobile();
-        window.addEventListener('resize', adaptFormForMobile);
-
-        // Обработчик для чекбоксов существующих экспертов
-        document.addEventListener('change', function(e) {
-            if (e.target.classList.contains('expert-checkbox')) {
-                const expertId = e.target.dataset.expertId;
-                const expertItem = document.getElementById(`expert_${expertId}`);
-
-                if (e.target.checked) {
-                    expertItem.classList.add('selected');
-                    addExistingExpertRoleField(expertId, e.target.dataset.surname + ' ' + e.target.dataset.name + ' ' + (e.target.dataset.patronymic || ''));
-                } else {
-                    expertItem.classList.remove('selected');
-                    removeExistingExpertRoleField(expertId);
-                }
-
-                updateSubmitButton();
-                updateSelectedExpertsList();
-                updateChairmanWarning();
-            }
-        });
-
-        // Обработчик для изменения роли существующего эксперта
-        document.addEventListener('change', function(e) {
-            if (e.target.classList.contains('existing-expert-role')) {
-                updateSelectedExpertsList();
-                updateChairmanWarning();
-            }
-        });
-
-        // Обработчик для полей новых экспертов
-        document.addEventListener('input', function(e) {
-            if (e.target.classList.contains('new-expert-field')) {
-                updateSelectedExpertsList();
-                updateChairmanWarning();
-            }
-        });
-
-        // Добавляем первого нового эксперта при загрузке
-        addNewExpert();
-
-        // Улучшение для сенсорных устройств
-        document.querySelectorAll('.btn').forEach(btn => {
-            btn.addEventListener('touchstart', function() {
-                this.style.opacity = '0.8';
-            });
-
-            btn.addEventListener('touchend', function() {
-                this.style.opacity = '1';
-            });
-        });
-    });
-
     // Добавление поля для выбора роли существующему эксперту
     function addExistingExpertRoleField(expertId, expertName) {
         const container = document.getElementById('existing-roles-container');
@@ -829,6 +834,16 @@
 
             container.insertAdjacentHTML('beforeend', roleHtml);
             rolesContainer.style.display = 'block';
+
+            // Добавляем обработчик для нового селекта
+            const newSelect = document.querySelector(`#role_${expertId} select`);
+            if (newSelect) {
+                newSelect.addEventListener('change', function() {
+                    updateChairmanWarning();
+                    updateSelectedExpertsList();
+                    updateSubmitButton();
+                });
+            }
         }
     }
 
@@ -862,7 +877,7 @@
             const expertId = cb.dataset.expertId;
             const roleSelect = document.querySelector(`.existing-expert-role[data-expert-id="${expertId}"]`);
             const roleId = roleSelect ? roleSelect.value : '';
-            const roleName = roleId ? rolesMap[roleId] || 'Роль не выбрана' : 'Роль не выбрана';
+            const roleName = roleId ? (rolesMap[roleId] || 'Роль не выбрана') : 'Роль не выбрана';
 
             if (roleId) {
                 const fullName = cb.dataset.surname + ' ' + cb.dataset.name + ' ' + (cb.dataset.patronymic || '');
@@ -889,7 +904,7 @@
             const position = card.querySelector('[data-field="position"]')?.value || '';
             const roleSelect = card.querySelector('[data-field="role"]');
             const roleId = roleSelect ? roleSelect.value : '';
-            const roleName = roleId ? rolesMap[roleId] || 'Роль не выбрана' : 'Роль не выбрана';
+            const roleName = roleId ? (rolesMap[roleId] || 'Роль не выбрана') : 'Роль не выбрана';
 
             if (surname && name && position && roleId) {
                 const fullName = surname + ' ' + name + ' ' + patronymic;
@@ -920,37 +935,102 @@
         const hasSelectedExperts = document.querySelectorAll('.expert-checkbox:checked').length > 0;
         const hasNewExperts = document.querySelectorAll('[id^="new_expert_"]').length > 0;
         const nameField = document.querySelector('input[name="name"]');
+        const chairmanCount = getChairmanCount();
 
-        submitBtn.disabled = !(nameField.value.trim() && (hasSelectedExperts || hasNewExperts));
+        submitBtn.disabled = !(nameField.value.trim() && (hasSelectedExperts || hasNewExperts) && chairmanCount === 1);
     }
 
-    // Проверка наличия председателя
-    function updateChairmanWarning() {
-        const chairmanWarning = document.getElementById('chairmanWarning');
-        let hasChairman = false;
+    // Адаптивная инициализация
+    function adaptFormForMobile() {
+        const isMobile = window.innerWidth < 576;
+        const formControls = document.querySelectorAll('.form-control, .form-select');
 
-        // Проверяем существующих экспертов
-        const selectedCheckboxes = document.querySelectorAll('.expert-checkbox:checked');
-        selectedCheckboxes.forEach(cb => {
-            const expertId = cb.dataset.expertId;
-            const roleSelect = document.querySelector(`.existing-expert-role[data-expert-id="${expertId}"]`);
-            if (roleSelect && roleSelect.value === '1') { // ID председателя
-                hasChairman = true;
+        if (isMobile) {
+            formControls.forEach(control => {
+                control.style.fontSize = '16px';
+                control.style.minHeight = '48px';
+                control.style.padding = '14px 0';
+            });
+
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                link.style.padding = '12px';
+                link.style.fontSize = '0.9rem';
+            });
+
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(btn => {
+                btn.style.minHeight = '52px';
+                btn.style.padding = '14px';
+            });
+        } else {
+            formControls.forEach(control => {
+                control.style.fontSize = '';
+                control.style.minHeight = '';
+                control.style.padding = '';
+            });
+
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                link.style.padding = '';
+                link.style.fontSize = '';
+            });
+
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(btn => {
+                btn.style.minHeight = '';
+                btn.style.padding = '';
+            });
+        }
+    }
+
+    // Инициализация
+    document.addEventListener('DOMContentLoaded', function() {
+        adaptFormForMobile();
+        window.addEventListener('resize', adaptFormForMobile);
+
+        // Обработчик для чекбоксов существующих экспертов
+        document.addEventListener('change', function(e) {
+            if (e.target.classList.contains('expert-checkbox')) {
+                const expertId = e.target.dataset.expertId;
+                const expertItem = document.getElementById(`expert_${expertId}`);
+
+                if (e.target.checked) {
+                    expertItem.classList.add('selected');
+                    addExistingExpertRoleField(expertId, e.target.dataset.surname + ' ' + e.target.dataset.name + ' ' + (e.target.dataset.patronymic || ''));
+                } else {
+                    expertItem.classList.remove('selected');
+                    removeExistingExpertRoleField(expertId);
+                }
+
+                updateSubmitButton();
+                updateSelectedExpertsList();
+                updateChairmanWarning();
             }
         });
 
-        // Проверяем новых экспертов
-        const newExpertCards = document.querySelectorAll('[id^="new_expert_"]');
-        newExpertCards.forEach(card => {
-            const roleSelect = card.querySelector('[data-field="role"]');
-            if (roleSelect && roleSelect.value === '1') { // ID председателя
-                hasChairman = true;
-            }
-        });
+        // Обработчик для названия комиссии
+        const nameField = document.querySelector('input[name="name"]');
+        if (nameField) {
+            nameField.addEventListener('input', function() {
+                updateSubmitButton();
+            });
+        }
 
-        chairmanWarning.style.display = hasChairman ? 'none' : 'block';
-        return hasChairman;
-    }
+        // Добавляем первого нового эксперта при загрузке
+        addNewExpert();
+
+        // Улучшение для сенсорных устройств
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('touchstart', function() {
+                this.style.opacity = '0.8';
+            });
+
+            btn.addEventListener('touchend', function() {
+                this.style.opacity = '1';
+            });
+        });
+    });
 
     // Подготовка данных перед отправкой формы
     document.getElementById('commissionForm').addEventListener('submit', function(event) {
@@ -964,9 +1044,14 @@
             return false;
         }
 
-        // Проверка наличия председателя
-        if (!updateChairmanWarning()) {
+        // Проверка наличия председателя (только один)
+        const chairmanCount = getChairmanCount();
+        if (chairmanCount === 0) {
             alert('В комиссии должен быть хотя бы один председатель!');
+            return false;
+        }
+        if (chairmanCount > 1) {
+            alert('В комиссии может быть только один председатель!');
             return false;
         }
 
@@ -998,6 +1083,11 @@
                     allNewValid = false;
                 }
             });
+
+            const roleSelect = card.querySelector('[data-field="role"]');
+            if (!roleSelect || !roleSelect.value) {
+                allNewValid = false;
+            }
         });
 
         if (!allNewValid) {
