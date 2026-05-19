@@ -1343,7 +1343,7 @@ def application_edit(id):
         try:
             # Проверяем сумму процентов участия
             percents = request.form.getlist('percents[]')
-            total_percent = sum(float(percent) for percent in percents if percent)
+            total_percent = sum(int(percent) for percent in percents if percent and percent.isdigit())
             if total_percent != 100:
                 flash(f'Сумма процентов участия должна быть 100%. Текущая сумма: {total_percent}%', 'error')
                 return redirect(url_for('application_edit', id=id))
@@ -1356,52 +1356,58 @@ def application_edit(id):
                 'nir': request.form['nir']
             }
 
-            if application_dao.update_application(
+            if not application_dao.update_application(
                     id,
                     session['user_id'],
                     update_data,
                     session['role'] == 'admin'
             ):
-                flash('Заявка успешно обновлена!', 'success')
-            else:
                 flash('Не удалось обновить заявку', 'error')
+                return redirect(url_for('application_edit', id=id))
 
-            # Обновляем существующих авторов
+            # ========== ВАЖНО: ОБНОВЛЯЕМ АВТОРОВ ==========
+            # Сначала удаляем всех существующих авторов
+            current_authors = application_dao.get_application_authors(id)
+            for author in current_authors:
+                # author[0] - это id связи applicationauthor
+                application_dao.remove_author_from_application(id, author[2])  # author[2] - author_id
+
+            # Затем добавляем авторов заново
             author_ids = request.form.getlist('author_ids[]')
             role_ids = request.form.getlist('role_ids[]')
-            percents = request.form.getlist('percents[]')
-            times = request.form.getlist('times[]')
-            descriptions = request.form.getlist('description[]')
-            equipment = request.form.getlist('equipment[]')
+            percents_list = request.form.getlist('percents[]')
+            times_list = request.form.getlist('times[]')
+            descriptions_list = request.form.getlist('description[]')
+            equipment_list = request.form.getlist('equipment[]')
 
-            # Получаем текущих авторов заявки
-            current_authors = application_dao.get_application_authors(id)
-            current_author_ids = {str(author[0]) for author in current_authors}
-
-            # Обновляем только существующих авторов
             for i in range(len(author_ids)):
-                if author_ids[i] in current_author_ids:
-                    author_data = {
-                        'author_id': author_ids[i],
-                        'role_id': role_ids[i],
-                        'participation_percent': percents[i],
-                        'time_spent': times[i] if i < len(times) else None,
-                        'description': descriptions[i] if i < len(descriptions) else '',
-                        'equipment': equipment[i] if i < len(equipment) else '',
-                    }
-                    application_dao.update_application_author(id, author_ids[i], author_data)
+                author_id = author_ids[i]
+                if not author_id:
+                    continue
 
+                # Проверяем, принадлежит ли автор пользователю
+                owner_id = author_dao.get_by_user(int(author_id), session['user_id'])
+                if owner_id or session['role'] == 'admin':
+                    author_data = {
+                        'author_id': int(author_id),
+                        'role_id': int(role_ids[i]) if role_ids[i] else None,
+                        'participation_percent': int(percents_list[i]) if percents_list[i] else 0,
+                        'time_spent': int(times_list[i]) if i < len(times_list) and times_list[i] else None,
+                        'description': descriptions_list[i] if i < len(descriptions_list) else '',
+                        'equipment': equipment_list[i] if i < len(equipment_list) else '',
+                    }
+                    application_dao.add_author_to_application(id, author_data)
+
+            flash('Заявка успешно обновлена!', 'success')
             return redirect(url_for('application_view', id=id))
 
         except Exception as e:
             flash(f'Ошибка при обновлении заявки: {str(e)}', 'error')
+            import traceback
+            traceback.print_exc()
 
-    # Получаем текущих авторов заявки
-    application_authors = application_dao.get_application_authors(id)
-
-    # Получаем данные для формы
+    # GET запрос - показываем форму
     if session['role'] == 'admin':
-        # Берем всех авторов, чтобы отобразить их в форме
         authors = author_dao.get_all()
         products = product_dao.get_all()
         commissions = commission_dao.get_all()
@@ -1410,6 +1416,7 @@ def application_edit(id):
         products = product_dao.get_all(session['user_id'])
         commissions = commission_dao.get_all(session['user_id'])
 
+    application_authors = application_dao.get_application_authors(id)
     roles = get_expert_roles()
     statuses = get_application_statuses()
 
@@ -1421,7 +1428,6 @@ def application_edit(id):
                            commissions=commissions,
                            roles=roles,
                            statuses=statuses)
-
 
 @app.route('/application/<int:id>/submit_for_review', methods=['POST'])
 @login_required
@@ -2687,4 +2693,4 @@ def get_experts():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(debug=True, host='0.0.0.0', port=5000)
