@@ -517,7 +517,6 @@
                                 <label for="powerOfAttorneySelect" class="form-label">Доверенность</label>
                                 <div class="input-group">
                                     <select class="form-select" id="powerOfAttorneySelect" name="power_of_attorney_id">
-                                        <option value="">Не выбрано</option>
                                         {% for option in power_of_attorney_options %}
                                         <option value="{{ option.id if option.id else '' }}" {% if
                                                 current_settings.power_of_attorney_id== option.id %}selected{% endif %}>
@@ -555,7 +554,6 @@
                                 <label for="sumSelect" class="form-label">Сумма</label>
                                 <div class="input-group">
                                     <select class="form-select" id="sumSelect" name="sum_id">
-                                        <option value="">Не выбрано</option>
                                         {% for option in sum_options %}
                                         <option value="{{ option.id if option.id else '' }}" {% if
                                                 current_settings.sum_id== option.id %}selected{% endif %}>
@@ -588,7 +586,6 @@
                                 <label for="provostSelect" class="form-label">Проректор</label>
                                 <div class="input-group">
                                     <select class="form-select" id="provostSelect" name="provost_id">
-                                        <option value="">Не выбрано</option>
                                         {% for option in provost_options %}
                                         <option value="{{ option.id if option.id else '' }}" {% if
                                                 current_settings.provost_id== option.id %}selected{% endif %}
