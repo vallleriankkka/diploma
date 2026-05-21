@@ -12,7 +12,7 @@ def load_database_config() -> Dict[str, Any]:
     default_config = {
         'host': 'localhost',
         'port': 5432,
-        'database': 'diplom',
+        'database': 'diploma',
         'user': 'postgres',
         'password': '0109'
     }
