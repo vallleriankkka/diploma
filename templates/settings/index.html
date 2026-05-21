@@ -631,110 +631,153 @@
         </div>
 
         <!-- Справочники -->
+        <!-- Справочники -->
         <div class="tab-pane fade" id="references" role="tabpanel">
-            <div class="reference-table">
-                <div class="table-header">
-                    <h5>Языки программирования</h5>
-                    <button type="button" class="btn btn-outline-primary btn-sm"
-                            onclick="showAddModal('programming_language')"><i class="bi bi-plus"></i> Добавить
-                    </button>
-                </div>
-                <div class="table-body" id="programmingLanguagesTable">
-                    {% for lang in programming_languages %}
-                    <div class="table-row" data-id="{{ lang.id }}">
-                        <div class="table-cell">{{ lang.name }}</div>
-                        <div class="table-cell actions">
-                            <button class="btn btn-sm btn-outline-warning"
-                                    onclick="editReference('programming_language', {{ lang.id }}, '{{ lang.name }}')"><i
-                                    class="bi bi-pencil"></i></button>
-                            <button class="btn btn-sm btn-outline-danger"
-                                    onclick="deleteReference('programming_language', {{ lang.id }})"><i
-                                    class="bi bi-trash"></i></button>
-                        </div>
+
+            <!-- Справочник 1: Языки программирования (свернутый по умолчанию) -->
+            <div class="reference-table mb-3">
+                <div class="table-header" style="cursor: pointer;" onclick="toggleReference(this)">
+                    <div class="d-flex justify-content-between align-items-center w-100">
+                        <h5 class="mb-0">
+                            <i class="bi bi-chevron-down collapse-icon"></i> Языки программирования
+                        </h5>
+                        <button type="button" class="btn btn-outline-primary btn-sm"
+                                onclick="event.stopPropagation(); showAddModal('programming_language')">
+                            <i class="bi bi-plus"></i> Добавить
+                        </button>
                     </div>
-                    {% else %}
-                    <div class="empty-row">Нет данных</div>
-                    {% endfor %}
+                </div>
+                <div class="table-body collapse show" id="collapseProgrammingLanguages">
+                    <div id="programmingLanguagesTable">
+                        {% for lang in programming_languages %}
+                        <div class="table-row" data-id="{{ lang.id }}">
+                            <div class="table-cell">{{ lang.name }}</div>
+                            <div class="table-cell actions">
+                                <button class="btn btn-sm btn-outline-warning"
+                                        onclick="editReference('programming_language', {{ lang.id }}, '{{ lang.name }}')">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger"
+                                        onclick="deleteReference('programming_language', {{ lang.id }})">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="empty-row">Нет данных</div>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
 
-            <div class="reference-table">
-                <div class="table-header">
-                    <h5>Типы операционных систем</h5>
-                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="showAddModal('os_type')"><i
-                            class="bi bi-plus"></i> Добавить
-                    </button>
-                </div>
-                <div class="table-body" id="osTypesTable">
-                    {% for os in os_types %}
-                    <div class="table-row" data-id="{{ os.id }}">
-                        <div class="table-cell">{{ os.name }}</div>
-                        <div class="table-cell actions">
-                            <button class="btn btn-sm btn-outline-warning"
-                                    onclick="editReference('os_type', {{ os.id }}, '{{ os.name }}')"><i
-                                    class="bi bi-pencil"></i></button>
-                            <button class="btn btn-sm btn-outline-danger"
-                                    onclick="deleteReference('os_type', {{ os.id }})"><i class="bi bi-trash"></i>
-                            </button>
-                        </div>
+            <!-- Справочник 2: Типы операционных систем (развернутый по умолчанию) -->
+            <div class="reference-table mb-3">
+                <div class="table-header" style="cursor: pointer;" onclick="toggleReference(this)">
+                    <div class="d-flex justify-content-between align-items-center w-100">
+                        <h5 class="mb-0">
+                            <i class="bi bi-chevron-down collapse-icon"></i> Типы операционных систем
+                        </h5>
+                        <button type="button" class="btn btn-outline-primary btn-sm"
+                                onclick="event.stopPropagation(); showAddModal('os_type')">
+                            <i class="bi bi-plus"></i> Добавить
+                        </button>
                     </div>
-                    {% else %}
-                    <div class="empty-row">Нет данных</div>
-                    {% endfor %}
+                </div>
+                <div class="table-body collapse show" id="collapseOsTypes">
+                    <div id="osTypesTable">
+                        {% for os in os_types %}
+                        <div class="table-row" data-id="{{ os.id }}">
+                            <div class="table-cell">{{ os.name }}</div>
+                            <div class="table-cell actions">
+                                <button class="btn btn-sm btn-outline-warning"
+                                        onclick="editReference('os_type', {{ os.id }}, '{{ os.name }}')">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger"
+                                        onclick="deleteReference('os_type', {{ os.id }})">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="empty-row">Нет данных</div>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
 
-            <div class="reference-table">
-                <div class="table-header">
-                    <h5>Типы ЭВМ</h5>
-                    <button type="button" class="btn btn-outline-primary btn-sm"
-                            onclick="showAddModal('computer_type')"><i class="bi bi-plus"></i> Добавить
-                    </button>
-                </div>
-                <div class="table-body" id="computerTypesTable">
-                    {% for computer in computer_types %}
-                    <div class="table-row" data-id="{{ computer.id }}">
-                        <div class="table-cell">{{ computer.name }}</div>
-                        <div class="table-cell actions">
-                            <button class="btn btn-sm btn-outline-warning"
-                                    onclick="editReference('computer_type', {{ computer.id }}, '{{ computer.name }}')">
-                                <i class="bi bi-pencil"></i></button>
-                            <button class="btn btn-sm btn-outline-danger"
-                                    onclick="deleteReference('computer_type', {{ computer.id }})"><i
-                                    class="bi bi-trash"></i></button>
-                        </div>
+            <!-- Справочник 3: Типы ЭВМ (свернутый по умолчанию) -->
+            <div class="reference-table mb-3">
+                <div class="table-header" style="cursor: pointer;" onclick="toggleReference(this)">
+                    <div class="d-flex justify-content-between align-items-center w-100">
+                        <h5 class="mb-0">
+                            <i class="bi bi-chevron-down collapse-icon"></i> Типы ЭВМ
+                        </h5>
+                        <button type="button" class="btn btn-outline-primary btn-sm"
+                                onclick="event.stopPropagation(); showAddModal('computer_type')">
+                            <i class="bi bi-plus"></i> Добавить
+                        </button>
                     </div>
-                    {% else %}
-                    <div class="empty-row">Нет данных</div>
-                    {% endfor %}
+                </div>
+                <div class="table-body collapse show" id="collapseComputerTypes">
+                    <div id="computerTypesTable">
+                        {% for computer in computer_types %}
+                        <div class="table-row" data-id="{{ computer.id }}">
+                            <div class="table-cell">{{ computer.name }}</div>
+                            <div class="table-cell actions">
+                                <button class="btn btn-sm btn-outline-warning"
+                                        onclick="editReference('computer_type', {{ computer.id }}, '{{ computer.name }}')">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger"
+                                        onclick="deleteReference('computer_type', {{ computer.id }})">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="empty-row">Нет данных</div>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
 
-            <div class="reference-table">
-                <div class="table-header">
-                    <h5>Роли авторов</h5>
-                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="showAddModal('author_role')">
-                        <i class="bi bi-plus"></i> Добавить роль
-                    </button>
-                </div>
-                <div class="table-body" id="authorRolesTable">
-                    {% for role in author_roles %}
-                    <div class="table-row" data-id="{{ role.id }}">
-                        <div class="table-cell">{{ role.name }}</div>
-                        <div class="table-cell actions">
-                            <button class="btn btn-sm btn-outline-warning"
-                                    onclick="editReference('author_role', {{ role.id }}, '{{ role.name }}')"><i
-                                    class="bi bi-pencil"></i></button>
-                            <button class="btn btn-sm btn-outline-danger"
-                                    onclick="deleteReference('author_role', {{ role.id }})"><i class="bi bi-trash"></i>
-                            </button>
-                        </div>
+            <!-- Справочник 4: Роли авторов (развернутый по умолчанию) -->
+            <div class="reference-table mb-3">
+                <div class="table-header" style="cursor: pointer;" onclick="toggleReference(this)">
+                    <div class="d-flex justify-content-between align-items-center w-100">
+                        <h5 class="mb-0">
+                            <i class="bi bi-chevron-down collapse-icon"></i> Роли авторов
+                        </h5>
+                        <button type="button" class="btn btn-outline-primary btn-sm"
+                                onclick="event.stopPropagation(); showAddModal('author_role')">
+                            <i class="bi bi-plus"></i> Добавить роль
+                        </button>
                     </div>
-                    {% else %}
-                    <div class="empty-row">Нет данных</div>
-                    {% endfor %}
+                </div>
+                <div class="table-body collapse show" id="collapseAuthorRoles">
+                    <div id="authorRolesTable">
+                        {% for role in author_roles %}
+                        <div class="table-row" data-id="{{ role.id }}">
+                            <div class="table-cell">{{ role.name }}</div>
+                            <div class="table-cell actions">
+                                <button class="btn btn-sm btn-outline-warning"
+                                        onclick="editReference('author_role', {{ role.id }}, '{{ role.name }}')">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger"
+                                        onclick="deleteReference('author_role', {{ role.id }})">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="empty-row">Нет данных</div>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
+
         </div>
 
         <!-- Пользователи -->
@@ -971,6 +1014,30 @@
 
 {% block scripts %}
 <script>
+    // Функция сворачивания/разворачивания справочников
+function toggleReference(headerElement) {
+    // Находим родительский .reference-table
+    const referenceTable = headerElement.closest('.reference-table');
+    // Находим блок .table-body внутри него
+    const body = referenceTable.querySelector('.table-body');
+    // Находим иконку
+    const icon = headerElement.querySelector('.collapse-icon');
+
+    // Переключаем класс collapse (Bootstrap)
+    if (body.classList.contains('show')) {
+        body.classList.remove('show');
+        if (icon) {
+            icon.classList.remove('bi-chevron-down');
+            icon.classList.add('bi-chevron-right');
+        }
+    } else {
+        body.classList.add('show');
+        if (icon) {
+            icon.classList.remove('bi-chevron-right');
+            icon.classList.add('bi-chevron-down');
+        }
+    }
+}
     function showError(message) {
         const errorDiv = document.getElementById('globalError');
         errorDiv.textContent = message;
