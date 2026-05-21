@@ -39,6 +39,127 @@ class RIDNotificationGenerator:
 
         return os.path.join('templates', 'documents', self.template_name)
 
+    def _to_dative_case(self, name_parts, position):
+        """
+        Преобразует ФИО и должность в дательный падеж
+
+        Args:
+            name_parts: tuple (фамилия, имя, отчество) или строка с полным ФИО
+            position: должность в именительном падеже
+
+        Returns:
+            tuple: (должность_в_дательном, ФИО_в_дательном)
+        """
+        # Правила склонения должностей
+        position_dative = position
+        position_lower = position.lower()
+
+        # Специальные правила для длинных фраз
+        if 'проректор по науке и инновациям' in position_lower:
+            position_dative = 'Проректору по науке и инновациям'
+        elif 'проректор' in position_lower:
+            # Склоняем только слово "проректор"
+            if position_lower.endswith('тор'):
+                position_dative = position[:-3] + 'тору'
+            else:
+                position_dative = position + 'у'
+            # Добавляем остальную часть должности
+            rest = position[len('проректор'):] if position.lower().startswith('проректор') else ''
+            if rest:
+                position_dative = position_dative + rest
+        elif position_lower.endswith('ая'):  # женский род
+            position_dative = position[:-2] + 'ой'
+        elif position_lower.endswith('ой'):  # мужской род на -ой
+            position_dative = position[:-3] + 'ому'
+        elif position_lower.endswith('ий'):  # мужской род на -ий
+            position_dative = position[:-2] + 'ему'
+        elif position_lower.endswith('ый'):  # мужской род на -ый
+            position_dative = position[:-2] + 'ому'
+        elif position_lower.endswith('рь'):  # на -рь
+            position_dative = position + 'ю'
+        elif position_lower.endswith('ь'):  # на -ь
+            position_dative = position[:-1] + 'ю'
+        elif position_lower.endswith('а'):  # женский род на -а
+            position_dative = position[:-1] + 'е'
+        elif position_lower.endswith('я'):  # женский род на -я
+            position_dative = position[:-1] + 'е'
+        elif position_lower.endswith('ек'):  # на -ек
+            position_dative = position[:-2] + 'ку'
+        else:
+            position_dative = position + 'у'
+
+        # Обработка ФИО
+        if isinstance(name_parts, tuple) and len(name_parts) >= 3:
+            surname, name, patronymic = name_parts
+        elif isinstance(name_parts, str):
+            parts = name_parts.strip().split()
+            if len(parts) >= 3:
+                surname, name, patronymic = parts[0], parts[1], parts[2]
+            elif len(parts) == 2:
+                surname, name = parts
+                patronymic = ''
+            else:
+                surname = name_parts
+                name = ''
+                patronymic = ''
+        else:
+            return position_dative, name_parts if isinstance(name_parts, str) else ''
+
+        # Склонение фамилии
+        surname_dative = surname
+        if surname.endswith('ов') or surname.endswith('ев') or surname.endswith('ин'):
+            surname_dative = surname + 'у'
+        elif surname.endswith('ий'):
+            surname_dative = surname[:-2] + 'ему'
+        elif surname.endswith('ый'):
+            surname_dative = surname[:-2] + 'ому'
+        elif surname.endswith('а'):
+            surname_dative = surname[:-1] + 'е'
+        elif surname.endswith('я'):
+            surname_dative = surname[:-1] + 'е'
+        elif surname.endswith('ко'):
+            surname_dative = surname  # неизменяемые фамилии на -ко
+        else:
+            surname_dative = surname + 'у'
+
+        # Склонение имени
+        name_dative = name
+        if name.endswith('й'):
+            name_dative = name[:-1] + 'ю'
+        elif name.endswith('а'):
+            name_dative = name[:-1] + 'е'
+        elif name.endswith('я'):
+            name_dative = name[:-1] + 'е'
+        elif name.endswith('ь'):
+            name_dative = name[:-1] + 'ю'
+        elif name.endswith('ей'):
+            name_dative = name  # Сергей -> Сергею
+            if name == 'Сергей':
+                name_dative = 'Сергею'
+
+        # Склонение отчества
+        patronymic_dative = patronymic
+        if patronymic.endswith('на'):
+            patronymic_dative = patronymic[:-2] + 'не'
+        elif patronymic.endswith('ча'):
+            patronymic_dative = patronymic[:-2] + 'чу'
+        elif patronymic.endswith('вна'):
+            patronymic_dative = patronymic[:-3] + 'вне'
+        elif patronymic.endswith('ич'):
+            patronymic_dative = patronymic + 'у'
+        elif patronymic.endswith('чна'):
+            patronymic_dative = patronymic[:-3] + 'чне'
+
+        # Собираем ФИО в дательном падеже
+        if name_dative and patronymic_dative:
+            full_name_dative = f"{surname_dative} {name_dative} {patronymic_dative}"
+        elif name_dative:
+            full_name_dative = f"{surname_dative} {name_dative}"
+        else:
+            full_name_dative = surname_dative
+
+        return position_dative, full_name_dative.strip()
+
     def generate(self, application_id, user_id):
         """Generate RID notification document"""
         try:
@@ -349,52 +470,71 @@ class RIDNotificationGenerator:
             return "100%"
 
     def _get_provost_data(self):
-        """Get provost data from settings - ИСПРАВЛЕННАЯ ВЕРСИЯ"""
-        # Из ваших данных настроек:
-        # [5] 'Башкиров Алексей Викторович' - полное имя
-        # [6] 'Проректор по науке и инновациям ' - должность с пробелом
-        # [10] 'А.В. Башкиров' - сокращенное имя
-        # [11] 'Проректор по науке и инновациям' - должность без пробела
-
-        provost_name = "А.В. Башкиров"  # Имя проректора
-        provost_post = "Проректор по науке и инновациям"  # ТОЛЬКО должность
+        """Get provost data in dative case for signatures"""
 
         if not self.setting_dao:
-            print("WARNING: SettingDAO not set, using default provost data")
-            return provost_name, provost_post
+            print("WARNING: SettingDAO not set, cannot get provost data from database")
+            return "", ""
 
         try:
             settings = self.setting_dao.get_current()
             if settings:
                 print(f"DEBUG: Settings received - Type: {type(settings)}, Length: {len(settings)}")
 
-                # Берем данные из правильных индексов
-                if len(settings) > 10 and settings[10] and isinstance(settings[10], str):
-                    provost_name = settings[10].strip()  # 'А.В. Башкиров'
-                elif len(settings) > 5 and settings[5] and isinstance(settings[5], str):
-                    # Конвертируем полное имя в сокращенное
-                    full_name = settings[5].strip()  # 'Башкиров Алексей Викторович'
-                    parts = full_name.split()
-                    if len(parts) >= 3:
-                        surname = parts[0]
-                        name_init = parts[1][0] + '.'
-                        patronymic_init = parts[2][0] + '.'
-                        provost_name = f"{surname} {name_init}{patronymic_init}"
+                # Выводим структуру настроек для отладки
+                print("\n=== SETTINGS DATA STRUCTURE ===")
+                if isinstance(settings, tuple):
+                    for i, value in enumerate(settings):
+                        print(f"[{i:2d}] '{value}' (type: {type(value).__name__})")
+                print("================================\n")
 
-                # Должность - ТОЛЬКО должность, без имени
-                if len(settings) > 11 and settings[11] and isinstance(settings[11], str):
-                    provost_post = settings[11].strip()  # 'Проректор по науке и инновациям'
-                elif len(settings) > 6 and settings[6] and isinstance(settings[6], str):
-                    provost_post = settings[6].strip()  # 'Проректор по науке и инновациям '
+                # Инициализируем переменные
+                provost_full_name_nominative = ""
+                provost_post_nominative = ""
 
-            print(f"Provost data final: Имя='{provost_name}', Должность='{provost_post}'")
+                # Получаем полное ФИО (индекс 7)
+                if len(settings) > 7 and settings[7] and isinstance(settings[7], str):
+                    provost_full_name_nominative = settings[7].strip()
+                    print(f"  Full name from index 7: '{provost_full_name_nominative}'")
+                else:
+                    print(f"  WARNING: No full name found at index 7")
+
+                # Получаем должность (индекс 8)
+                if len(settings) > 8 and settings[8] and isinstance(settings[8], str):
+                    provost_post_nominative = settings[8].strip()
+                    print(f"  Position from index 8: '{provost_post_nominative}'")
+                else:
+                    print(f"  WARNING: No position found at index 8")
+
+                if not provost_full_name_nominative:
+                    print(f"  ERROR: No provost full name found in database!")
+                    return "", ""
+
+                print(
+                    f"Provost (nominative): должность='{provost_post_nominative}', ФИО='{provost_full_name_nominative}'")
+
+                # Преобразуем в дательный падеж
+                post_dative, name_dative = self._to_dative_case(provost_full_name_nominative, provost_post_nominative)
+                print(f"Provost (dative): должность='{post_dative}', ФИО='{name_dative}'")
+
+                return post_dative, name_dative
+            else:
+                print(f"  ERROR: No settings found in database!")
+                return "", ""
+
         except Exception as e:
             print(f"Error getting provost data: {e}")
+            import traceback
+            traceback.print_exc()
+            return "", ""
 
-        return provost_name, provost_post
+    def _fill_template(self, doc, application, processed_authors, provost_post_dative, provost_name_dative):
+        """Fill template with data
 
-    def _fill_template(self, doc, application, processed_authors, provost_name, provost_post):
-        """Fill template with data"""
+        Args:
+            provost_post_dative: должность проректора в дательном падеже (например, "Проректору по науке и инновациям")
+            provost_name_dative: ФИО проректора в дательном падеже (например, "Башкирову Алексею Викторовичу")
+        """
         print("\n" + "=" * 80)
         print("DEBUG: Filling RID notification template")
         print("=" * 80)
@@ -411,7 +551,7 @@ class RIDNotificationGenerator:
         current_date = datetime.now().strftime('%d.%m.%Y')
         print(f"Current date: {current_date}")
 
-        # Create replacements
+        # Create replacements - ПРАВИЛЬНО используем аргументы
         replacements = {
             '{{PRODUCT_NAME}}': product_name,
             '{PRODUCT_NAME}': product_name,
@@ -421,18 +561,27 @@ class RIDNotificationGenerator:
             '{NIR}': nir_info,
             'NIR': nir_info,
 
-            '{{PROVOST}}': provost_name,
-            '{PROVOST}': provost_name,
-            'PROVOST': provost_name,
+            # Должность в дательном (первый аргумент)
+            '{{PROVOST_POST_DATIVE}}': provost_post_dative,
+            'POST': provost_post_dative,
 
-            '{{PROVOST_POST}}': provost_post,  # ТОЛЬКО должность!
-            '{PROVOST_POST}': provost_post,
-            'POST': provost_post,
+            # ФИО в дательном (второй аргумент)
+            '{{PROVOST_NAME_DATIVE}}': provost_name_dative,
+            'PROVOST': provost_name_dative,
+
+            # Полная подпись (должность + ФИО)
+            '{{PROVOST_FULL_DATIVE}}': f"{provost_post_dative} {provost_name_dative}",
+            '{PROVOST_FULL_DATIVE}': f"{provost_post_dative} {provost_name_dative}",
 
             '{{CURRENT_DATE}}': current_date,
             '{CURRENT_DATE}': current_date,
             'CURRENT_DATE': current_date,
         }
+
+        print(f"Provost data in dative case:")
+        print(f"  Post (dative): '{provost_post_dative}'")
+        print(f"  Name (dative): '{provost_name_dative}'")
+        print(f"  Full (dative): '{provost_post_dative} {provost_name_dative}'")
 
         print("\nApplying replacements...")
         self._replace_in_paragraphs(doc, replacements)

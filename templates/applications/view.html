@@ -684,6 +684,50 @@
                 </div>
             </div>
         </div>
+        <div class="card mt-4">
+            <div class="card-body">
+                <h5 class="card-title">Все документы</h5>
+                <div class="d-grid">
+                    {% if application_authors %}
+                    <a href="{{ url_for('generate_all_documents', id=application[0]) }}"
+                       class="btn btn-document mb-2 me-md-2"
+                       target="_blank">
+                        <i class="bi bi-file-text"></i>
+                        Сформировать ВСЕ документы
+                    </a>
+                    {% else %}
+                    <div class="alert alert-warning w-100">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        Для формирования документов необходимо добавить авторов в заявку.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <!-- Секция для скачивания перечня документов (только при статусе "Принят") -->
+        {% if status_id == 5 %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Перечень необходимых документов</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info mb-3">
+                    <i class="bi bi-info-circle-fill"></i>
+                    <strong>Заявка принята!</strong> Скачайте перечень документов, необходимых для регистрации программы
+                    для ЭВМ.
+                </div>
+
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('download_documents_list') }}"
+                       class="btn btn-document mb-2 me-md-2"
+                       target="_blank">
+                        <i class="bi bi-file-text"></i>
+                        Скачать перечень документов
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
 
         <!-- Экспертная комиссия -->
         <div class="card mb-4">
@@ -903,5 +947,100 @@
         adaptForMobile();
         window.addEventListener('resize', adaptForMobile);
     });
+    // Функции для работы с файлами
+function loadFiles() {
+    {% if status_id == 5 %}
+    fetch(`/api/application/{{ application[0] }}/files`)
+        .then(response => response.json())
+        .then(data => {
+            const filesList = document.getElementById('files-list');
+            if (data.files && data.files.length > 0) {
+                filesList.innerHTML = `
+                    <h6>Загруженные документы:</h6>
+                    <ul class="list-group">
+                        ${data.files.map(file => `
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="bi bi-file-earmark-text"></i>
+                                    <a href="/api/application/{{ application[0] }}/file/${file.id}" target="_blank">${file.filename}</a>
+                                    <br>
+                                    <small class="text-muted">Загружено: ${file.created_date}</small>
+                                    ${file.comment ? `<br><small>Комментарий: ${file.comment}</small>` : ''}
+                                </div>
+                                <button class="btn btn-sm btn-danger" onclick="deleteFile(${file.id})">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </li>
+                        `).join('')}
+                    </ul>
+                `;
+            } else {
+                filesList.innerHTML = '<div class="alert alert-info">Нет загруженных документов</div>';
+            }
+        })
+        .catch(error => console.error('Error loading files:', error));
+    {% endif %}
+}
+
+function uploadDocuments() {
+    const formData = new FormData();
+    const files = document.getElementById('documentFiles').files;
+    const comment = document.getElementById('comment').value;
+
+    if (files.length === 0) {
+        alert('Выберите файлы для загрузки');
+        return;
+    }
+
+    for (let i = 0; i < files.length; i++) {
+        formData.append('files[]', files[i]);
+    }
+    formData.append('comment', comment);
+
+    fetch(`/api/application/{{ application[0] }}/upload_files`, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Документы успешно загружены');
+            document.getElementById('documentFiles').value = '';
+            document.getElementById('comment').value = '';
+            loadFiles();
+        } else {
+            alert('Ошибка загрузки: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error uploading files:', error);
+        alert('Ошибка при загрузке файлов');
+    });
+}
+
+function deleteFile(fileId) {
+    if (confirm('Вы уверены, что хотите удалить этот файл?')) {
+        fetch(`/api/application/{{ application[0] }}/delete_file/${fileId}`, {
+            method: 'DELETE'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                loadFiles();
+            } else {
+                alert('Ошибка удаления: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error deleting file:', error);
+            alert('Ошибка при удалении файла');
+        });
+    }
+}
+
+// Загружаем список файлов при загрузке страницы
+document.addEventListener('DOMContentLoaded', function() {
+    loadFiles();
+});
 </script>
 {% endblock %}

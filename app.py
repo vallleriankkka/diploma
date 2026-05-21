@@ -1977,15 +1977,16 @@ def commission_edit(id):
                            available_experts=available_experts,
                            commission_roles=commission_roles)
 
+
 # ========== ГЕНЕРАЦИЯ ДОКУМЕНТОВ ==========
 @app.route('/application/<int:id>/generate_consent')
 def generate_consent(id):
-    """Генерация документов согласия для всех авторов - возвращает ZIP-архив со всеми документами"""
+    """Генерация документов согласия для всех авторов"""
     if 'user_id' not in session:
         return redirect(url_for('login'))
 
     try:
-        print(f"DEBUG: Starting all-authors consent generation for application {id}")
+        print(f"DEBUG: Starting consent generation for application {id}")
 
         # Получаем заявку
         application = application_dao.get_by_id(id)
@@ -2012,53 +2013,55 @@ def generate_consent(id):
             flash('Не удалось сгенерировать документы', 'error')
             return redirect(url_for('application_view', id=id))
 
-        # Создаем ZIP-архив в памяти
-        zip_buffer = io.BytesIO()
+        # Функция для очистки имени файла
+        def clean_filename(text):
+            if not text:
+                return ""
+            invalid_chars = '<>:"/\\|?*'
+            for char in invalid_chars:
+                text = text.replace(char, '')
+            return text.strip()
 
-        with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
-            for i, doc_buffer in enumerate(all_documents):
-                # Получаем автора для формирования имени файла
-                if i < len(authors_data):
-                    author = authors_data[i]
-                    if len(author) > 7:
-                        surname = str(author[7]).strip() if author[7] else ''
-                        name = str(author[8]).strip() if author[8] else ''
-                        patronymic = str(author[9]).strip() if author[9] else ''
+        # Получаем список имен файлов
+        doc_names = []
+        for i, doc_buffer in enumerate(all_documents):
+            if i < len(authors_data):
+                author = authors_data[i]
+                if len(author) > 7:
+                    surname = clean_filename(str(author[7]).strip() if author[7] else '')
+                    name = clean_filename(str(author[8]).strip() if author[8] else '')
 
-                        # Очищаем имя файла от недопустимых символов
-                        def clean_filename(text):
-                            if not text:
-                                return ""
-                            # Убираем недопустимые символы для Windows/Linux
-                            invalid_chars = '<>:"/\\|?*'
-                            for char in invalid_chars:
-                                text = text.replace(char, '')
-                            return text.strip()
-
-                        surname_clean = clean_filename(surname)
-                        name_clean = clean_filename(name)
-
-                        if surname_clean and name_clean:
-                            if patronymic:
-                                filename = f"sogl_na_ykaz_dan_zayavka_author_{surname_clean}_{name_clean}.docx"
-                            else:
-                                filename = f"sogl_na_ykaz_dan_zayavka_author_{surname_clean}_{name_clean}.docx"
-                        else:
-                            filename = f"sogl_na_ykaz_dan_zayavka_author_{i + 1}.docx"
+                    if surname and name:
+                        filename = f"sogl_na_ykaz_dan_{surname}_{name}.docx"
                     else:
-                        filename = f"sogl_na_ykaz_dan_zayavka_author_{i + 1}.docx"
+                        filename = f"sogl_na_ykaz_dan_author_{i + 1}.docx"
                 else:
-                    filename = f"sogl_na_ykaz_dan_zayavka_author_{i + 1}.docx"
+                    filename = f"sogl_na_ykaz_dan_author_{i + 1}.docx"
+            else:
+                filename = f"sogl_na_ykaz_dan_author_{i + 1}.docx"
+            doc_names.append(filename)
 
-                # Добавляем документ в ZIP-архив
-                zip_file.writestr(filename, doc_buffer.getvalue())
+        # Если один документ - отправляем как файл
+        if len(all_documents) == 1:
+            single_doc = all_documents[0]
+            single_doc.seek(0)
+            return send_file(
+                single_doc,
+                as_attachment=True,
+                download_name=doc_names[0],
+                mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+            )
+
+        # Если несколько документов - создаем ZIP архив
+        zip_buffer = io.BytesIO()
+        with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+            for doc_buffer, doc_name in zip(all_documents, doc_names):
+                doc_buffer.seek(0)
+                zip_file.writestr(doc_name, doc_buffer.getvalue())
 
         zip_buffer.seek(0)
-
-        # Имя для ZIP-архива
         zip_filename = f"sogl_na_ykaz_dan_zayavka_{id}.zip"
 
-        # Отправляем ZIP-архив пользователю
         return send_file(
             zip_buffer,
             as_attachment=True,
@@ -2067,14 +2070,14 @@ def generate_consent(id):
         )
 
     except Exception as e:
-        current_app.logger.error(f"Ошибка генерации ZIP с согласиями: {e}", exc_info=True)
+        current_app.logger.error(f"Ошибка генерации согласий: {e}", exc_info=True)
         flash(f'Ошибка генерации документов: {str(e)}', 'error')
         return redirect(url_for('application_view', id=id))
 
 
 @app.route('/application/<int:application_id>/generate_abstract')
 def generate_abstract_from_application(application_id):
-    """Генерация аннотации из заявки"""
+    """Генерация аннотации из заявки (всегда один документ)"""
     if 'user_id' not in session:
         return redirect(url_for('login'))
 
@@ -2086,7 +2089,7 @@ def generate_abstract_from_application(application_id):
             return redirect(url_for('application_view', id=application_id))
 
         # Получаем ID продукта из заявки
-        product_id = application[2]  # product_id находится в индексе 2
+        product_id = application[2]
 
         # Получаем данные продукта
         product_data = product_dao.get_by_id(product_id)
@@ -2094,14 +2097,8 @@ def generate_abstract_from_application(application_id):
             flash('Продукт не найден', 'error')
             return redirect(url_for('application_view', id=application_id))
 
-        # Получаем авторов с ПОДРОБНЫМИ данными (get_application_authors_detailed)
+        # Получаем авторов
         authors_data = application_dao.get_application_authors_detailed(application_id)
-
-        print(f"DEBUG: Authors data type: {type(authors_data)}")
-        print(f"DEBUG: Authors data length: {len(authors_data) if authors_data else 0}")
-        if authors_data and len(authors_data) > 0:
-            print(f"DEBUG: First author: {authors_data[0]}")
-            print(f"DEBUG: First author length: {len(authors_data[0])}")
 
         # Создаем генератор
         generator = AbstractGenerator()
@@ -2132,7 +2129,7 @@ def generate_abstract_from_application(application_id):
 
 @app.route('/application/<int:application_id>/generate_sogl')
 def generate_sogl_from_application(application_id):
-    """Генерация отдельных документов для каждого автора"""
+    """Генерация согласия на обработку персональных данных"""
     if 'user_id' not in session:
         return redirect(url_for('login'))
 
@@ -2160,52 +2157,70 @@ def generate_sogl_from_application(application_id):
             flash('Ошибка генерации согласия на обработку персональных данных', 'error')
             return redirect(url_for('application_view', id=application_id))
 
+        # Получаем детальные данные авторов для имен файлов
+        authors_data = application_dao.get_application_authors_detailed(application_id)
+
+        # Функция для очистки имени файла
+        def clean_filename(text):
+            if not text:
+                return ""
+            invalid_chars = '<>:"/\\|?*'
+            for char in invalid_chars:
+                text = text.replace(char, '')
+            return text.strip()
+
+        # Если один документ
         if len(documents) == 1:
-            # Один автор - один файл
             file_stream = io.BytesIO()
             documents[0].save(file_stream)
             file_stream.seek(0)
 
-            # Имя файла с ASCII символами
-            filename = f"sogl_{application_id}.docx"
+            # Формируем имя файла с ФИО автора
+            filename = f"sogl_na_obr_pd_{application_id}.docx"
+            if authors_data and len(authors_data) > 0:
+                author = authors_data[0]
+                if len(author) > 7:
+                    surname = clean_filename(str(author[7]).strip() if author[7] else '')
+                    name = clean_filename(str(author[8]).strip() if author[8] else '')
+                    if surname and name:
+                        filename = f"sogl_na_obr_pd_{surname}_{name}.docx"
 
-            response = Response(
-                file_stream.read(),
-                mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                headers={
-                    'Content-Disposition': f'attachment; filename="{filename}"'
-                }
+            return send_file(
+                file_stream,
+                as_attachment=True,
+                download_name=filename,
+                mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
             )
-            return response
 
-        else:
-            # Несколько авторов - ZIP архив
-            import zipfile
+        # Если несколько документов - ZIP архив
+        zip_stream = io.BytesIO()
+        with zipfile.ZipFile(zip_stream, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+            for i, doc in enumerate(documents):
+                doc_stream = io.BytesIO()
+                doc.save(doc_stream)
+                doc_stream.seek(0)
 
-            zip_stream = io.BytesIO()
-            with zipfile.ZipFile(zip_stream, 'w', zipfile.ZIP_DEFLATED) as zip_file:
-                for i, doc in enumerate(documents):
-                    # Сохраняем документ
-                    doc_stream = io.BytesIO()
-                    doc.save(doc_stream)
-                    doc_stream.seek(0)
+                # Формируем имя файла с ФИО автора
+                filename = f"sogl_na_obr_pd_author_{i + 1}.docx"
+                if authors_data and i < len(authors_data):
+                    author = authors_data[i]
+                    if len(author) > 7:
+                        surname = clean_filename(str(author[7]).strip() if author[7] else '')
+                        name = clean_filename(str(author[8]).strip() if author[8] else '')
+                        if surname and name:
+                            filename = f"sogl_na_obr_pd_{surname}_{name}.docx"
 
-                    # Имя файла с ASCII символами
-                    filename = f"sogl_{application_id}_author_{i + 1}.docx"
-                    zip_file.writestr(filename, doc_stream.read())
+                zip_file.writestr(filename, doc_stream.read())
 
-            zip_stream.seek(0)
+        zip_stream.seek(0)
+        filename = f"sogl_na_obr_pd_{application_id}.zip"
 
-            filename = f"sogl_{application_id}.zip"
-
-            response = Response(
-                zip_stream.read(),
-                mimetype='application/zip',
-                headers={
-                    'Content-Disposition': f'attachment; filename="{filename}"'
-                }
-            )
-            return response
+        return send_file(
+            zip_stream,
+            as_attachment=True,
+            download_name=filename,
+            mimetype='application/zip'
+        )
 
     except Exception as e:
         print(f"Ошибка при генерации согласия: {e}")
@@ -2217,13 +2232,12 @@ def generate_sogl_from_application(application_id):
 
 @app.route('/application/<int:application_id>/generate_conclusion')
 def generate_conclusion_from_application(application_id):
-    """Генерация заключения о возможности открытого опубликования из заявки"""
+    """Генерация заключения о возможности открытого опубликования (всегда один документ)"""
     if 'user_id' not in session:
         return redirect(url_for('login'))
 
     try:
         user_id = session['user_id']
-        print(f"DEBUG: User ID from session: {user_id}")
 
         # Получаем заявку
         application = application_dao.get_by_id(application_id)
@@ -2231,37 +2245,9 @@ def generate_conclusion_from_application(application_id):
             flash('Заявка не найдена', 'error')
             return redirect(url_for('applications_list'))
 
-        print(f"DEBUG: Application tuple: {application}")
-        print(f"DEBUG: Application length: {len(application)}")
-
-        # ВРЕМЕННО ОТКЛЮЧАЕМ ПРОВЕРКУ ДОСТУПА ДЛЯ ОТЛАДКИ
-        access_granted = True
-        print("DEBUG: Access check disabled for debugging")
-
-        if not access_granted:
-            flash('Нет доступа к этой заявке', 'error')
-            return redirect(url_for('applications_list'))
-
-        # ПОЛУЧАЕМ COMMISSION_ID - ВАРИАНТ 1: Из заявки
+        # Поиск commission_id
         commission_id = None
-        print(f"DEBUG: Checking all application fields for commission_id:")
-
-        # Проверяем разные возможные индексы
-        indices_to_check = [12, 13, 14, 15, 16, 17]
-        for idx in indices_to_check:
-            if len(application) > idx:
-                field = application[idx]
-                print(f"  Index {idx}: {field} (type: {type(field).__name__})")
-                if field and isinstance(field, (int, float, str)):
-                    if str(field).isdigit():
-                        commission_id = int(field)
-                        print(f"  ✓ Found possible commission_id at index {idx}: {commission_id}")
-                        # Не прерываем, чтобы увидеть все возможные места
-
-        # ВАРИАНТ 2: Проверить прямо в БД
-        print(f"DEBUG: Checking commission_id directly in database...")
         with db.get_cursor() as cur:
-            # Сначала проверим структуру таблицы
             cur.execute("""
                 SELECT column_name 
                 FROM information_schema.columns 
@@ -2269,120 +2255,65 @@ def generate_conclusion_from_application(application_id):
                 ORDER BY ordinal_position
             """)
             columns = [col[0] for col in cur.fetchall()]
-            print(f"DEBUG: Application table columns: {columns}")
 
-            # Ищем столбец с commission
             for col in columns:
                 if 'commission' in col.lower():
                     cur.execute(f"SELECT {col} FROM application WHERE id = %s", (application_id,))
                     result = cur.fetchone()
-                    if result:
-                        db_commission_id = result[0]
-                        print(f"DEBUG: Found commission_id in column '{col}': {db_commission_id}")
-                        if db_commission_id and commission_id != db_commission_id:
-                            commission_id = db_commission_id
-                            print(f"  ✓ Using commission_id from DB column '{col}': {commission_id}")
+                    if result and result[0]:
+                        commission_id = result[0]
+                        break
 
         if not commission_id:
-            print(f"DEBUG: No commission_id found, trying default commission...")
-            # Можно попробовать получить первую комиссию пользователя
             user_commissions = commission_dao.get_all(user_id)
             if user_commissions and len(user_commissions) > 0:
                 commission_id = user_commissions[0][0]
-                print(f"DEBUG: Using first user commission: {commission_id}")
-
-        print(f"DEBUG: Final commission_id to use: {commission_id}")
 
         commission_experts = None
-
         if commission_id:
-            # Получаем экспертов комиссии
-            print(f"DEBUG: Getting experts for commission_id: {commission_id}")
             commission_experts = commission_dao.get_commission_experts(commission_id)
-            print(f"DEBUG: Commission experts count: {len(commission_experts) if commission_experts else 0}")
 
-            if commission_experts and len(commission_experts) > 0:
-                print(f"DEBUG: Commission experts data sample: {commission_experts[0]}")
-                print(f"DEBUG: Expert tuple length: {len(commission_experts[0])}")
-
-                # Проверяем, что это полные данные (должно быть минимум 6 полей)
-                if len(commission_experts[0]) >= 6:
-                    print(f"DEBUG: Commission experts have full data structure")
-                    # Выводим структуру первого эксперта
-                    for i, field in enumerate(commission_experts[0]):
-                        print(f"DEBUG: Expert[0][{i}]: {field}")
-                else:
-                    print(f"DEBUG: WARNING: Commission experts have insufficient data")
-                    print(f"DEBUG: Trying to get detailed data...")
-
-                    # Пробуем получить подробные данные
-                    with db.get_cursor() as cur:
-                        cur.execute("""
-                            SELECT 
-                                e.id, 
-                                e.surname, 
-                                e.name, 
-                                e.patronymic, 
-                                e.position,
-                                cr.name as role_name
-                            FROM commission_experts ce
-                            JOIN expert e ON ce.expert_id = e.id
-                            JOIN commission_roles cr ON ce.role_id = cr.id
-                            WHERE ce.commission_id = %s
-                            ORDER BY 
-                                CASE cr.name
-                                    WHEN 'председатель' THEN 1
-                                    WHEN 'эксперт' THEN 2
-                                    WHEN 'секретарь' THEN 3
-                                    ELSE 4
-                                END,
-                                e.surname, e.name, e.patronymic
-                        """, (commission_id,))
-                        detailed_experts = cur.fetchall()
-                        if detailed_experts and len(detailed_experts) > 0:
-                            commission_experts = detailed_experts
-                            print(f"DEBUG: Got detailed experts: {len(commission_experts)} records")
-                            print(f"DEBUG: First detailed expert: {commission_experts[0]}")
-            else:
-                print(f"DEBUG: No experts found in commission {commission_id}")
-
-                # Покажем, какие эксперты вообще есть в системе
+            if commission_experts and len(commission_experts) > 0 and len(commission_experts[0]) < 6:
                 with db.get_cursor() as cur:
-                    cur.execute("SELECT COUNT(*) FROM expert WHERE user_id = %s", (user_id,))
-                    expert_count = cur.fetchone()[0]
-                    print(f"DEBUG: User has {expert_count} experts in system")
+                    cur.execute("""
+                        SELECT 
+                            e.id, e.surname, e.name, e.patronymic, e.position, cr.name as role_name
+                        FROM commission_experts ce
+                        JOIN expert e ON ce.expert_id = e.id
+                        JOIN commission_roles cr ON ce.role_id = cr.id
+                        WHERE ce.commission_id = %s
+                        ORDER BY 
+                            CASE cr.name
+                                WHEN 'председатель' THEN 1
+                                WHEN 'эксперт' THEN 2
+                                WHEN 'секретарь' THEN 3
+                                ELSE 4
+                            END,
+                            e.surname, e.name, e.patronymic
+                    """, (commission_id,))
+                    detailed_experts = cur.fetchall()
+                    if detailed_experts:
+                        commission_experts = detailed_experts
 
-                    cur.execute("SELECT id, surname, name, patronymic FROM expert WHERE user_id = %s LIMIT 5",
-                                (user_id,))
-                    sample_experts = cur.fetchall()
-                    print(f"DEBUG: Sample experts: {sample_experts}")
-        else:
-            print("DEBUG: No commission ID determined")
-
-        # Получаем текущие настройки
+        # Получаем настройки
         settings_data = setting_dao.get_current()
-        print(f"DEBUG: Settings data: {settings_data}")
 
-        # Получаем авторов заявки
+        # Получаем авторов
         authors_data = application_dao.get_application_authors_detailed(application_id)
-        print(f"DEBUG: Authors data count: {len(authors_data) if authors_data else 0}")
 
-        # Создаем генератор заключения
+        # Создаем генератор
         generator = ConclusionGenerator()
 
         # Если нет данных комиссии, создаем тестовые данные
         if not commission_experts:
-            print("DEBUG: No commission experts, using TEST data")
-            # Тестовые данные для демонстрации
             test_experts = [
-                (1, 'Иванов', 'Иван', 'Иванович', 'профессор кафедры информатики', 'председатель'),
+                (1, 'Иванов', 'Иван', 'Иванович', 'профессор', 'председатель'),
                 (2, 'Петрова', 'Мария', 'Сергеевна', 'доцент', 'эксперт'),
                 (3, 'Сидоров', 'Алексей', 'Петрович', 'старший преподаватель', 'эксперт')
             ]
             commission_experts = test_experts
-            print(f"DEBUG: Using test experts data")
 
-        # Генерируем документ с передачей данных авторов
+        # Генерируем документ
         doc = generator.generate(
             application=application,
             commission_data=commission_experts,
@@ -2396,19 +2327,17 @@ def generate_conclusion_from_application(application_id):
             file_stream.seek(0)
 
             # Получаем название продукта для имени файла
-            product_name = generator._extract_product_name(application)
-            safe_product_name = "".join(c for c in product_name if c.isalnum() or c in (' ', '-', '_')).rstrip()
+            product_name = ""
+            if len(application) > 8 and application[8]:
+                product_name = str(application[8]).strip()
 
+            safe_product_name = "".join(c for c in product_name if c.isalnum() or c in (' ', '-', '_')).rstrip()
             if not safe_product_name:
                 safe_product_name = f"zayavka_{application_id}"
-
-            # Ограничиваем длину имени файла
             if len(safe_product_name) > 50:
                 safe_product_name = safe_product_name[:50]
 
             filename = f"zakl_o_vozm_otkr_opybl_{safe_product_name}.docx"
-
-            print(f"DEBUG: Generated filename: {filename}")
 
             return send_file(
                 file_stream,
@@ -2417,7 +2346,7 @@ def generate_conclusion_from_application(application_id):
                 mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
             )
         else:
-            flash('Не удалось сгенерировать документ заключения о возможности открытого опубликования', 'error')
+            flash('Не удалось сгенерировать документ заключения', 'error')
             return redirect(url_for('application_view', id=application_id))
 
     except Exception as e:
@@ -2428,7 +2357,7 @@ def generate_conclusion_from_application(application_id):
 
 @app.route('/application/<int:application_id>/generate_distribution_agreement')
 def generate_distribution_agreement(application_id):
-    """Генерация соглашения о распределении вознаграждения между авторами"""
+    """Генерация соглашения о распределении вознаграждения (всегда один документ)"""
     if 'user_id' not in session:
         return redirect(url_for('login'))
 
@@ -2439,56 +2368,44 @@ def generate_distribution_agreement(application_id):
             flash('Заявка не найдена', 'error')
             return redirect(url_for('application_view', id=application_id))
 
-        # Получаем авторов заявки
+        # Получаем авторов
         authors_data = application_dao.get_application_authors_detailed(application_id)
         if not authors_data:
             flash('У заявки нет авторов', 'error')
             return redirect(url_for('application_view', id=application_id))
 
-        # Создаем генератор соглашения
+        # Создаем генератор
         generator = DistributionAgreementGenerator(template_name='distributionagreement_generator.docx')
-
-        # Генерируем документ
         doc = generator.generate(application, authors_data)
 
         if doc:
-            # Сохраняем в поток
             file_stream = io.BytesIO()
             doc.save(file_stream)
             file_stream.seek(0)
 
-            # Простое ASCII имя файла
             filename = f"sogl_o_raspr_vozn_{application_id}.docx"
 
-            # Используем Response с ASCII именем файла
-            response = Response(
-                file_stream.read(),
-                mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                headers={
-                    'Content-Disposition': f'attachment; filename="{filename}"'
-                }
+            return send_file(
+                file_stream,
+                as_attachment=True,
+                download_name=filename,
+                mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
             )
-
-            return response
-
         else:
             flash('Не удалось сгенерировать документ', 'error')
             return redirect(url_for('application_view', id=application_id))
 
     except Exception as e:
-        # Более безопасный вывод ошибки
-        error_msg = str(e)
-        print(f"ERROR in generate_distribution_agreement: {error_msg}")
+        print(f"ERROR in generate_distribution_agreement: {e}")
         import traceback
         traceback.print_exc()
-
-        flash('Произошла ошибка при генерации документа. Обратитесь к администратору.', 'error')
+        flash('Произошла ошибка при генерации документа', 'error')
         return redirect(url_for('application_view', id=application_id))
 
 
 @app.route('/application/<int:application_id>/generate_rid_notification')
 def generate_rid_notification(application_id):
-    """Генерация уведомления о создании РИД (простая версия)"""
+    """Генерация уведомления о создании РИД (всегда один документ)"""
     if 'user_id' not in session:
         return redirect(url_for('login'))
 
@@ -2499,15 +2416,8 @@ def generate_rid_notification(application_id):
             flash('Заявка не найдена', 'error')
             return redirect(url_for('application_view', id=application_id))
 
-        # Получаем авторов заявки
-        authors_data = application_dao.get_application_authors_detailed(application_id)
-        if not authors_data:
-            flash('У заявки нет авторов', 'error')
-            return redirect(url_for('application_view', id=application_id))
-
-        # Создаем генератор уведомления
+        # Создаем генератор
         generator = RIDNotificationGenerator(template_name='notification_template.docx')
-
         if hasattr(generator, 'set_daos'):
             generator.set_daos(setting_dao, application_dao)
 
@@ -2515,42 +2425,33 @@ def generate_rid_notification(application_id):
         doc = generator.generate(application_id, session['user_id'])
 
         if doc:
-            # Сохраняем в поток
             file_stream = io.BytesIO()
             doc.save(file_stream)
             file_stream.seek(0)
 
-            # ПРОСТОЕ ASCII ИМЯ ФАЙЛА - чтобы избежать проблем с кодировкой
             filename = f"yved_rid_{application_id}.docx"
 
-            # Используем Response с ASCII именем файла
-            response = Response(
-                file_stream.read(),
-                mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                headers={
-                    'Content-Disposition': f'attachment; filename="{filename}"'
-                }
+            return send_file(
+                file_stream,
+                as_attachment=True,
+                download_name=filename,
+                mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
             )
-
-            return response
-
         else:
             flash('Не удалось сгенерировать уведомление', 'error')
             return redirect(url_for('application_view', id=application_id))
 
     except Exception as e:
-        error_msg = str(e)
-        print(f"ERROR in generate_rid_notification: {error_msg}")
+        print(f"ERROR in generate_rid_notification: {e}")
         import traceback
         traceback.print_exc()
-
-        flash('Произошла ошибка при генерации уведомления. Обратитесь к администратору.', 'error')
+        flash('Произошла ошибка при генерации уведомления', 'error')
         return redirect(url_for('application_view', id=application_id))
 
 
 @app.route('/application/<int:application_id>/generate_employee_assignment_agreements')
 def generate_assignment_agreement(application_id):
-    """Генерация договоров об отчуждении исключительного права только для сотрудников"""
+    """Генерация договоров об отчуждении исключительного права (для сотрудников)"""
     try:
         # Получаем заявку
         application = application_dao.get_by_id(application_id)
@@ -2558,7 +2459,7 @@ def generate_assignment_agreement(application_id):
             flash('Заявка не найдена', 'error')
             return redirect(f'/application/{application_id}')
 
-        # Получаем авторов заявки
+        # Получаем авторов
         authors_data = application_dao.get_application_authors_detailed(application_id)
         if not authors_data:
             flash('У заявки нет авторов', 'error')
@@ -2566,26 +2467,43 @@ def generate_assignment_agreement(application_id):
 
         # Создаем генератор
         generator = AssignmentAgreementGenerator(template_name='assignment_agreement_template.docx')
-
-        # Передаем DAO объекты генератору
         generator.set_daos(setting_dao, author_dao)
 
-        # Генерируем договоры только для сотрудников
+        # Генерируем договоры
         doc_buffers = generator.generate_for_all_authors(application, authors_data)
 
         if not doc_buffers:
             flash('Не удалось сгенерировать договоры', 'error')
             return redirect(f'/application/{application_id}')
 
+        # Функция для очистки имени файла
+        def clean_filename(text):
+            if not text:
+                return ""
+            invalid_chars = '<>:"/\\|?*'
+            for char in invalid_chars:
+                text = text.replace(char, '')
+            return text.strip()
+
+        # Получаем название продукта
+        product_name = "product"
+        if len(application) > 8 and application[8]:
+            product_name = clean_filename(str(application[8]).strip()[:50])
+
+        # Если один договор - отправляем как файл
         if len(doc_buffers) == 1:
-            # Если только один сотрудник
             doc_buffer = doc_buffers[0]
+            doc_buffer.seek(0)
 
-            product_name = "product"
-            if len(application) > 8 and application[8]:
-                product_name = str(application[8]).strip()[:50]
-
-            filename = f"dogovor_ob_otch_iskl_prava_{product_name}_{application_id}.docx"
+            # Формируем имя с ФИО автора
+            filename = f"dogovor_otch_iskl_prava_{product_name}.docx"
+            if authors_data and len(authors_data) > 0:
+                author = authors_data[0]
+                if len(author) > 7:
+                    surname = clean_filename(str(author[7]).strip() if author[7] else '')
+                    name = clean_filename(str(author[8]).strip() if author[8] else '')
+                    if surname and name:
+                        filename = f"dogovor_otch_iskl_prava_{surname}_{name}.docx"
 
             return send_file(
                 doc_buffer,
@@ -2593,44 +2511,229 @@ def generate_assignment_agreement(application_id):
                 as_attachment=True,
                 download_name=filename
             )
+
+        # Если несколько договоров - ZIP архив
+        zip_buffer = BytesIO()
+        with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+            for i, doc_buffer in enumerate(doc_buffers):
+                doc_buffer.seek(0)
+
+                # Формируем имя файла с ФИО автора
+                filename = f"dogovor_otch_iskl_prava_author_{i + 1}.docx"
+                if authors_data and i < len(authors_data):
+                    author = authors_data[i]
+                    if len(author) > 7:
+                        surname = clean_filename(str(author[7]).strip() if author[7] else '')
+                        name = clean_filename(str(author[8]).strip() if author[8] else '')
+                        if surname and name:
+                            filename = f"dogovor_otch_iskl_prava_{surname}_{name}.docx"
+
+                zip_file.writestr(filename, doc_buffer.getvalue())
+
+        zip_buffer.seek(0)
+        zip_filename = f"dogovor_otch_iskl_prava_{product_name}.zip"
+
+        return send_file(
+            zip_buffer,
+            mimetype='application/zip',
+            as_attachment=True,
+            download_name=zip_filename
+        )
+
+    except Exception as e:
+        print(f"ERROR in generate_assignment_agreement: {e}")
+        import traceback
+        traceback.print_exc()
+        flash('Произошла ошибка при генерации договоров', 'error')
+        return redirect(f'/application/{application_id}')
+
+
+# ========== ГЕНЕРАЦИЯ ВСЕХ ДОКУМЕНТОВ ОДНИМ АРХИВОМ ==========
+@app.route('/application/<int:id>/generate_all_documents')
+@login_required
+def generate_all_documents(id):
+    """Генерация всех документов для заявки одним архивом или файлом"""
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    try:
+        # Получаем заявку
+        application = application_dao.get_by_id(id)
+        if not application:
+            flash('Заявка не найдена', 'error')
+            return redirect(url_for('application_view', id=id))
+
+        # Получаем авторов
+        authors_data = application_dao.get_application_authors_detailed(id)
+        if not authors_data:
+            flash('В заявке нет авторов', 'error')
+            return redirect(url_for('application_view', id=id))
+
+        # Получаем настройки
+        settings_data = setting_dao.get_current()
+
+        # Получаем данные продукта
+        product_id = application[2]
+        product_data = product_dao.get_by_id(product_id)
+
+        # Создаем буферы для всех документов
+        all_documents = []
+        doc_names = []
+
+        # 1. Согласие на указание сведений (для каждого автора отдельно)
+        consent_gen = ConsentGenerator()
+        consent_docs = consent_gen.generate_all_authors(application, authors_data, settings_data)
+        for i, doc in enumerate(consent_docs):
+            author = authors_data[i] if i < len(authors_data) else None
+            if author and len(author) > 7:
+                filename = f"1_sogl_na_ykaz_dan_{author[7]}_{author[8]}.docx"
+            else:
+                filename = f"1_sogl_na_ykaz_dan_author_{i + 1}.docx"
+            all_documents.append(doc)
+            doc_names.append(filename)
+
+        # 2. Согласие на обработку персональных данных (для каждого автора отдельно)
+        sogl_gen = SoglGenerator()
+        sogl_docs = sogl_gen.generate_for_each_author(application,
+                                                      application_dao.get_application_authors(id), author_dao)
+        for i, doc in enumerate(sogl_docs):
+            author = authors_data[i] if i < len(authors_data) else None
+            if author and len(author) > 7:
+                filename = f"2_sogl_na_obr_pd_{author[7]}_{author[8]}.docx"
+            else:
+                filename = f"2_sogl_na_obr_pd_author_{i + 1}.docx"
+            # Сохраняем doc в буфер
+            doc_buffer = io.BytesIO()
+            doc.save(doc_buffer)
+            doc_buffer.seek(0)
+            all_documents.append(doc_buffer)
+            doc_names.append(filename)
+
+        # 3. Реферат
+        abstract_gen = AbstractGenerator()
+        abstract_doc = abstract_gen.generate(product_data, authors_data)
+        if abstract_doc:
+            abstract_buffer = io.BytesIO()
+            abstract_doc.save(abstract_buffer)
+            abstract_buffer.seek(0)
+            all_documents.append(abstract_buffer)
+            doc_names.append("3_referat.docx")
+
+        # 4. Уведомление о создании РИД
+        rid_gen = RIDNotificationGenerator(template_name='notification_template.docx')
+        if hasattr(rid_gen, 'set_daos'):
+            rid_gen.set_daos(setting_dao, application_dao)
+        rid_doc = rid_gen.generate(id, session['user_id'])
+        if rid_doc:
+            rid_buffer = io.BytesIO()
+            rid_doc.save(rid_buffer)
+            rid_buffer.seek(0)
+            all_documents.append(rid_buffer)
+            doc_names.append("4_yved_rid.docx")
+
+        # 5. Соглашение о распределении вознаграждения
+        dist_gen = DistributionAgreementGenerator(template_name='distributionagreement_generator.docx')
+        dist_doc = dist_gen.generate(application, authors_data)
+        if dist_doc:
+            dist_buffer = io.BytesIO()
+            dist_doc.save(dist_buffer)
+            dist_buffer.seek(0)
+            all_documents.append(dist_buffer)
+            doc_names.append("5_sogl_o_raspr_vozn.docx")
+
+        # 6. Заключение о возможности открытого опубликования
+        conclusion_gen = ConclusionGenerator()
+        commission_experts = None
+        commission_id = None
+        # Получаем commission_id из заявки
+        for idx in [12, 13, 14, 15, 16, 17]:
+            if len(application) > idx and application[idx]:
+                if str(application[idx]).isdigit():
+                    commission_id = int(application[idx])
+                    break
+        if commission_id:
+            commission_experts = commission_dao.get_commission_experts(commission_id)
+        conclusion_doc = conclusion_gen.generate(application, commission_experts, settings_data, authors_data)
+        if conclusion_doc:
+            conclusion_buffer = io.BytesIO()
+            conclusion_doc.save(conclusion_buffer)
+            conclusion_buffer.seek(0)
+            all_documents.append(conclusion_buffer)
+            doc_names.append("6_zakl_o_vozm_otkr_opybl.docx")
+
+        # 7. Договор об отчуждении (только для сотрудников)
+        assign_gen = AssignmentAgreementGenerator(template_name='assignment_agreement_template.docx')
+        assign_gen.set_daos(setting_dao, author_dao)
+        assign_buffers = assign_gen.generate_for_all_authors(application, authors_data)
+        for i, buffer in enumerate(assign_buffers):
+            author = authors_data[i] if i < len(authors_data) else None
+            if author and len(author) > 7:
+                filename = f"7_dog_otch_iskl_prava_{author[7]}_{author[8]}.docx"
+            else:
+                filename = f"7_dog_otch_iskl_prava_author_{i + 1}.docx"
+            all_documents.append(buffer)
+            doc_names.append(filename)
+
+        if not all_documents:
+            flash('Не удалось сгенерировать ни одного документа', 'error')
+            return redirect(url_for('application_view', id=id))
+
+        # Проверяем количество документов
+        if len(all_documents) == 1:
+            # Один документ - отправляем как файл
+            single_doc = all_documents[0]
+            single_doc.seek(0)
+            return send_file(
+                single_doc,
+                as_attachment=True,
+                download_name=doc_names[0],
+                mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+            )
         else:
-            # Если несколько сотрудников
-            zip_buffer = BytesIO()
+            # Несколько документов - создаем ZIP архив
+            zip_buffer = io.BytesIO()
             with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
-                for i, doc_buffer in enumerate(doc_buffers):
-                    author_name = "author"
-
-                    product_name = "product"
-                    if len(application) > 8 and application[8]:
-                        product_name = str(application[8]).strip()[:30]
-
-                    filename = f"dogovor_ob_otch_iskl_prava_author_{i + 1}.docx"
-                    zip_file.writestr(filename, doc_buffer.getvalue())
+                for doc_buffer, doc_name in zip(all_documents, doc_names):
+                    doc_buffer.seek(0)
+                    zip_file.writestr(doc_name, doc_buffer.getvalue())
 
             zip_buffer.seek(0)
 
-            product_name_short = "product"
+            # Имя архива
+            product_name = ""
             if len(application) > 8 and application[8]:
-                product_name_short = str(application[8]).strip()[:30]
+                product_name = application[8][:50].replace(' ', '_')
+            else:
+                product_name = f"zayavka_{id}"
 
-            zip_filename = f"dogovor_ob_otch_iskl_prava_{product_name_short}.zip"
+            zip_filename = f"vse_dokumenty_{product_name}.zip"
 
             return send_file(
                 zip_buffer,
-                mimetype='application/zip',
                 as_attachment=True,
-                download_name=zip_filename
+                download_name=zip_filename,
+                mimetype='application/zip'
             )
 
     except Exception as e:
-        error_msg = str(e)
-        print(f"ERROR in generate_employee_assignment_agreements: {error_msg}")
-        import traceback
-        traceback.print_exc()
+        current_app.logger.error(f"Ошибка генерации всех документов: {e}", exc_info=True)
+        flash(f'Ошибка генерации документов: {str(e)}', 'error')
+        return redirect(url_for('application_view', id=id))
 
-        flash('Произошла ошибка при генерации договоров. Обратитесь к администратору', 'error')
-        return redirect(f'/application/{application_id}')
 
+@app.route('/download/documents_list')
+@login_required
+def download_documents_list():
+    # Путь к файлу
+    file_path = os.path.join('static', 'docs', 'Perechen-neobkhodimykh-dokumentov.docx')
+
+    # Просто отправляем файл на скачивание
+    return send_file(
+        file_path,
+        as_attachment=True,  # как вложение (откроется диалог сохранения)
+        download_name='Perechen-neobkhodimykh-dokumentov.docx',  # имя файла при скачивании
+        mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    )
 
 # ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
 def get_departments():
