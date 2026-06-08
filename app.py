@@ -2111,12 +2111,18 @@ def generate_abstract_from_application(application_id):
 
             filename = f"referat_zayavka_{application_id}.docx"
 
-            return send_file(
-                file_stream,
-                as_attachment=True,
-                download_name=filename,
-                mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+            # ИЗМЕНЕНИЕ ЗДЕСЬ - используем Response вместо send_file
+            from flask import Response
+            response = Response(
+                file_stream.getvalue(),
+                mimetype='application/octet-stream',
+                headers={
+                    'Content-Disposition': f'attachment; filename="{filename}"',
+                    'Content-Type': 'application/octet-stream',
+                    'X-Content-Type-Options': 'nosniff'
+                }
             )
+            return response
         else:
             flash('Не удалось сгенерировать документ', 'error')
             return redirect(url_for('application_view', id=application_id))
@@ -2725,7 +2731,7 @@ def generate_all_documents(id):
 @login_required
 def download_documents_list():
     # Путь к файлу
-    file_path = os.path.join('static', 'docs', 'Perechen-neobkhodimykh-dokumentov.docx')
+    file_path = os.path.join('templates', 'documents', 'Perechen-neobkhodimykh-dokumentov.docx')
 
     # Просто отправляем файл на скачивание
     return send_file(
@@ -2797,3 +2803,4 @@ def get_experts():
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
+

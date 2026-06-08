@@ -477,6 +477,7 @@
 </style>
 
 <div class="row">
+    <base target="_self">
     <div class="col-12 col-md-10 mx-auto">
         <!-- Заголовок с статусом -->
         <div class="mb-4">
@@ -631,6 +632,7 @@
                         <div class="d-grid gap-2 d-md-flex flex-wrap">
                             {% if application_authors %}
                             <a href="{{ url_for('generate_consent', id=application[0]) }}"
+
                                class="btn btn-document mb-2 me-md-2">
                                 <i class="bi bi-file-earmark-text"></i> Сформировать согласие на указание сведений
                             </a>
@@ -647,28 +649,24 @@
                                 данных
                             </a>
                             <a href="{{ url_for('generate_abstract_from_application', application_id=application[0]) }}"
-                               class="btn btn-document mb-2 me-md-2"
-                               target="_blank">
+                               class="btn btn-document mb-2 me-md-2">
                                 <i class="bi bi-file-text"></i> Сформировать реферат
                             </a>
 
                             <a href="{{ url_for('generate_conclusion_from_application', application_id=application[0]) }}"
-                               class="btn btn-document mb-2 me-md-2"
-                               target="_blank">
+                               class="btn btn-document mb-2 me-md-2">
                                 <i class="bi bi-file-text"></i> Сформировать заключение о возможности открытого
                                 опубликования
                             </a>
 
                             <a href="{{ url_for('generate_distribution_agreement', application_id=application[0]) }}"
-                               class="btn btn-document mb-2 me-md-2"
-                               target="_blank">
+                               class="btn btn-document mb-2 me-md-2">
                                 <i class="bi bi-file-text"></i> Сформировать соглашение о распределении вознаграждения
                                 между авторами
                             </a>
 
                             <a href="{{ url_for('generate_rid_notification', application_id=application[0]) }}"
-                               class="btn btn-document mb-2 me-md-2"
-                               target="_blank">
+                               class="btn btn-document mb-2 me-md-2">
                                 <i class="bi bi-file-text"></i> Сформировать уведомление о создании результата
                                 интеллектуальной
                                 деятельности
@@ -690,8 +688,7 @@
                 <div class="d-grid">
                     {% if application_authors %}
                     <a href="{{ url_for('generate_all_documents', id=application[0]) }}"
-                       class="btn btn-document mb-2 me-md-2"
-                       target="_blank">
+                       class="btn btn-document mb-2 me-md-2">
                         <i class="bi bi-file-text"></i>
                         Сформировать ВСЕ документы
                     </a>
@@ -719,8 +716,7 @@
 
                 <div class="d-grid gap-2">
                     <a href="{{ url_for('download_documents_list') }}"
-                       class="btn btn-document mb-2 me-md-2"
-                       target="_blank">
+                       class="btn btn-document mb-2 me-md-2">
                         <i class="bi bi-file-text"></i>
                         Скачать перечень документов
                     </a>
@@ -962,7 +958,7 @@ function loadFiles() {
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 <div>
                                     <i class="bi bi-file-earmark-text"></i>
-                                    <a href="/api/application/{{ application[0] }}/file/${file.id}" target="_blank">${file.filename}</a>
+                                    <a href="/api/application/{{ application[0] }}/file/${file.id}" >${file.filename}</a>
                                     <br>
                                     <small class="text-muted">Загружено: ${file.created_date}</small>
                                     ${file.comment ? `<br><small>Комментарий: ${file.comment}</small>` : ''}
@@ -1041,6 +1037,48 @@ function deleteFile(fileId) {
 // Загружаем список файлов при загрузке страницы
 document.addEventListener('DOMContentLoaded', function() {
     loadFiles();
+});
+    // Принудительное открытие всех ссылок в том же окне
+document.querySelectorAll('a[href*="generate_"], a[href*="download"]').forEach(function(link) {
+    link.setAttribute('target', '_self');
+    link.removeAttribute('target');
+    link.addEventListener('click', function(e) {
+        // Дополнительная проверка
+        this.setAttribute('target', '_self');
+    });
+});
+    // ПЕРЕХВАТ ВСЕХ ССЫЛОК НА СКАЧИВАНИЕ
+document.addEventListener('DOMContentLoaded', function() {
+    // Находим все ссылки на генерацию документов
+    const downloadLinks = document.querySelectorAll('a[href*="generate_"], a[href*="download"]');
+
+    downloadLinks.forEach(function(link) {
+        // Убираем любые target атрибуты
+        link.removeAttribute('target');
+        link.setAttribute('target', '_self');
+
+        // Перехватываем клик
+        link.addEventListener('click', function(e) {
+            // Принудительно устанавливаем target
+            this.setAttribute('target', '_self');
+
+            // Для ZIP файлов - особенно важно
+            if (this.href.includes('generate_all_documents') || this.href.includes('download')) {
+                e.preventDefault();
+                // Используем window.location вместо прямого перехода
+                window.location.href = this.href;
+                return false;
+            }
+        });
+    });
+});
+
+// Перехват всех форм и ссылок
+window.addEventListener('beforeunload', function() {
+    // Очищаем target перед уходом
+    document.querySelectorAll('a').forEach(function(link) {
+        link.target = '_self';
+    });
 });
 </script>
 {% endblock %}
